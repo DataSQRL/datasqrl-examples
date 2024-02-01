@@ -45,26 +45,6 @@ services:
         jobmanager.rpc.address: flink-jobmanager
         taskmanager.numberOfTaskSlots: 1
 
-  # kafka:
-  #   image: docker.io/bitnami/kafka:3.4.0-debian-11-r38
-  #   restart: always
-  #   ports:
-  #     - "9092:9092"
-  #     - "9094:9094"
-  #   environment:
-  #     - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-  #     - ALLOW_PLAINTEXT_LISTENER=yes
-  #     - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-  #     - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
-  #     - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-  # kafka-setup:
-  #   image: docker.io/bitnami/kafka:3.4.0-debian-11-r38
-  #   volumes:
-  #     - './create-topics.sh:/create-topics.sh'
-  #   command: [ '/bin/bash', '/create-topics.sh' ]
-  #   depends_on:
-  #     - kafka
-
   kafka:
     command:
       - redpanda
@@ -104,29 +84,6 @@ services:
     command: [ '/bin/bash', '/create-topics.sh' ]
     depends_on:
       - kafka
-  # console:
-  #   container_name: redpanda-console
-  #   image: docker.redpanda.com/redpandadata/console:v2.4.0
-  #   networks:
-  #     - redpanda_network
-  #   entrypoint: /bin/sh
-  #   command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
-  #   environment:
-  #     CONFIG_FILEPATH: /tmp/config.yml
-  #     CONSOLE_CONFIG_FILE: |
-  #       kafka:
-  #         brokers: ["redpanda-0:9092"]
-  #         schemaRegistry:
-  #           enabled: true
-  #           urls: ["http://redpanda-0:8081"]
-  #       redpanda:
-  #         adminApi:
-  #           enabled: true
-  #           urls: ["http://redpanda-0:9644"]
-  #   ports:
-  #     - 8080:8080
-  #   depends_on:
-  #     - redpanda-0
 
   server:
     image: eclipse-temurin:11
