@@ -1,2 +1,3 @@
-# datasqrl-examples
-Real world use cases and example implementations using DataSQRL
+# DataSQRL Use Cases and Examples
+
+
