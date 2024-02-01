@@ -1,10 +1,16 @@
 type Query {
     Recommendation(url: String!, limit: Int! = 10): [Recommendation!]
+    SimilarContent(userid: String!): [SimilarContent!]
 }
 
 type Recommendation {
     recommendation: String!
     frequency: Int!
+}
+
+type SimilarContent {
+    url: String!
+    similarity: Float!
 }
 
 type Mutation{

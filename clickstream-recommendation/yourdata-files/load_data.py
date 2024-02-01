@@ -32,4 +32,4 @@ if __name__ == "__main__":
     parser.add_argument("--msg", help="Number of messages per second", type=int, default=1000)
 
     args = parser.parse_args()
-    publish_messages(args.file_name, args.broker_ip, args.topic_name, args.messages_per_second)
+    publish_messages(args.file_name, args.broker_ip, args.topic_name, args.msg)
