@@ -1,0 +1,32 @@
+type Query {
+    Recommendation(url: String!, limit: Int! = 10): [Recommendation!]
+    SimilarContent(userid: String!): [SimilarContent!]
+    UserInterest(limit: Int! = 10): [UserInterest]
+}
+
+type Recommendation {
+    recommendation: String!
+    frequency: Int!
+}
+
+type UserInterest {
+    userid: String!
+}
+
+type SimilarContent {
+    url: String!
+    similarity: Float!
+}
+
+type Mutation{
+    Clickstream(click: ClickEvent!): ClickResponse!
+}
+
+input ClickEvent {
+    userid: String!
+    url: String!
+}
+
+type ClickResponse {
+    _source_time: String!
+}
