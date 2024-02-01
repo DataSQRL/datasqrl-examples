@@ -101,9 +101,9 @@ Then execute the following steps:
 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server kafka:9092 --topic clickstream --partitions 1 --replication-factor 1
 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server kafka:9092 --topic content --partitions 1 --replication-factor 1
 ```
-4. Start with `docker compose up`
+4. Start with `docker compose up`. This stands up the entire data pipeline with Redpanda, Flink, Postgres, and API server. It takes a few minutes for all the components to boot up.
 5. Once everything is started up, open another terminal window to add data to Kafka using the `load_data.py` script in the `yourdata-files` directory. This requires you have `kafka-python` installed via `pip3 install kafka-python`.
-7. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`. Wait until it finishes (we need all the content in there before we can click on it.)
+7. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`. Wait until it finishes which takes about a minute (we need all the content in there before we can click on it). Check the Flink Dashboard running at `http://localhost:8081/` to see the progress of consuming the content. Since computing the vector embeddings is quite resource intensive, you will likely see one task turn red (which indicates it's busy). Wait until it's blue again. 
 8. Load the clickstream data:   `python3 load_data.py clickstream.json.gz localhost:9094 clickstream --msg 100`. This loads 100 clicks per second. Wait a few seconds for some data to load. However, you don't have to wait for all of it to load. After a second or two, data should be processed and queryable. Let this run in the background until it finishes (which takes about 4 minutes).
 
 Open GraphiQL and query the data:
