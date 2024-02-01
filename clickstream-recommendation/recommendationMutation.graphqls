@@ -1,0 +1,21 @@
+type Query {
+    Recommendation(url: String!, limit: Int! = 10): [Recommendation!]
+}
+
+type Recommendation {
+    recommendation: String!
+    frequency: Int!
+}
+
+type Mutation{
+    Clickstream(click: ClickEvent!): ClickResponse!
+}
+
+input ClickEvent {
+    userid: String!
+    url: String!
+}
+
+type ClickResponse {
+    _source_time: String!
+}
