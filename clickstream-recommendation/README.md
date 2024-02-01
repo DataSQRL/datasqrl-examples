@@ -19,7 +19,7 @@ IMPORT yourdatafile.Content TIMESTAMP _ingest_time AS timestamp;
 ```
 
 Then execute the following steps:
-1. Run the following command in the root directory to compile: `docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd compile recommendation.sqrl recommendationMutation.graphqls --mnt $PWD`
+1. Run the following command in the root directory to compile: `docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd compile recommendation.sqrl recommendationMutation.graphqls -p redpanda.profile.docker --mnt $PWD`
 2. Then run cd into the `build/deploy` directory
 3. Start with `docker compose up`
 4. 
@@ -85,7 +85,6 @@ Once this has started up, run the same queries above in GraphiQL. To take down t
 
 ### Ingest from Stream
 
-
 This read the data from the stream directly and requires that you add the data to the stream specifically.
 
 Use the following import statements:
@@ -95,7 +94,7 @@ IMPORT yourdata.Content TIMESTAMP _source_time AS timestamp;
 ```
 
 Then execute the following steps:
-1. Run the following command in the root directory to compile: `docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd compile recommendation.sqrl recommendation.graphqls --mnt $PWD`
+1. Run the following command in the root directory to compile: `docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd compile recommendation.sqrl recommendation.graphqls -p redpanda.profile.docker --mnt $PWD`
 2. Then run cd into the `build/deploy` directory
 3. Create the topics for the data by adding the following lines to the `create-topics.sh` file before `exit 0;`:
 ```
@@ -104,8 +103,8 @@ Then execute the following steps:
 ```
 4. Start with `docker compose up`
 5. Once everything is started up, open another terminal window to add data to Kafka using the `load_data.py` script in the `yourdata-files` directory. This requires you have `kafka-python` installed via `pip3 install kafka-python`.
-6. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`. Wait until it finishes (we need all the content in there before we can click on it.)
-7. Load the clickstream data:   `python3 load_data.py clickstream.json.gz localhost:9094 clickstream --msg 100`. This loads 100 clicks per second. Wait a few seconds for some data to load. However, you don't have to wait for all of it to load. After a second or two, data should be processed and queryable. Let this run in the background until it finishes (which takes about 4 minutes).
+7. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`. Wait until it finishes (we need all the content in there before we can click on it.)
+8. Load the clickstream data:   `python3 load_data.py clickstream.json.gz localhost:9094 clickstream --msg 100`. This loads 100 clicks per second. Wait a few seconds for some data to load. However, you don't have to wait for all of it to load. After a second or two, data should be processed and queryable. Let this run in the background until it finishes (which takes about 4 minutes).
 
 Open GraphiQL and query the data:
 `http://localhost:8888/graphiql/`

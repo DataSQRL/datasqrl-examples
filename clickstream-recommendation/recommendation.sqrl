@@ -1,7 +1,5 @@
 IMPORT yourdata.Clickstream;
 IMPORT yourdata.Content TIMESTAMP _source_time AS timestamp;
--- IMPORT recommendationMutation.Clickstream TIMESTAMP _source_time;
--- IMPORT yourdatafile.Content TIMESTAMP _ingest_time AS timestamp;
 IMPORT vector.*;
 
 /* Find next page visits within 10 minutes */
