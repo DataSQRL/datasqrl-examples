@@ -8,26 +8,6 @@ There are two ways to run this example depending on how you want to ingest the c
 
 ***IMPORTANT NOTE:*** If you want to run these examples with the most recent development version, use `datasqrl/cmd:dev` as the docker image in the commands below.
 
-### From Local Files
-
-This is the easiest way to run the example as it will read the data from local files without any additional steps.
-
-To read from local files, use the following imports for the data (and only those two imports):
-
-```sql
-IMPORT yourdatafile.Clickstream TIMESTAMP _ingest_time;
-IMPORT yourdatafile.Content TIMESTAMP _ingest_time;
-```
-
-Then execute the following steps:
-1. Run the following command in the root directory to compile: `docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd compile recommendation.sqrl recommendation.graphqls --mnt $PWD`
-2. Then run cd into the `build/deploy` directory
-3. Start with `docker compose up`
-4. Once you are done, take down with `docker compose down -v`
-
-Open GraphiQL to see if you can query the data:
-`http://localhost:8888/graphiql/`
-
 ### From Local Files and API
 
 This reads the content data from local files and ingests the clickstream data through the API.
