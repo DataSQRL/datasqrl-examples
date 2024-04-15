@@ -1,0 +1,4 @@
+{"id": 0, "type": "HEAVY_TRUCK", "capacity": 289}
+{"id": 1, "type": "BOX_TRUCK", "capacity": 288}
+{"id": 2, "type": "BOX_TRUCK", "capacity": 183}
+{"id": 3, "type": "CARGO_VAN", "capacity": 173}

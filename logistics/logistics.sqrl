@@ -1,0 +1,22 @@
+IMPORT data-db.Customer;
+IMPORT data-db.Shipment;
+IMPORT data-db.Vehicle;
+IMPORT data-stream.Shipment_Location;
+IMPORT data-stream.Vehicle_Status;
+
+
+-- Turn the Customer and Shipment CDC change streams to a state tables.
+Customer := DISTINCT Customer ON id ORDER BY lastUpdated DESC;
+Shipment := DISTINCT Shipment ON id ORDER BY lastUpdated DESC;
+
+-- Create a relationship between the two.
+Customer.shipments := JOIN Shipment s ON s.customerId = @.id;
+
+-- Add a statistics field to the customer to indicate how many shipments they have.
+Customer.statistics := SELECT count(*) shipment_count FROM @ JOIN @.shipments;
+
+-- Create relationship to shipment locations.
+Shipment.locations := JOIN Shipment_Location l ON l.shipmentId = @.id ORDER BY l.timestamp DESC;
+
+-- Create relationship to vehicle statuses.
+Shipment_Location.vehicle_statuses := JOIN Vehicle_Status s ON s.vehicleId = @.vehicleId ORDER BY s.timestamp DESC;

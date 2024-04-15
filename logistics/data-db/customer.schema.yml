@@ -1,0 +1,21 @@
+---
+name: "customer"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "id"
+  type: "BIGINT"
+  tests:
+  - "not_null"
+- name: "lastUpdated"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
+- name: "email"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "phone"
+  type: "STRING"
+  tests:
+  - "not_null"

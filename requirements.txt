@@ -1,0 +1,9 @@
+Faker==24.8.0
+
+osmnx~=1.9.2
+networkx~=3.2.1
+matplotlib~=3.8.4
+learn~=1.0.0
+scikit-learn~=1.4.2
+scipy~=1.13.0
+imageio~=2.34.1
