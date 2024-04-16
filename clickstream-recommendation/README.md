@@ -28,6 +28,7 @@ IMPORT yourdata.Content TIMESTAMP _source_time AS timestamp;
 
 Then execute the following steps:
 1. Run the following command in the root directory to compile: `docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd compile recommendation.sqrl recommendation.graphqls -p redpanda.profile.docker --mnt $PWD`
+   1. If you'd like to use [Yugabyte](https://www.yugabyte.com/) as the database, use the Yugabyte deployment profile by specifying `-p yugabyte.profile.docker` in the command above.
 2. Then run cd into the `build/deploy` directory
 3. Create the topics for the data by adding the following lines to the `create-topics.sh` file before `exit 0;`:
 ```
