@@ -1,0 +1,56 @@
+type Customer {
+  id: Float!
+  lastUpdated: DateTime!
+  email: String!
+  phone: String!
+  shipments(limit: Int = 10, offset: Int = 0): [Shipment!]
+  statistics(limit: Int = 10, offset: Int = 0): [statistics!]
+}
+
+"An RFC-3339 compliant DateTime Scalar"
+scalar DateTime
+
+type Query {
+  Shipment(id: Float, limit: Int = 10, offset: Int = 0): [Shipment!]
+  Shipment_Location(limit: Int = 10, offset: Int = 0): [Shipment_Location!]
+  Vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
+  Vehicle_Status(limit: Int = 10, offset: Int = 0): [Vehicle_Status!]
+  Customer(email: String, id: Float, limit: Int = 10, offset: Int = 0): [Customer!]
+}
+
+type Shipment {
+  id: Float!
+  lastUpdated: DateTime!
+  origin: String!
+  lat: Float!
+  lon: Float!
+  weight: Float!
+  estimatedDelivery: DateTime!
+  customerId: Float!
+  locations(limit: Int = 10, offset: Int = 0): [Shipment_Location!]
+}
+
+type Shipment_Location {
+  timestamp: DateTime!
+  shipmentId: Float!
+  vehicleId: Float!
+  vehicle_statuses(limit: Int = 10, offset: Int = 0): [Vehicle_Status!]
+}
+
+type Vehicle {
+  id: Float!
+  type: String!
+  capacity: Float!
+}
+
+type Vehicle_Status {
+  timestamp: DateTime!
+  lat: Float!
+  lon: Float!
+  vehicleId: Float!
+}
+
+type statistics {
+  shipment_count: Float!
+  parent: Customer!
+}
