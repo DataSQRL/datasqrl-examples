@@ -11,8 +11,8 @@ import java.time.Instant;
  * Utility class used to generate the nut products from the USDA listing of nuts (in the file
  * nuts_usda.json in the data directory) as well as a random list of orders.
  * <p>
- * In the sibling data directory, run the following command: java ../util/GenerateNutData.java
- * ../nutshop-data/nuts_usda.json [num_customers] [num_days] [orders_per_day]
+ * In the sibling data directory, run the following command: java GenerateSeedData.java
+ * [ROOT-PATH]/data/seedshop/nuts_usda.json [num_customers] [num_days] [orders_per_day]
  * <p>
  * Note, that this generator is randomized and will produce a different listing of products with
  * each run. It will contain all of the same nuts but with different sizes.
