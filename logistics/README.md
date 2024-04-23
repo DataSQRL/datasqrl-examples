@@ -1,6 +1,8 @@
 # Logistics
 
-TODO Description
+Logistics demonstrates DataSQRL's capabilities by replicating shipment delivery in Manhattan. This project serves as
+an ideal streaming use-case, showcasing real-time tracking. Monitor and manage shipments as they move through the city,
+and address questions like the number of shipments a customer has and their current locations.
 
 ## Regenerate test data
 
@@ -20,7 +22,7 @@ TODO Description
 
 ## GraphQL examples
 
-# How many shipments does the customer have?
+#### How many shipments does the customer have?
 ```graphql
 {
     Customer(id: 4) {
@@ -33,7 +35,7 @@ TODO Description
 ```
 
 
-# What are the customer's shipments, and what is their latest location?
+#### What are the customer's shipments, and what is their latest location?
 ```graphql
 {
     Customer(id: 4) {
