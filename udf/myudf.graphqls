@@ -1,0 +1,20 @@
+type Query {
+  myTable(limit: Int = 10, offset: Int = 0): [MyTable!]
+}
+
+type MyTable {
+  val: Int!
+  myFnc: Int!
+}
+
+type Mutation {
+  entry(input: Entry!): EntryResponse!
+}
+
+input Entry {
+  val: Int!
+}
+
+type EntryResponse {
+  val: Int!
+}
