@@ -1,0 +1,15 @@
+{
+  "flink" : {
+    "format" : "flexible-json",
+    "path" : "/data/transaction.jsonl",
+    "source.monitor-interval" : 1,
+    "connector" : "filesystem"
+  },
+  "version" : 1,
+  "table" : {
+    "type" : "source",
+    "primary-key" : ["transactionId", "time"],
+    "timestamp" : "time",
+    "watermark-millis" : "1000"
+  }
+}

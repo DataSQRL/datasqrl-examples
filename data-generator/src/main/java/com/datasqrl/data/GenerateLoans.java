@@ -20,11 +20,11 @@ import picocli.CommandLine;
 @CommandLine.Command(name = "loan", description = "Generates financial loan data")
 public class GenerateLoans extends AbstractGenerateCommand {
 
-  public static final String LOAN_TYPE_FILE = "loan_types.json";
+  public static final String LOAN_TYPE_FILE = "loan_types.jsonl";
 
-  public static final String APPLICATIONS_FILE = "applications.json";
+  public static final String APPLICATIONS_FILE = "applications.jsonl";
 
-  public static final String APPLICATION_UPDATES_FILE = "application_updates.json";
+  public static final String APPLICATION_UPDATES_FILE = "application_updates.jsonl";
 
   @Override
   public void run() {

@@ -9,7 +9,7 @@ public class TestDataGenerators {
 
   @Test
   public void testClickStream() {
-    new RootGenerateCommand().getCmd().execute(new String[]{"clickstream","-n","5000"});
+    new RootGenerateCommand().getCmd().execute(new String[]{"clickstream","-n","20000","-o", "data/clickstream"});
   }
 
   @Test
@@ -25,6 +25,11 @@ public class TestDataGenerators {
   @Test
   public void testLoan() {
     new RootGenerateCommand().getCmd().execute(new String[]{"loan","-n","100"});
+  }
+
+  @Test
+  public void testCreditCard() {
+    new RootGenerateCommand().getCmd().execute(new String[]{"creditcard","-n","30","-o","data/creditcard"});
   }
 
 

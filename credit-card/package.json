@@ -1,0 +1,14 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "creditcard.sqrl",
+    "graphql": "creditcard.graphqls"
+  },
+  "profiles": ["profile"],
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "100 ms"
+    }
+  }
+}
