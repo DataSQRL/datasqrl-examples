@@ -6,12 +6,12 @@ This API gives customers access to their credit card transaction history and spe
 
 To run this example, invoke the following command in this directory on Unix based systems to compile the project
 ```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd compile -c package.json
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile -c package.json
 ```
 
 If you are on windows using Powershell, run the following:
 ```bash
-docker run -it --rm -v ${PWD}:/build datasqrl/cmd compile -c package.json
+docker run -it --rm -v ${PWD}:/build datasqrl/cmd:v0.5.0 compile -c package.json
 ```
 
 Next, you run the data pipeline with docker compose:
