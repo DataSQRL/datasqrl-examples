@@ -117,7 +117,7 @@ public class GenerateCreditCards extends AbstractGenerateCommand {
           int durationInDays = (int)Math.round(sampler.nextPositiveNormal(
               config.avgRewardDays, config.avgRewardDaysDeviation));
           int percentage = sampler.next(config.rewardsPercentages);
-          rewards.add(new Reward(cardType, percentage, startOfDay.plus(durationInDays, ChronoUnit.DAYS).toString()));
+          rewards.add(new Reward(cardType, percentage, startOfDay.plus(durationInDays, ChronoUnit.DAYS).toEpochMilli()/1000));
         }
         merchantRewards.add(new MerchantRewards(merchant.getMerchantId(), rewards, startOfDay.toString()));
       }
@@ -222,7 +222,7 @@ public class GenerateCreditCards extends AbstractGenerateCommand {
 
     String cardType;
     int rewardPercentage;
-    String expirationTimestamp;
+    long expirationTimestamp;
 
   }
 
