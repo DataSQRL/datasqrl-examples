@@ -1,0 +1,16 @@
+{
+  "flink": {
+    "connector": "kafka",
+    "properties.bootstrap.servers": "kafka:9092",
+    "properties.auto.offset.reset" : "earliest",
+    "value.format": "flexible-json",
+    "topic": "transaction"
+  },
+  "version" : 1,
+  "table" : {
+    "type" : "source",
+    "primary-key" : ["transactionId", "time"],
+    "timestamp" : "time",
+    "watermark-millis" : "1000"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "flink": {
+    "connector": "kafka",
+    "properties.bootstrap.servers": "kafka:9092",
+    "properties.auto.offset.reset" : "earliest",
+    "value.format": "flexible-json",
+    "topic": "merchantreward"
+  },
+  "version" : 1,
+  "table" : {
+    "type" : "source",
+    "primary-key" : ["merchantId", "updatedTime"],
+    "timestamp" : "updatedTime",
+    "watermark-millis" : "1000"
+  }
+}

@@ -26,41 +26,35 @@ CustomerRewards := SELECT transactionId, customerId, cardNo, cardType, time, amo
                   FROM _CustomerTransactionRewardsByCard
                   WHERE cardType = rewardCardType;
 
-CustomerPotentialRewards := SELECT transactionId, customerId, rewardCardType, time, amount, reward, merchantName
+Rewards(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
+SELECT * FROM CustomerRewards WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
+ORDER BY time DESC;
+
+TotalReward := SELECT customerId, SUM(reward) AS total_reward,
+                              MIN(time) as since_time
+                       FROM CustomerRewards GROUP BY customerId;
+
+RewardsByWeek := SELECT customerId, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
+                FROM CustomerRewards GROUP BY customerId, timeWeek ORDER BY timeWeek ASC;
+
+/* Compute potential rewards */
+
+_CustomerPotentialRewards := SELECT transactionId, customerId, rewardCardType, time, amount, reward, merchantName
                             FROM _CustomerTransactionRewardsByCard
                             WHERE cardType != rewardCardType;
 
-CustomerTotalReward := SELECT customerId, SUM(reward) AS total_reward,
-                              MIN(time) as since_time
-                        FROM CustomerRewards GROUP BY customerId;
+PotentialRewards(@customerid: BIGINT, @cardType: STRING, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
+SELECT * FROM _CustomerPotentialRewards WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
+AND rewardCardType = @cardType ORDER BY time DESC;
 
-CustomerTotalPotentialReward := SELECT customerId, rewardCardType AS cardType, SUM(reward) AS total_reward,
-                              MIN(time) as since_time
-                       FROM CustomerPotentialRewards
-                       GROUP BY customerId, cardType;
+TotalPotentialReward := SELECT customerId, rewardCardType AS cardType, SUM(reward) AS total_reward,
+                                       MIN(time) as since_time
+                                FROM _CustomerPotentialRewards
+                                GROUP BY customerId, cardType ORDER BY cardType DESC;
 
-SpendingByCategory := SELECT customerid, endOfWeek(time) as timeWeek, category, SUM(amount) as spending
-                      FROM _CustomerTransaction
-                      GROUP BY customerid, timeWeek, category
-                      ORDER BY timeWeek DESC, category ASC;
-
-_SpendingByDay := SELECT customerid, endOfDay(time) as timeDay, SUM(amount) as spending
-                  FROM _CustomerTransaction
-                  GROUP BY customerid, timeDay
-                  ORDER BY timeDay DESC;
-
-/* Query Endpoints */
-Transactions(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-    SELECT * FROM _CustomerTransaction WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
-    ORDER BY time DESC;
-
-SpendingByDay(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-    SELECT timeDay, spending
-    FROM _SpendingByDay WHERE customerid = @customerid AND @fromTime <= timeDay AND @toTime > timeDay
-    ORDER BY timeDay DESC;
+PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
+                 FROM _CustomerPotentialRewards GROUP BY customerId, cardType, timeWeek ORDER BY timeWeek ASC;
 
 
--- IMPORT creditcard.AddChatMessage;
---
--- CustomerChatMessage := SELECT c.role, c.content, c.name, c.context.customerid, c.event_time AS timestamp,
---                         c._uuid AS uuid FROM AddChatMessage c ORDER BY timestamp DESC;
+
+

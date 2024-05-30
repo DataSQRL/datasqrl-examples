@@ -1,0 +1,62 @@
+"An RFC-3339 compliant DateTime Scalar"
+scalar DateTime
+
+type Query {
+    Rewards(customerid: Int!, fromTime: DateTime!, toTime: DateTime!): [Rewards!]
+    RewardsByWeek(customerId: Int!, limit: Int = 12, offset: Int = 0): [RewardsByWeek!]
+    TotalReward(customerId: Int!): TotalReward
+    PotentialRewards(customerid: Int!, cardType: String!, fromTime: DateTime!, toTime: DateTime!): [PotentialRewards!]
+    PotentialRewardsByWeek(customerId: Int!, cardType: String!, limit: Int = 12, offset: Int = 0): [PotentialRewardsByWeek!]
+    TotalPotentialReward(customerId: Int!): [TotalPotentialReward!]
+}
+
+type Subscription {
+    CustomerRewards(customerId: Int!): Rewards
+}
+
+type Rewards {
+    transactionId: Float!
+    customerId: Int!
+    cardNo: Float!
+    cardType: String!
+    time: DateTime!
+    amount: Float!
+    reward: Float!
+    merchantName: String!
+}
+
+type RewardsByWeek {
+    customerId: Int!
+    timeWeek: DateTime!
+    total_reward: Float!
+}
+
+type TotalReward {
+    customerId: Int!
+    total_reward: Float!
+    since_time: DateTime!
+}
+
+type PotentialRewards {
+    transactionId: Float!
+    customerId: Int!
+    rewardCardType: String!
+    time: DateTime!
+    amount: Float!
+    reward: Float!
+    merchantName: String!
+}
+
+type PotentialRewardsByWeek {
+    customerId: Int!
+    cardType: String!
+    timeWeek: DateTime!
+    total_reward: Float!
+}
+
+type TotalPotentialReward {
+    customerId: Int!
+    cardType: String!
+    total_reward: Float!
+    since_time: DateTime!
+}
