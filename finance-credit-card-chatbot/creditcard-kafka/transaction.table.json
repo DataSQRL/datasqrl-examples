@@ -5,6 +5,7 @@
     "properties.group.id": "mygroupid",
     "scan.startup.mode" : "group-offsets",
     "properties.auto.offset.reset" : "earliest",
+    "properties.group.id": "mygroupid",
     "value.format": "flexible-json",
     "topic": "transaction"
   },
