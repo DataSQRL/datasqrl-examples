@@ -55,6 +55,9 @@ TotalPotentialReward := SELECT customerId, rewardCardType AS cardType, SUM(rewar
 PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
                  FROM _CustomerPotentialRewards GROUP BY customerId, cardType, timeWeek ORDER BY timeWeek ASC;
 
+/* Chat Agent */
+IMPORT creditcard-rewards.AddChatMessage;
 
-
+CustomerChatMessage := SELECT c.role, c.content, c.name, c.context.customerid, c.event_time AS timestamp,
+                        c._uuid AS uuid FROM AddChatMessage c ORDER BY timestamp DESC;
 

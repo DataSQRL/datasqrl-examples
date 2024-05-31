@@ -8,6 +8,7 @@ type Query {
     PotentialRewards(customerid: Int!, cardType: String!, fromTime: DateTime!, toTime: DateTime!): [PotentialRewards!]
     PotentialRewardsByWeek(customerId: Int!, cardType: String!, limit: Int = 12, offset: Int = 0): [PotentialRewardsByWeek!]
     TotalPotentialReward(customerId: Int!): [TotalPotentialReward!]
+    CustomerChatMessage(customerid: Int!, limit: Int = 10, offset: Int = 0): [CustomerChatMessage!]
 }
 
 type Subscription {
@@ -59,4 +60,32 @@ type TotalPotentialReward {
     cardType: String!
     total_reward: Float!
     since_time: DateTime!
+}
+
+type CustomerChatMessage {
+    role: String!
+    content: String!
+    name: String
+    customerid: Int!
+    timestamp: String!
+    uuid: String!
+}
+
+type Mutation {
+    AddChatMessage(message: ChatMessageInput!): CreatedChatMessage
+}
+
+input ChatMessageInput {
+    role: String!
+    content: String!
+    name: String
+    context: ChatMessageContextInput
+}
+
+input ChatMessageContextInput {
+    customerid: Int
+}
+
+type CreatedChatMessage {
+    event_time: String!
 }

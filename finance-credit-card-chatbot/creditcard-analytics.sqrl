@@ -32,7 +32,7 @@ SpendingByDay(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
     FROM _SpendingByDay WHERE customerid = @customerid AND @fromTime <= timeDay AND @toTime > timeDay
     ORDER BY timeDay DESC;
 
-IMPORT creditcard.AddChatMessage;
+IMPORT creditcard-analytics.AddChatMessage;
 
 CustomerChatMessage := SELECT c.role, c.content, c.name, c.context.customerid, c.event_time AS timestamp,
                         c._uuid AS uuid FROM AddChatMessage c ORDER BY timestamp DESC;

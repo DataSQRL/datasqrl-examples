@@ -36,7 +36,7 @@
     },
     "context": ["customerid"],
     "api": {
-      "query": "query TotalPotentialReward($customerid: Int!) {\n  TotalPotentialReward(customerId: $customerid) {\n    total_reward\n    since_time\n  }\n}"
+      "query": "query TotalPotentialReward($customerid: Int!) {\n  TotalPotentialReward(customerId: $customerid) {\n    cardType\n    total_reward\n    since_time\n  }\n}"
     }
   },
   {
