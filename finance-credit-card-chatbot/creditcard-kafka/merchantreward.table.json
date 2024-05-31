@@ -2,6 +2,8 @@
   "flink": {
     "connector": "kafka",
     "properties.bootstrap.servers": "kafka:9092",
+    "properties.group.id": "mygroupid",
+    "scan.startup.mode" : "group-offsets",
     "properties.auto.offset.reset" : "earliest",
     "value.format": "flexible-json",
     "topic": "merchantreward"
