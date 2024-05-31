@@ -2,7 +2,6 @@
   "flink": {
     "format": "flexible-json",
     "path": "/data/merchant.jsonl",
-    "properties.group.id": "mygroupid",
     "source.monitor-interval": 1,
     "connector": "filesystem"
   },

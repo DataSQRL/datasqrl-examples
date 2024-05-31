@@ -8,7 +8,7 @@ Merchant :=       DISTINCT Merchant ON merchantId ORDER BY updatedTime DESC;
 MerchantReward := DISTINCT MerchantReward ON merchantId ORDER BY updatedTime DESC;
 CardAssignment := DISTINCT CardAssignment ON cardNo ORDER BY timestamp DESC;
 
-
+/* Part 1a: Compute customer rewards */
 _CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
                               m.merchantId, m.category, c.customerid, c.cardType
                        FROM Transaction t
@@ -26,6 +26,10 @@ CustomerRewards := SELECT transactionId, customerId, cardNo, cardType, time, amo
                   FROM _CustomerTransactionRewardsByCard
                   WHERE cardType = rewardCardType;
 
+EXPORT CustomerRewards TO creditcard-data.RewardSink;
+
+
+/* Part 1b: Query and Analyze Rewards */
 Rewards(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
 SELECT * FROM CustomerRewards WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
 ORDER BY time DESC;
@@ -37,8 +41,9 @@ TotalReward := SELECT customerId, SUM(reward) AS total_reward,
 RewardsByWeek := SELECT customerId, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
                 FROM CustomerRewards GROUP BY customerId, timeWeek ORDER BY timeWeek ASC;
 
-/* Compute potential rewards */
 
+
+/* Part 2: Compute potential rewards for personalized sales */
 _CustomerPotentialRewards := SELECT transactionId, customerId, rewardCardType, time, amount, reward, merchantName
                             FROM _CustomerTransactionRewardsByCard
                             WHERE cardType != rewardCardType;
@@ -55,7 +60,9 @@ TotalPotentialReward := SELECT customerId, rewardCardType AS cardType, SUM(rewar
 PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
                  FROM _CustomerPotentialRewards GROUP BY customerId, cardType, timeWeek ORDER BY timeWeek ASC;
 
-/* Chat Agent */
+
+
+/* Part 3: Integrate Chat Agent */
 IMPORT creditcard-rewards.AddChatMessage;
 
 CustomerChatMessage := SELECT c.role, c.content, c.name, c.context.customerid, c.event_time AS timestamp,
