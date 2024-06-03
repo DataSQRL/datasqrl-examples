@@ -1,18 +1,21 @@
 {
   "flink": {
     "connector": "kafka",
-    "properties.bootstrap.servers": "kafka:9092",
+    "properties.bootstrap.servers": "${PROPERTIES_BOOTSTRAP_SERVERS}",
     "properties.group.id": "mygroupid",
-    "scan.startup.mode" : "group-offsets",
-    "properties.auto.offset.reset" : "earliest",
+    "scan.startup.mode": "group-offsets",
+    "properties.auto.offset.reset": "earliest",
     "value.format": "flexible-json",
     "topic": "merchantreward"
   },
-  "version" : 1,
-  "table" : {
-    "type" : "source",
-    "primary-key" : ["merchantId", "updatedTime"],
-    "timestamp" : "updatedTime",
-    "watermark-millis" : "1000"
+  "version": 1,
+  "table": {
+    "type": "source",
+    "primary-key": [
+      "merchantId",
+      "updatedTime"
+    ],
+    "timestamp": "updatedTime",
+    "watermark-millis": "1000"
   }
 }

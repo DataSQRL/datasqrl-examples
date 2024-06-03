@@ -1,7 +1,7 @@
 {
   "flink": {
     "connector": "kafka",
-    "properties.bootstrap.servers": "kafka:9092",
+    "properties.bootstrap.servers": "${PROPERTIES_BOOTSTRAP_SERVERS}",
     "properties.group.id": "mygroupid",
     "scan.startup.mode": "group-offsets",
     "properties.auto.offset.reset": "earliest",
