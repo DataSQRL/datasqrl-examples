@@ -5,7 +5,7 @@
   "auth-is-integer": true,
   "plot-function": "oneD",
   "model" : {
-    "provider" : "openai",
-    "model": "GPT4"
+    "provider" : "groq",
+    "model": "LLAMA3_70B"
   }
 }
