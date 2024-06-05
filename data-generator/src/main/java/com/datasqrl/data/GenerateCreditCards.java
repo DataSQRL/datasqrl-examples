@@ -24,11 +24,11 @@ public class GenerateCreditCards extends AbstractGenerateCommand {
 
   public static final String TRANSACTIONS_FILE = "transaction_part%04d.jsonl";
 
-  public static final String CARDASSIGNMENT_FILE = "card_assignment_part%04d.jsonl";
+  public static final String CARDASSIGNMENT_FILE = "cardAssignment_part%04d.jsonl";
 
   public static final String MERCHANT_FILE = "merchant.jsonl";
 
-  public static final String MERCHANT_REWARDS_FILE = "merchant_rewards_part%04d.jsonl";
+  public static final String MERCHANT_REWARDS_FILE = "merchantReward_part%04d.jsonl";
 
 
   @Override
@@ -117,7 +117,7 @@ public class GenerateCreditCards extends AbstractGenerateCommand {
           int durationInDays = (int)Math.round(sampler.nextPositiveNormal(
               config.avgRewardDays, config.avgRewardDaysDeviation));
           int percentage = sampler.next(config.rewardsPercentages);
-          rewards.add(new Reward(cardType, percentage, startOfDay.plus(durationInDays, ChronoUnit.DAYS).toEpochMilli()/1000));
+          rewards.add(new Reward(cardType, percentage, startOfDay.toEpochMilli()/1000, startOfDay.plus(durationInDays, ChronoUnit.DAYS).toEpochMilli()/1000));
         }
         merchantRewards.add(new MerchantRewards(merchant.getMerchantId(), rewards, startOfDay.toString()));
       }
@@ -222,6 +222,7 @@ public class GenerateCreditCards extends AbstractGenerateCommand {
 
     String cardType;
     int rewardPercentage;
+    long startTimestamp;
     long expirationTimestamp;
 
   }
@@ -256,7 +257,7 @@ public class GenerateCreditCards extends AbstractGenerateCommand {
 
     public double hasCardTypeProbability = 0.4;
 
-    public int avgRewardDays = 10;
+    public int avgRewardDays = 20;
 
     public int avgRewardDaysDeviation = 3;
 

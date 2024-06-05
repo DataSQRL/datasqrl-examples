@@ -29,7 +29,7 @@ public class TestDataGenerators {
 
   @Test
   public void testCreditCard() {
-    new RootGenerateCommand().getCmd().execute(new String[]{"creditcard","-n","30","-o","data/creditcard"});
+    new RootGenerateCommand().getCmd().execute(new String[]{"creditcard","-n","100","-o","data/creditcard"});
   }
 
 
