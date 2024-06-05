@@ -2,7 +2,7 @@
 scalar DateTime
 
 type Query {
-    Rewards(customerid: Int!, fromTime: DateTime!, toTime: DateTime!): [Rewards!]
+    Rewards(customerid: Int!, fromTime: DateTime!, toTime: DateTime!): [CustomerRewards!]
     RewardsByWeek(customerId: Int!, limit: Int = 12, offset: Int = 0): [RewardsByWeek!]
     TotalReward(customerId: Int!): TotalReward
     PotentialRewards(customerid: Int!, cardType: String!, fromTime: DateTime!, toTime: DateTime!): [PotentialRewards!]
@@ -12,10 +12,10 @@ type Query {
 }
 
 type Subscription {
-    CustomerRewards(customerId: Int!): Rewards
+    CustomerRewards(customerId: Int!): CustomerRewards
 }
 
-type Rewards {
+type CustomerRewards {
     transactionId: Float!
     customerId: Int!
     cardNo: Float!

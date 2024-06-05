@@ -10,7 +10,7 @@
     "flink-config": {
       "table.exec.source.idle-timeout": "100 ms"
     },
-    "create-topics": ["transaction", "merchantreward"]
+    "create-topics": ["transaction", "cardassignment"]
   },
   "dependencies": [{
     "creditcard-data": {

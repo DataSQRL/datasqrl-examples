@@ -1,9 +1,12 @@
 {
   "flink" : {
-    "format" : "flexible-json",
-    "path" : "/data/cardAssignment.jsonl",
-    "source.monitor-interval" : 1,
-    "connector" : "filesystem"
+    "connector": "kafka",
+    "properties.bootstrap.servers": "${PROPERTIES_BOOTSTRAP_SERVERS}",
+    "properties.group.id": "mygroupid",
+    "scan.startup.mode": "group-offsets",
+    "properties.auto.offset.reset": "earliest",
+    "value.format": "flexible-json",
+    "topic": "cardassignment"
   },
   "version" : 1,
   "table" : {

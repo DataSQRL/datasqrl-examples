@@ -18,9 +18,9 @@ _CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.na
 _CustomerTransactionRewards := SELECT t.*, r.rewardsByCard AS rewards FROM _CustomerTransaction t
                               TEMPORAL JOIN MerchantReward r ON r.merchantId = t.merchantId;
 
-_CustomerTransactionRewardsByCard := SELECT t.*, t.amount * (r.rewardPercentage / 100.0) as reward, r.expirationTimestamp, r.cardType AS rewardCardType
+_CustomerTransactionRewardsByCard := SELECT t.*, t.amount * (r.rewardPercentage / 100.0) as reward, r.cardType AS rewardCardType
                                     FROM _CustomerTransactionRewards t JOIN t.rewards r
-                                    WHERE timestampToEpoch(t.time) <= r.expirationTimestamp;
+                                    WHERE timestampToEpoch(t.time) <= r.expirationTimestamp AND timestampToEpoch(t.time) >= r.startTimestamp;
 
 CustomerRewards := SELECT transactionId, customerId, cardNo, cardType, time, amount, reward, merchantName
                   FROM _CustomerTransactionRewardsByCard
@@ -39,7 +39,7 @@ TotalReward := SELECT customerId, SUM(reward) AS total_reward,
                        FROM CustomerRewards GROUP BY customerId;
 
 RewardsByWeek := SELECT customerId, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
-                FROM CustomerRewards GROUP BY customerId, timeWeek ORDER BY timeWeek ASC;
+                FROM CustomerRewards GROUP BY customerId, timeWeek ORDER BY timeWeek DESC;
 
 
 
@@ -58,7 +58,7 @@ TotalPotentialReward := SELECT customerId, rewardCardType AS cardType, SUM(rewar
                                 GROUP BY customerId, cardType ORDER BY cardType DESC;
 
 PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
-                 FROM _CustomerPotentialRewards GROUP BY customerId, cardType, timeWeek ORDER BY timeWeek ASC;
+                 FROM _CustomerPotentialRewards GROUP BY customerId, cardType, timeWeek ORDER BY timeWeek DESC;
 
 
 
