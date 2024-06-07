@@ -1,0 +1,59 @@
+scalar DateTime
+
+type Query {
+  SensorReading(sensorid: Int!, limit: Int = 10, offset: Int = 0): [SensorReading!]
+  ReadingsAboveTemp(temp: Float!, limit: Int = 10): [SensorReading!]
+  SensorMaxTempLastMinute(sensorid: Int, limit: Int = 10, offset: Int = 0): [SensorMaxTemp!]
+  SensorMaxTemp(sensorid: Int, limit: Int = 10, offset: Int = 0): [SensorMaxTemp!]
+  CustomerChatMessage(customerid: Int!, limit: Int = 10, offset: Int = 0): [CustomerChatMessage!]
+}
+
+type SensorReading {
+  sensorid: Int!
+  temperature: Float!
+  event_time: DateTime!
+}
+
+type SensorMaxTemp {
+  sensorid: Int!
+  maxTemp: Float!
+  last_updated: DateTime!
+}
+
+type CustomerChatMessage {
+  role: String!
+  content: String!
+  name: String
+  customerid: Int!
+  timestamp: String!
+  uuid: String!
+}
+
+type Subscription {
+  HighTemp(sensorid: Int!): SensorReading
+}
+
+type Mutation {
+  AddReading(metric: ReadingInput!): SensorReading
+  AddChatMessage(message: ChatMessageInput!): CreatedChatMessage
+}
+
+input ReadingInput {
+  sensorid: Int!
+  temperature: Float!
+}
+
+input ChatMessageInput {
+  role: String!
+  content: String!
+  name: String
+  context: ChatMessageContextInput
+}
+
+input ChatMessageContextInput {
+  customerid: Int
+}
+
+type CreatedChatMessage {
+  event_time: String!
+}

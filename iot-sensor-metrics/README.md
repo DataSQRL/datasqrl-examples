@@ -7,12 +7,12 @@ Specifically, this API collects the temperature readings of sensors.
 
 To run this example, invoke the following command in this directory on Unix based systems
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd run sensors.sqrl sensorsapi.graphqls
+docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd run sensors.sqrl sensors.graphqls
 ```
 
 If you are on windows using Powershell, run the following:
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 -v ${PWD}:/build datasqrl/cmd run sensors.sqrl sensorsapi.graphqls
+docker run -it -p 8888:8888 -p 8081:8081 -v ${PWD}:/build datasqrl/cmd run sensors.sqrl sensors.graphqls
 ```
 
 This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool

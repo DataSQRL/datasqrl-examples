@@ -1,16 +1,34 @@
-IMPORT sensorsapi.AddReading AS SensorReading;
-IMPORT time.endOfSecond;  -- Import time function
-/* Aggregate sensor readings to second */
-SensorReading.time := _source_time;
-SecReading := SELECT sensorid, endOfSecond(time) as timeSec,
-                     avg(temperature) as temp FROM SensorReading
-              GROUP BY sensorid, timeSec;
-/* Get max temperature in last minute */
-SensorMaxTempLastMinute := SELECT sensorid, max(temp) as maxTemp
-                 FROM SecReading
-                 WHERE timeSec >= now() - INTERVAL 1 MINUTE
+IMPORT sensors.AddReading AS SensorReading;
+
+/* Provide query endpoint for readings by temperature */
+ReadingsAboveTemp(@temp: Int) := SELECT * FROM SensorReading WHERE temperature > @temp ORDER BY event_time DESC;
+
+/* Produce an alert stream for high temperatures */
+HighTemp := SELECT * FROM SensorReading  WHERE temperature > 100;
+
+/* Get max temperature in last minute per sensor */
+SensorMaxTempLastMinute := SELECT sensorid, max(temperature) as maxTemp, max(event_time) as last_updated
+                 FROM SensorReading
+                 WHERE event_time >= now() - INTERVAL 1 MINUTE
                  GROUP BY sensorid;
 
-SensorMaxTemp := SELECT sensorid, max(temp) as maxTemp
-                 FROM SecReading
+/* Get the max temperature overall per sensor */
+SensorMaxTemp := SELECT sensorid, max(temperature) as maxTemp, max(event_time) as last_updated
+                 FROM SensorReading
                  GROUP BY sensorid;
+
+/* =======TEST CASES======== */
+
+/*+test */
+SensorHighTempTest := SELECT COUNT(*) as num, AVG(temperature) as avg_temp FROM HighTemp;
+
+/*+test */
+SensorMaxTempTest := SELECT sensorid, maxTemp FROM SensorMaxTemp ORDER BY sensorid DESC;
+
+/* ======= CHAT AGENT HISTORY ==== */
+
+/* Part 3: Integrate Chat Agent */
+IMPORT sensors.AddChatMessage;
+
+CustomerChatMessage := SELECT c.role, c.content, c.name, c.context.customerid, c.event_time AS timestamp,
+                        c._uuid AS uuid FROM AddChatMessage c ORDER BY timestamp DESC;
