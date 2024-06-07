@@ -1,0 +1,31 @@
+{
+  "engines" : {
+    "flink" : {
+      "connectors" : {
+        "localfile" : {
+          "format" : "${sqrl:format}",
+          "path" : "${sqrl:filepath}",
+          "source.monitor-interval" : 1,
+          "connector" : "filesystem"
+        },
+        "postgres" : {
+          "password" : "postgres",
+          "table-name" : "datasqrl",
+          "connector" : "jdbc",
+          "driver" : "org.postgresql.Driver",
+          "url" : "jdbc:postgresql://database:5432/datasqrl",
+          "username" : "postgres"
+        },
+        "kafka" : {
+          "properties.bootstrap.servers" : "${PROPERTIES_BOOTSTRAP_SERVERS}",
+          "properties.auto.offset.reset" : "earliest",
+          "connector" : "kafka",
+          "format" : "flexible-json",
+          "properties.group.id" : "groupid",
+          "topic" : "${sqrl:topic}",
+          "scan.startup.mode" : "earliest-offset"
+        }
+      }
+    }
+  }
+}

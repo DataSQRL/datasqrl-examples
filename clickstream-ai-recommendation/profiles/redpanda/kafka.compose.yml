@@ -1,0 +1,43 @@
+version: "3.8"
+volumes:
+  redpanda-vol: null
+services:
+  kafka:
+    command:
+      - redpanda
+      - start
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:9094
+      # Address the broker advertises to clients that connect to the Kafka API.
+      # Use the internal addresses to connect to the Redpanda brokers'
+      # from inside the same Docker network.
+      # Use the external addresses to connect to the Redpanda brokers'
+      # from outside the Docker network.
+      - --advertise-kafka-addr internal://kafka:9092,external://localhost:9094
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      # Address the broker advertises to clients that connect to the HTTP Proxy.
+      - --advertise-pandaproxy-addr internal://kafka:8082,external://localhost:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      # Redpanda brokers use the RPC API to communicate with each other internally.
+      - --rpc-addr kafka:33145
+      - --advertise-rpc-addr kafka:33145
+      # Mode dev-container uses well-known configuration properties for development in containers.
+      - --mode dev-container
+      # enable logs for debugging.
+      - --default-log-level=info
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.3
+    container_name: kafka
+    volumes:
+      - redpanda-vol:/var/lib/redpanda/data
+    ports:
+      - 18081:18081
+      - 18082:18082
+      - 9094:9094
+      - 19644:9644
+
+  kafka-setup:
+    image: docker.io/bitnami/kafka:3.4.0-debian-11-r38
+    volumes:
+      - './create-topics.sh:/create-topics.sh'
+    command: [ '/bin/bash', '/create-topics.sh' ]
+    depends_on:
+      - kafka

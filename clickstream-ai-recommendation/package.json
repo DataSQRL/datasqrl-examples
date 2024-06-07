@@ -1,0 +1,13 @@
+{
+  "script": {
+    "main": "recommendation.sqrl",
+    "graphql": "recommendation.graphqls"
+  },
+  "profiles": [
+    "datasqrl.profile.default",
+    "profiles/redpanda"
+  ],
+  "values": {
+    "mountDir": "/Users/nsabonyi/Developer/DataSQRL/datasqrl-examples/clickstream-ai-recommendation/embedding:/build/embedding"
+  }
+}
