@@ -7,6 +7,10 @@ columns:
   type: "BIGINT"
   tests:
   - "not_null"
+- name: "lastUpdated"
+  type: "TIMESTAMP"
+  tests:
+    - "not_null"
 - name: "type"
   type: "STRING"
   tests:

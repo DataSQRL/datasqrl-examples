@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "flink" : {
+    "format" : "flexible-json",
+    "path" : "/data/vehicle_status.jsonl",
+    "connector" : "filesystem"
+  },
+  "table" : {
+    "type" : "source",
+    "primary-key" : ["timestamp", "vehicleId"],
+    "timestamp" : "timestamp",
+    "watermark-millis" : "1"
+  }
+}

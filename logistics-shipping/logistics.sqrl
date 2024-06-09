@@ -1,8 +1,8 @@
-IMPORT data-db.Customer;
-IMPORT data-db.Shipment;
-IMPORT data-db.Vehicle;
-IMPORT data-stream.Shipment_Location;
-IMPORT data-stream.Vehicle_Status;
+IMPORT local-package.tables.Customer;
+IMPORT local-package.tables.Shipment;
+IMPORT local-package.tables.Vehicle;
+IMPORT local-package.tables.Shipment_Location;
+IMPORT local-package.tables.Vehicle_Status;
 
 
 -- Turn the Customer and Shipment CDC change streams to a state tables.

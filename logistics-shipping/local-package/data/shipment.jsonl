@@ -1,0 +1,50 @@
+{"id": 0, "lastUpdated": "2024-04-17T23:38:27.078324", "origin": "Bangladesh", "lat": 40.7600241, "lon": -73.9629046, "weight": 4.7, "estimatedDelivery": "2024-04-23T18:18:10.437163", "customerId": 7}
+{"id": 1, "lastUpdated": "2024-04-18T04:41:56.132214", "origin": "Portugal", "lat": 40.7710664, "lon": -73.9596511, "weight": 0.2, "estimatedDelivery": "2024-04-23T18:41:35.514122", "customerId": 2}
+{"id": 2, "lastUpdated": "2024-04-18T13:01:38.756824", "origin": "New Zealand", "lat": 40.8217442, "lon": -73.9568342, "weight": 6.6, "estimatedDelivery": "2024-04-23T19:13:49.483376", "customerId": 8}
+{"id": 3, "lastUpdated": "2024-04-18T11:03:12.398238", "origin": "Belize", "lat": 40.8217009, "lon": -73.9529081, "weight": 7.0, "estimatedDelivery": "2024-04-23T19:58:38.256010", "customerId": 8}
+{"id": 4, "lastUpdated": "2024-04-17T16:37:16.962208", "origin": "Cameroon", "lat": 40.7484072, "lon": -73.9804936, "weight": 0.6, "estimatedDelivery": "2024-04-23T20:19:01.924105", "customerId": 0}
+{"id": 5, "lastUpdated": "2024-04-18T11:54:19.822082", "origin": "Cook Islands", "lat": 40.7433005, "lon": -73.9840243, "weight": 4.7, "estimatedDelivery": "2024-04-23T20:30:35.114713", "customerId": 10}
+{"id": 6, "lastUpdated": "2024-04-18T02:57:52.765541", "origin": "Moldova", "lat": 40.8277777, "lon": -73.9496148, "weight": 4.9, "estimatedDelivery": "2024-04-23T19:41:46.103563", "customerId": 14}
+{"id": 7, "lastUpdated": "2024-04-18T05:54:29.397061", "origin": "Fiji", "lat": 40.7452501, "lon": -73.984794, "weight": 9.7, "estimatedDelivery": "2024-04-23T20:20:33.959979", "customerId": 3}
+{"id": 8, "lastUpdated": "2024-04-18T08:41:52.818432", "origin": "Saint Vincent and the Grenadines", "lat": 40.7475458, "lon": -73.9883326, "weight": 9.1, "estimatedDelivery": "2024-04-23T20:17:45.938546", "customerId": 12}
+{"id": 9, "lastUpdated": "2024-04-17T21:33:08.772422", "origin": "Algeria", "lat": 40.8344225, "lon": -73.9476826, "weight": 6.9, "estimatedDelivery": "2024-04-23T20:07:09.822735", "customerId": 5}
+{"id": 10, "lastUpdated": "2024-04-18T02:51:09.457330", "origin": "Heard Island and McDonald Islands", "lat": 40.752317, "lon": -73.985947, "weight": 2.6, "estimatedDelivery": "2024-04-23T20:06:02.896876", "customerId": 10}
+{"id": 11, "lastUpdated": "2024-04-17T21:30:16.375209", "origin": "Austria", "lat": 40.843223, "lon": -73.939177, "weight": 9.2, "estimatedDelivery": "2024-04-23T20:57:13.521921", "customerId": 0}
+{"id": 12, "lastUpdated": "2024-04-18T13:16:13.270660", "origin": "Portugal", "lat": 40.8432615, "lon": -73.9439858, "weight": 0.8, "estimatedDelivery": "2024-04-23T21:25:31.049065", "customerId": 9}
+{"id": 13, "lastUpdated": "2024-04-18T09:29:45.533548", "origin": "Bahamas", "lat": 40.7869316, "lon": -73.9312194, "weight": 2.0, "estimatedDelivery": "2024-04-23T21:24:56.491867", "customerId": 14}
+{"id": 14, "lastUpdated": "2024-04-17T15:37:34.146517", "origin": "Sweden", "lat": 40.7507922, "lon": -74.0056246, "weight": 1.0, "estimatedDelivery": "2024-04-23T20:59:17.375605", "customerId": 11}
+{"id": 15, "lastUpdated": "2024-04-17T23:39:45.675584", "origin": "Nigeria", "lat": 40.8490274, "lon": -73.9411425, "weight": 8.5, "estimatedDelivery": "2024-04-23T21:10:15.663517", "customerId": 5}
+{"id": 16, "lastUpdated": "2024-04-17T21:12:47.401933", "origin": "Paraguay", "lat": 40.84552, "lon": -73.934686, "weight": 9.7, "estimatedDelivery": "2024-04-23T21:06:51.663873", "customerId": 8}
+{"id": 17, "lastUpdated": "2024-04-18T03:28:52.633487", "origin": "Morocco", "lat": 40.7404441, "lon": -74.0019879, "weight": 3.0, "estimatedDelivery": "2024-04-23T21:07:14.912539", "customerId": 3}
+{"id": 18, "lastUpdated": "2024-04-17T14:43:47.170463", "origin": "Pakistan", "lat": 40.7299869, "lon": -74.0004979, "weight": 2.2, "estimatedDelivery": "2024-04-23T22:22:37.714410", "customerId": 14}
+{"id": 19, "lastUpdated": "2024-04-17T21:39:02.101357", "origin": "Guadeloupe", "lat": 40.8634187, "lon": -73.9300194, "weight": 0.8, "estimatedDelivery": "2024-04-23T21:54:34.656958", "customerId": 3}
+{"id": 20, "lastUpdated": "2024-04-18T06:12:52.570421", "origin": "Italy", "lat": 40.8006925, "lon": -73.9319786, "weight": 4.1, "estimatedDelivery": "2024-04-23T22:08:03.005593", "customerId": 6}
+{"id": 21, "lastUpdated": "2024-04-18T11:22:47.289865", "origin": "Chad", "lat": 40.725008, "lon": -73.999345, "weight": 5.7, "estimatedDelivery": "2024-04-23T22:40:34.978469", "customerId": 14}
+{"id": 22, "lastUpdated": "2024-04-17T16:06:30.247930", "origin": "Haiti", "lat": 40.8024528, "lon": -73.9388372, "weight": 9.0, "estimatedDelivery": "2024-04-23T21:59:01.820081", "customerId": 8}
+{"id": 23, "lastUpdated": "2024-04-18T12:57:47.494517", "origin": "Wallis and Futuna", "lat": 40.7194555, "lon": -73.994384, "weight": 9.9, "estimatedDelivery": "2024-04-23T22:43:29.035548", "customerId": 4}
+{"id": 24, "lastUpdated": "2024-04-17T22:57:26.347579", "origin": "Myanmar", "lat": 40.8701354, "lon": -73.9170165, "weight": 2.1, "estimatedDelivery": "2024-04-23T22:21:00.203370", "customerId": 7}
+{"id": 25, "lastUpdated": "2024-04-17T16:16:59.714234", "origin": "Vanuatu", "lat": 40.7143955, "lon": -74.0005026, "weight": 3.9, "estimatedDelivery": "2024-04-23T22:54:33.043504", "customerId": 14}
+{"id": 26, "lastUpdated": "2024-04-18T08:25:50.095937", "origin": "Martinique", "lat": 40.8115152, "lon": -73.9349267, "weight": 6.0, "estimatedDelivery": "2024-04-23T22:32:36.206061", "customerId": 4}
+{"id": 27, "lastUpdated": "2024-04-17T22:34:32.917568", "origin": "Armenia", "lat": 40.7140166, "lon": -74.0044302, "weight": 8.3, "estimatedDelivery": "2024-04-23T23:12:46.687424", "customerId": 6}
+{"id": 28, "lastUpdated": "2024-04-17T20:59:47.006159", "origin": "Cook Islands", "lat": 40.7219848, "lon": -74.0082309, "weight": 0.8, "estimatedDelivery": "2024-04-23T23:32:49.375996", "customerId": 10}
+{"id": 29, "lastUpdated": "2024-04-18T03:14:38.561570", "origin": "Philippines", "lat": 40.8082629, "lon": -73.9487406, "weight": 5.6, "estimatedDelivery": "2024-04-23T23:03:16.277807", "customerId": 5}
+{"id": 30, "lastUpdated": "2024-04-18T13:07:44.567549", "origin": "Namibia", "lat": 40.8026735, "lon": -73.949123, "weight": 7.0, "estimatedDelivery": "2024-04-23T23:53:03.483624", "customerId": 11}
+{"id": 31, "lastUpdated": "2024-04-18T03:29:10.578463", "origin": "Palau", "lat": 40.7059044, "lon": -74.0132703, "weight": 1.6, "estimatedDelivery": "2024-04-23T23:32:04.489005", "customerId": 5}
+{"id": 32, "lastUpdated": "2024-04-17T17:08:00.914610", "origin": "Tajikistan", "lat": 40.8039853, "lon": -73.9603251, "weight": 4.6, "estimatedDelivery": "2024-04-24T00:34:52.668109", "customerId": 12}
+{"id": 33, "lastUpdated": "2024-04-17T22:16:24.094977", "origin": "Uruguay", "lat": 40.7077288, "lon": -74.0082757, "weight": 0.3, "estimatedDelivery": "2024-04-24T00:37:42.951362", "customerId": 6}
+{"id": 34, "lastUpdated": "2024-04-18T01:59:03.078777", "origin": "Seychelles", "lat": 40.7108044, "lon": -74.0034015, "weight": 7.1, "estimatedDelivery": "2024-04-24T00:43:41.017081", "customerId": 2}
+{"id": 35, "lastUpdated": "2024-04-18T05:51:15.839636", "origin": "Turks and Caicos Islands", "lat": 40.7985815, "lon": -73.9731448, "weight": 1.4, "estimatedDelivery": "2024-04-24T00:34:41.039555", "customerId": 11}
+{"id": 36, "lastUpdated": "2024-04-18T11:57:36.804528", "origin": "Tanzania", "lat": 40.7144213, "lon": -73.9921353, "weight": 0.2, "estimatedDelivery": "2024-04-24T01:03:41.769433", "customerId": 5}
+{"id": 37, "lastUpdated": "2024-04-18T11:28:59.383624", "origin": "Falkland Islands (Malvinas)", "lat": 40.7908085, "lon": -73.9744941, "weight": 2.4, "estimatedDelivery": "2024-04-24T00:42:52.329736", "customerId": 5}
+{"id": 38, "lastUpdated": "2024-04-18T06:02:43.338143", "origin": "Marshall Islands", "lat": 40.7883, "lon": -73.9787, "weight": 1.6, "estimatedDelivery": "2024-04-24T01:26:12.720708", "customerId": 7}
+{"id": 39, "lastUpdated": "2024-04-17T22:19:44.205874", "origin": "Chile", "lat": 40.7124667, "lon": -73.9777769, "weight": 6.1, "estimatedDelivery": "2024-04-24T00:56:48.774937", "customerId": 1}
+{"id": 40, "lastUpdated": "2024-04-17T18:25:21.696273", "origin": "Somalia", "lat": 40.7845451, "lon": -73.9736127, "weight": 4.1, "estimatedDelivery": "2024-04-24T01:12:42.098244", "customerId": 0}
+{"id": 41, "lastUpdated": "2024-04-17T23:49:16.869122", "origin": "Switzerland", "lat": 40.7837916, "lon": -73.9838929, "weight": 1.6, "estimatedDelivery": "2024-04-24T01:39:46.599118", "customerId": 3}
+{"id": 42, "lastUpdated": "2024-04-17T23:11:46.621650", "origin": "Northern Mariana Islands", "lat": 40.7717854, "lon": -73.9792016, "weight": 5.7, "estimatedDelivery": "2024-04-24T02:12:47.195066", "customerId": 1}
+{"id": 43, "lastUpdated": "2024-04-18T02:42:37.103993", "origin": "Sudan", "lat": 40.7711608, "lon": -73.9796589, "weight": 2.5, "estimatedDelivery": "2024-04-24T02:25:06.379041", "customerId": 5}
+{"id": 44, "lastUpdated": "2024-04-18T03:05:32.816546", "origin": "Chad", "lat": 40.7623991, "lon": -73.9786085, "weight": 0.5, "estimatedDelivery": "2024-04-24T02:26:41.623105", "customerId": 14}
+{"id": 45, "lastUpdated": "2024-04-18T10:39:31.837111", "origin": "Gibraltar", "lat": 40.7647981, "lon": -73.9842688, "weight": 6.0, "estimatedDelivery": "2024-04-24T02:28:20.102277", "customerId": 0}
+{"id": 46, "lastUpdated": "2024-04-17T18:02:57.504992", "origin": "Turkmenistan", "lat": 40.766548, "lon": -73.9904253, "weight": 3.3, "estimatedDelivery": "2024-04-24T03:29:05.831285", "customerId": 3}
+{"id": 47, "lastUpdated": "2024-04-18T00:53:18.140034", "origin": "Turkmenistan", "lat": 40.7646863, "lon": -73.9917852, "weight": 3.1, "estimatedDelivery": "2024-04-24T03:30:25.538121", "customerId": 5}
+{"id": 48, "lastUpdated": "2024-04-18T14:01:45.732876", "origin": "Mozambique", "lat": 40.7634277, "lon": -73.9927007, "weight": 4.8, "estimatedDelivery": "2024-04-24T03:56:25.774379", "customerId": 13}
+{"id": 49, "lastUpdated": "2024-04-17T20:48:04.235310", "origin": "Togo", "lat": 40.7583508, "lon": -74.0038049, "weight": 7.2, "estimatedDelivery": "2024-04-24T04:20:18.389940", "customerId": 6}
