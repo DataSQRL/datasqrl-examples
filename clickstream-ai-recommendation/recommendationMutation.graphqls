@@ -23,5 +23,5 @@ input ClickEvent {
 }
 
 type ClickResponse {
-    _source_time: String!
+    event_time: String!
 }

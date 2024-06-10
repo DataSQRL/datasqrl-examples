@@ -1,0 +1,13 @@
+{
+  "script": {
+    "main": "recommendation.sqrl",
+    "graphql": "recommendation.graphqls"
+  },
+  "profiles": [
+    "datasqrl.profile.default",
+    "profiles/redpanda"
+  ],
+  "values": {
+    "mountDir": "<replace.me>"
+  }
+}
