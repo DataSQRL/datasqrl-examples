@@ -1,25 +1,95 @@
-# Nutshop API
+# Customer 360 (Retail) Example
 
-This is an example Customer 360 API that exposes information about a customer's orders and spending.
+This example shows how to combine data from multiple sources to create a comprehensive view of the customer (called a *"Customer 360"*) and expose that view through an API.
 
-## 1. Run the API
+We are building a Customer 360 for an e-commerce site - our SQRL Nut Shop. It combines information on the customer, with the customer's orders and products. The goal is to give the customer a complete picture of their purchase history with analytics and search.
 
-To run this example, invoke the following command in this directory on Unix based systems
+## 1. Compile & Launch Data Pipeline
+
+To run this example, invoke the following command in this directory to compile the data pipeline
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd run nutshop-c360.sqrl nutshop-c360.graphqls
+ docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile customer360.sqrl
 ```
 
-If you are on windows using Powershell, run the following:
-```bash
-docker run -it -p 8888:8888 -p 8081:8081 -v ${PWD}:/build datasqrl/cmd run nutshop-c360.sqrl nutshop-c360.graphqls
+Next, run the following to start the pipeline with Docker:
+`(cd build/deploy; docker compose up --build)`.
+
+Once everything is started pu, check that the GraphQL API is running properly by [opening GraphiQL](http://localhost:8888/graphiql/) to access it.
+
+## 2. Query the API
+
+In GraphiQL, you can run the following queries to access the data:
+
+### Retrieve Recent Purchases
+
+```graphql
+{
+  Customers(id: 5) {
+    country
+    purchases {
+      id
+      time
+      items {
+        productid
+        unit_price
+      }
+    }
+  }
+}
 ```
 
-This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
-for data pipelines. To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/graphiql/) to access the API.
+Returns the purchases for customer with `id=5` and the items in those orders.
 
-## 2. Run the ChatBot
+### Spending History
 
-Run the ChatBot in the language of your choice. Check the particular language implementation for details (e.g. [Java](../../java/)).
+```graphql
+{
+  Customers(id: 5) {
+    spending {
+      week
+      spend
+      saved
+    }
+  }
+}
+```
 
-Provide the name of this example `nutshop` as the command line argument.
-You need to enter a customer id (to "log in" as the respective customer), pick a number between 1-9.
+Shows how much money the customer spent and saved in each of the previous weeks.
+
+### Repeat Purchases
+
+```graphql
+{
+  Customers(id: 5) {
+    past_purchases {
+      productid
+      num_orders
+      total_quantity
+    }
+  }
+}
+```
+
+Shows which products the customers has purchased repeatedly.
+
+
+### Product Search
+
+```graphql
+{
+  ProductSearch(customerId: 5, query: "macadamia") {
+    id
+    time
+    productid
+    productName
+    quantity
+  }
+}
+```
+
+Searches for all customer orders with products that match the query `macadamia`.
+
+## 3. Shut Down Data Pipeline
+
+To stop the data pipeline and release the resources allocated to it, run
+`(cd build/deploy; docker compose down -v)`.

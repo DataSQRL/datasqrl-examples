@@ -1,17 +1,14 @@
 {
-  "type": "source",
-  "canonicalizer": "system",
-  "format": {
-    "name": "json"
+  "version": 1,
+  "flink" : {
+    "format" : "flexible-json",
+    "path" : "/data/orders.jsonl",
+    "connector" : "filesystem"
   },
-  "name": "orders",
-  "identifier": "orders",
-  "schema": "flexible",
-  "connector": {
-    "fileURIs": [
-      "/build/nutshop-files/orders_part1.json"
-    ],
-    "filenamePattern": "^([^\\.]+?)(?:_part.*)?$",
-    "name": "file"
+  "table" : {
+    "type" : "source",
+    "primary-key" : ["id", "time"],
+    "timestamp" : "time",
+    "watermark-millis" : "1"
   }
 }
