@@ -9,7 +9,7 @@ imports included. How cool is that?
 ## How to compile and run the project
 
 - To compile the project, use the following
-  command: `sqrl compile logistics.sqrl logistics.graphqls`
+  command: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile logistics.sqrl logistics.graphqls`
 - To run the project, execute: `docker compose up --build`
 
 ## Exploring the Pipeline
