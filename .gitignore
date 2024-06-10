@@ -4,3 +4,5 @@ target
 h2.db.mv.db
 cache
 .DS_Store
+venv
+__pycache__
