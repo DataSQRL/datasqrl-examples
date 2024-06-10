@@ -9,23 +9,48 @@ This is a repository for real world DataSQRL use cases and examples.
 * **[Retail Nutshop](retail-customer360-nutshop/)**: Build a realtime Customer 360 application for an online shop with personalized recommendations.
 * **[User Defined Function](user-defined-function/)**: This small tutorial shows how to include your call a custom function in your SQRL script.
 
+## What is DataSQRL?
+
+![How DataSQRL Works](util/img/datasqrl_diagram.png)
+
+DataSQRL compiles SQL to optimized data pipelines and data microservices, eliminating the manual work of integrating and tuning data architectures that have multiple steps or components.
+
+DataSQRL compiles SQL plus an (optional) API definition into a realtime data pipeline that processes data according to the SQL transformations, serves the results through a database, and (optionally) exposes them through a responsive API.
+
+You declaratively define your data sources (in JSON), your data processing (in SQL), and optionally your data serving API (in GraphQL) which DataSQRL compiles to an integrated data pipeline based on Apache Flink, database, and optionally API server.
+
+[DataSQRL](https://github.com/DataSQRL/sqrl) is an open-source project hosted on GitHub.
+[Click here](https://www.datasqrl.com) for more information and documentation on DataSQRL.
+
 
 ## Running the Examples
 
+### Prerequisites
+
 Running these examples requires the DataSQRL compiler. The easiest way to run the DataSQRL compiler is in Docker. This requires that you have a [recent version of Docker](https://docs.docker.com/get-docker/) installed on your machine. Alternatively, you can also [install DataSQRL](/update) directly on your machine which is faster and provides additional testing features. 
 
-Check the `README.md` in the respective directory for more information on how to run each example.
+### Compiling
 
-### Using Python in examples
+To run the DataSQRL compiler on Linux or MacOS, open a terminal and run the following command:
+```bash
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile [ARGUMENTS GO HERE]
+```
 
-Some of our examples require python to generate their test data or to ingest them to Kafka.
+If you are on windows using Powershell, you need to reference the local directory with a slightly different syntax:
+```bash
+docker run -it --rm -v ${PWD}:/build datasqrl/cmd:v0.5.0 compile [ARGUMENTS GO HERE]
+```
 
-It is recommended to use virtualenv to manage your python environment. Some IDEs require to place requirements.txt
-and venv folder in the project root. That's why it is in the root, even though not all "modules" are utilizing it.
+Check the `README.md` in the respective directory for more information on how to run each example. We will be using the Unix syntax, so keep in mind that you have to adjust the commands slightly on Windows machines by using `${PWD}` instead.
 
-Here's how to use venv in this project:
+### Running the Data Pipeline
 
-- Create a virtual env in the project root folder: `python3 -m venv venv`
-- Activate the environment: `source venv/bin/activate`
-  - *you can later deactivate it with this command:* `deactivate`
-- Install dependencies: `pip install -r requirements.txt`
+DataSQRL compiles all the assets for a completely integrated data pipeline. The assets are generated in the `build/deploy` folder. You can run that data pipeline with Docker:
+
+`(cd build/deploy; docker compose up --build)`.
+
+This will build all the images and stand up all the components of the data pipeline. Note, that this can take a few minutes - in particular if you are building for the first time.
+
+Once you are done with the data pipeline, you can bring it down safely with:
+
+`(cd build/deploy; docker compose down -v)`
