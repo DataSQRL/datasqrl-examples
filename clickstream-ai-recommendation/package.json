@@ -8,6 +8,6 @@
     "profiles/redpanda"
   ],
   "values": {
-    "mountDir": "/Users/nsabonyi/Developer/DataSQRL/datasqrl-examples/clickstream-ai-recommendation/embedding:/build/embedding"
+    "mountDir": "<replace.me>"
   }
 }

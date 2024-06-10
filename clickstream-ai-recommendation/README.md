@@ -36,17 +36,21 @@ Then, execute the following steps:
     1. If you'd like to use [Yugabyte](https://www.yugabyte.com/) as the database, add the Yugabyte
        deployment profile (`profiles/yugabyte`) to the profiles section in the root `package.json`.
 2. Navigate to the build/deploy directory: cd build/deploy
-3. Start the pipeline: docker compose up --build. This sets up the entire data pipeline with
+3. In the `flink.compose.yml` file, replace `<replace.me>:<replace.me>`
+   with `<absolute.path.to.embedding>:/build/embedding`. For example, if your
+   absolute path is `/Users/datasqrl/datasqrl-examples/clickstream-ai-recommendation/embedding`,
+   then replace it
+   with `/Users/datasqrl/datasqrl-examples/clickstream-ai-recommendation/embedding:/build/embedding`.
+4. Start the pipeline: docker compose up --build. This sets up the entire data pipeline with
    Redpanda, Flink, Postgres, and API server. It takes a few minutes for all the components to boot
    up.
-4. Once everything is started, open another terminal window to add data to Kafka using the
-   load_data.py script in the `yourdata-files` directory. This requires kafka-python-ng installed
-   via
-   pip3 install kafka-python-ng (kafka-python contains a bug).
-5. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`.
+5. Once everything is started, open another terminal window to add data to Kafka using the
+   load_data.py script in the `yourdata-files` directory. This requires **kafka-python-ng** installed
+   via `pip3 install kafka-python-ng` (kafka-python contains a bug).
+6. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`.
    Wait until it finishes, which takes about two minutes. Check the Flink Dashboard running
    at http://localhost:8081/ to see the progress. Wait until the task turns blue again.
-6. Load the clickstream
+7. Load the clickstream
    data: `python3 load_data.py clickstream.json.gz localhost:9094 clickstream --msg 100`. This loads
    100 clicks per second. Wait a few seconds for some data to load. Let this run in the background
    until it finishes (about 4 minutes).
