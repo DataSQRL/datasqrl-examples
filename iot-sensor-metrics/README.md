@@ -38,6 +38,7 @@ mutation AddReading {
 
 Run the query a few times to add some data. Feel free to change the temperature and sensor id.
 
+<!--
 ## 3. Run the ChatBot
 
 Run the ChatBot in the language of your choice. Check the particular language implementation for details (e.g. [Java](../../java/)).
@@ -45,3 +46,5 @@ Run the ChatBot in the language of your choice. Check the particular language im
 Provide the name of this example `sensor` as the command line argument.
 You can now add the ChatBot questions. You can add additional
 temperature readings and see how the answers update in realtime.
+
+-->
