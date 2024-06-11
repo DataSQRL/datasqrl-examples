@@ -7,12 +7,18 @@ Specifically, this API collects the temperature readings of sensors.
 
 To run this example, invoke the following command in this directory on Unix based systems
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd run sensors.sqrl sensors.graphqls
+docker run -it -p 8888:8888 -p 8081:8081 -v $PWD:/build datasqrl/cmd:v0.5.2 compile sensors.sqrl sensors.graphqls
 ```
 
 If you are on windows using Powershell, run the following:
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 -v ${PWD}:/build datasqrl/cmd run sensors.sqrl sensors.graphqls
+docker run -it -p 8888:8888 -p 8081:8081 -v ${PWD}:/build datasqrl/cmd:v0.5.2 compile sensors.sqrl sensors.graphqls
+```
+
+then 
+
+```bash
+cd build/deploy; docker compose up --build
 ```
 
 This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
@@ -37,6 +43,8 @@ mutation AddReading {
 ```
 
 Run the query a few times to add some data. Feel free to change the temperature and sensor id.
+
+Once you are done, hit CTRL-C and take down the pipeline containers with docker compose down -v.
 
 <!--
 ## 3. Run the ChatBot
