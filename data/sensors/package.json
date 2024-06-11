@@ -1,0 +1,12 @@
+{
+  "version": "1",
+  "package": {
+    "name": "datasqrl.example.sensors",
+    "version": "0.5.2",
+    "variant": "dev",
+    "description": "A sensor table package for the datasqrl quickstart https://www.datasqrl.com/docs/getting-started/quickstart/",
+    "homepage": "",
+    "documentation": "",
+    "topics": [ "table" ]
+  }
+}
