@@ -33,9 +33,7 @@ imported (`IMPORT content.Content`, which has a dependency aliased in the packag
 Then, execute the following steps:
 
 1. Run the following command in the root directory to compile: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile`
-    1. If you'd like to use [Yugabyte](https://www.yugabyte.com/) as the database, add the Yugabyte
-       deployment profile (`profiles/yugabyte`) to the profiles section in the root `package.json`.
-1. Add the current directory as an env variable: export SQRL_DIR=${PWD}
+1. Add the current directory as an env variable: `export SQRL_DIR=${PWD}`
 1. Start the pipeline: `(cd build/deploy; docker compose up --build)`. This sets up the entire data pipeline with
    Redpanda, Flink, Postgres, and API server. It takes a few minutes for all the components to boot
    up.

@@ -5,7 +5,7 @@
   },
   "profiles": [
     "datasqrl.profile.default",
-    "profiles/redpanda"
+    "datasqrl.profile.redpanda"
   ],
   "values": {
     "mountDir": "${SQRL_DIR}/embedding:/embedding",
@@ -20,6 +20,16 @@
     "content" : {
       "name": "content-kafka",
       "version": "1",
+      "variant": "dev"
+    },
+    "datasqrl.profile.default" : {
+      "name": "datasqrl.profile.default",
+      "version": "0.5.2",
+      "variant": "dev"
+    },
+    "datasqrl.profile.redpanda" : {
+      "name": "datasqrl.profile.redpanda",
+      "version": "0.5.2",
       "variant": "dev"
     }
   }]

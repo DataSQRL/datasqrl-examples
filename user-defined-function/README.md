@@ -19,7 +19,7 @@ User-defined functions (UDFs) in Flink are powerful tools that allow for the ext
 1. **SQRL Compilation:** Compile the SQRL using DataSQRL's command interface, which prepares your script for deployment in the Flink environment.
 
 ```shell
-docker run --rm -v $PWD:/build datasqrl/cmd compile myudf.sqrl myudf.graphqls --mnt $PWD
+docker run --rm -v $PWD:/build datasqrl/cmd compile myudf.sqrl myudf.graphqls
 ```
 
 2. **Package Flink Jar with UDF:** Next, you'll need to create a new `flink-job.jar` using a packager that will repack your library with the deployable flink jar. This step can take some time to compile.
