@@ -1,0 +1,27 @@
+IMPORT clickstream.Clickstream;
+IMPORT content.Content;
+IMPORT vector.*;
+
+/* Find next page visits within 10 minutes */
+CoVisits := SELECT b.url AS beforeURL, a.url AS afterURL,
+                   a.event_time AS timestamp
+            FROM Clickstream b INNER JOIN Clickstream a ON b.userid=a.userid
+                   AND b.event_time < a.event_time AND
+                       b.event_time >= a.event_time - INTERVAL 10 MINUTE;
+/* Recommend pages that are visited shortly after */
+Recommendation := SELECT beforeURL AS url, afterURL AS recommendation,
+                         count(1) AS frequency FROM CoVisits
+                  GROUP BY url, recommendation
+                  ORDER BY url ASC, frequency DESC;
+
+Content.embedding := onnxEmbed(text, '/embedding/model_quantized.onnx');
+Content := DISTINCT Content ON url ORDER BY _source_time DESC;
+
+UserInterest := SELECT userid, CENTER(embedding) AS interest FROM Clickstream click
+                TEMPORAL JOIN Content ON content.url = click.url
+                GROUP BY userid;
+
+SimilarContent(@userid: String) :=
+SELECT c.*, coalesce(cosineSimilarity(i.interest, c.embedding),0.0) as similarity
+FROM Content c LEFT JOIN UserInterest i ON i.userid = @userid
+ORDER BY similarity DESC LIMIT 10;

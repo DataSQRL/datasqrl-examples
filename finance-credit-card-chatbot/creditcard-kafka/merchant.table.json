@@ -1,0 +1,18 @@
+{
+  "flink": {
+    "format": "flexible-json",
+    "path": "/data/merchant.jsonl",
+    "source.monitor-interval": 1,
+    "connector": "filesystem"
+  },
+  "version": 1,
+  "table": {
+    "type": "source",
+    "primary-key": [
+      "merchantId",
+      "updatedTime"
+    ],
+    "timestamp": "updatedTime",
+    "watermark-millis": "1000"
+  }
+}

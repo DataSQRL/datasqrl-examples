@@ -41,7 +41,7 @@ public class GenerateSeedData {
 
   static final String productsFilename = "products.csv";
   static final String ordersFilenamePrefix = "orders_part";
-  static final String ordersFilenameSuffix = ".json";
+  static final String ordersFilenameSuffix = ".jsonl";
 
   static final long orderNoStart = 150000000l;
   static final int ordersPerFile = 1000000;

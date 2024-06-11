@@ -30,6 +30,7 @@ public class WriterUtil {
   public static<O> void writeToFile(@NonNull List<O> objs, @NonNull Path filename,
       @NonNull Function<O,String> printer, String header, String footer) {
     System.out.printf("Writing %s elements to file %s\n", objs.size(), filename);
+    if (objs.isEmpty()) return;
     try (PrintWriter out = new PrintWriter(new FileWriter(filename.toFile()))) {
       if (header != null) {
         out.println(header);

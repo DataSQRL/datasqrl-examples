@@ -1,0 +1,90 @@
+# Finance Credit Card ChatBot
+
+This project contains two example use cases that process credit card transaction, customer, and merchant data:
+
+1. **Transaction Analytics**: A data pipeline which enriches the credit card transactions with customer and merchant information to give customers an overview of their transactions as well as some analytics on their spending.
+   1. To run this data pipeline with file data, use the `package-analytics-local.json` manifest file.
+   2. To run this data pipeline with Kafka as the data source, use the `package-analytics-kafka.json` manifest file.
+2. **Credit Card Rewards**: A data pipeline that implements a credit card rewards program. Merchants sign up for cash-back rewards on certain credit card types during certain periods and customer get a cash reward when they make a purchase at the merchant during that time. The data pipeline processes the rewards and give the customer insight into the reward they earned.
+    1. To run this data pipeline with file data, use the `package-rewards-local.json` manifest file.
+    2. To run this data pipeline with Kafka as the data source, use the `package-rewards-kafka.json` manifest file.
+
+See below for detailed instructions on how to run each data pipeline. Note, that the instructions are for the *Transaction Analytics* use case. Replace the manifest files to run the *Credit Card Rewards* use case (i.e. `rewards` instead of `analytics` in the package JSON filename) - the instructions are otherwise identical.
+
+## 1. Run the API with File data source
+
+To run this example, invoke the following command in this directory on Unix based systems to compile the project
+```bash
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile -c package-analytics-local.json
+```
+
+If you are on windows using Powershell, you need to reference the local directory with a slightly different syntax:
+```bash
+docker run -it --rm -v ${PWD}:/build datasqrl/cmd:v0.5.0 compile -c package-analytics-local.json
+```
+
+Next, you run the data pipeline with docker compose:
+`(cd build/deploy; docker compose up --build)`
+
+This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
+for data pipelines. To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/graphiql/) to access the API.
+
+When you are done, you can stop the pipeline by hitting CTRL-C and remove the containers with:
+`(cd build/deploy; docker compose down -v)`
+
+## 2. Run the API with Kafka data source
+
+The instructions above run the data pipeline with data ingested from local files. While this is great for testing and local development, most production use cases need to ingest data from an external data source like Kafka.
+
+To use Kafka as the data source, follow these steps:
+
+Invoke the following command in this directory:
+```bash
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile -c package-analytics-kafka.json
+```
+
+Next, you run the data pipeline with docker compose:
+`(cd build/deploy; docker compose up --build)`
+
+This command stands up the entire data pipeline and all data services, including Kafka.
+
+Now, we need to write the data to Kafka, so it can be consumed by the pipeline.
+
+The easiest way to do so is to use a little helper python script
+that reads the data from a file and writes it to the kafka topic. This requires you have Python3 installed on your machine.
+
+In this directory, invoke the script twice in the following order to populate Kafka:
+    1. `python3 ../util/load_data.py creditcard-local/cardAssignment.jsonl localhost:9094 cardassignment --msg 500`
+    2. `python3 ../util/load_data.py creditcard-local/transaction.jsonl localhost:9094 transaction --msg 50`
+
+The first load should be pretty quick. The transactions are then loaded at a rate of 50 per second (You can adjust the rate via the `--msg` option).
+
+You can open [Kafka UI](http://localhost:8087/) to see how the data enters the topics and the [Flink UI](http://localhost:8081/) to see the processing status.
+
+As above, you can [open GraphiQL](http://localhost:8888/graphiql/) to access the API and query for data.
+
+When you are done, you can stop the pipeline by hitting CTRL-C and remove the containers with:
+`(cd build/deploy; docker compose down -v)`
+
+## 3. Run the AI Data Agent
+
+Both use cases can be extended with a Generative AI data agent:
+1. **Transaction Analytics**: The data agent can answer customers' questions about their credit card transaction history and spending habits. The agent is defined in the folder `analytics-agent`.
+2. **Credit Card Rewards**: The data agent can show customers the rewards they earned and sell customers on different types of credit cards to maximize their rewards. The agent is defined in the folder `rewards-agent`.
+
+To run the data agent as a chatbot, you follow these steps:
+
+1. Run the agent in docker:
+`docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} -e API_SERVER=http://deploy-server-1:8888/graphql datasqrl/sqrl-apirag:v0.5.0 /config/analytics-agent/creditcard.openai.config.json /config/analytics-agent/creditcard.tools.json`
+   1. Replace `{ADD_YOUR_KEY` with your OpenAI API key.
+   2. You might have to replace the server name `deploy-server-1`. Run `docker ps` to check the name (last column) of the image called `deploy-server`.
+   3. To run the agent for the credit card rewards use case, replace the folder `analytics-agent` to `rewards-agent`
+2. Now, we need to connect this docker application to the data pipeline by adding them to the same network:
+   1. First, create a docker network: `docker network create agentnetwork`
+   2. Look up the docker container ids for the server and the data agent by running `docker ps`. Find the containers with the image names `deploy-server` and `datasqrl/sqrl-apirag`
+   3. For both of those container ids, run `docker network connect agentnetwork {CONTAINER ID}` where you replace `{CONTAINER ID}` with the id of the container.
+3. Open the [data agent chat](http://localhost:8080/) and enter a customer id (1-9) to "log in" as that customer. Then ask away. Questions like "what credit card would you recommend for me?" or "How many rewards did I earn?" or "How many rewards could I have earned?"
+
+The example above uses OpenAI as the LLM model provider. To use a different LLM model provider, you can change the configuration file (i.e. the first argument that ends with `config.json`):
+* `creditcard.bedrock-llama.config.json`: Uses Llama3 on AWS Bedrock.
+* `creditcard.groq-llama.config.json`: Uses Llama3 on Groq.

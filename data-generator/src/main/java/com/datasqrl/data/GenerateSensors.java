@@ -25,13 +25,13 @@ import picocli.CommandLine;
 @CommandLine.Command(name = "sensors", description = "Generates IoT sensor data")
 public class GenerateSensors extends AbstractGenerateCommand {
 
-  public static final String SENSOR_FILE = "sensors_part%04d.json";
+  public static final String SENSOR_FILE = "sensors_part%04d.jsonl";
 
   public static final String READINGS_FILE = "sensorreading_part%04d.csv";
 
-  public static final String GROUP_FILE = "observationgroup_part%04d.json";
+  public static final String GROUP_FILE = "machinegroup_part%04d.jsonl";
 
-  public static final String GROUP_NAME = " Group";
+  public static final String GROUP_NAME = "";
 
 
   public static final int SENSOR_READINGS_PER_DAY = 3600*24; //one per second
@@ -46,13 +46,12 @@ public class GenerateSensors extends AbstractGenerateCommand {
     Instant startTime = getStartTime(numDays);
 
     int numMachines = config.numSensors / config.avgSensorsPerMachine;
-    List<Patient> machines = IntStream.range(0,numMachines).mapToObj(i -> new Patient(i)).collect(
+    List<GroupMember> machines = IntStream.range(0,numMachines).mapToObj(i -> new GroupMember(i)).collect(
         Collectors.toList());
 
     Instant initialSensorPlacement = startTime.minus(1, ChronoUnit.DAYS);
     List<Sensor> sensors = IntStream.range(0,config.numSensors)
-        .mapToObj(i -> new Sensor(i, sampler.next(machines).patientId ,initialSensorPlacement,
-            config.useEpoch))
+        .mapToObj(i -> new Sensor(i, sampler.next(machines).machineId ,initialSensorPlacement.toEpochMilli()))
         .collect(Collectors.toList());
 
     WriterUtil.writeToFile(sensors, getOutputDir().resolve(String.format(SENSOR_FILE,0)), null, null);
@@ -76,9 +75,9 @@ public class GenerateSensors extends AbstractGenerateCommand {
         Instant timestamp = startOfDay.plus(j,SENSOR_READING_UNIT);
         for (Map.Entry<Sensor, SpikeGenerator> sensorEntry : sensorMap.entrySet()) {
           Sensor sensor = sensorEntry.getKey();
-          readings.add(new SensorReading(sensor.id, timestamp,
+          readings.add(new SensorReading(sensor.id, timestamp.toEpochMilli(),
               sensorEntry.getValue().nextValue(),
-              sampler.nextInt(0,100), config.useEpoch));
+              sampler.nextInt(0,100)));
         }
       }
       WriterUtil.writeToFileSorted(readings, getOutputDir().resolve(String.format(READINGS_FILE,i+1)),
@@ -91,7 +90,7 @@ public class GenerateSensors extends AbstractGenerateCommand {
       List<Sensor> reassignments = new ArrayList<>(numReassignments);
       for (int j = 0; j < numReassignments; j++) {
         Sensor sensor = sampler.next(sensors);
-        reassignments.add(sensor.replaced(sampler.next(machines).patientId,
+        reassignments.add(sensor.replaced(sampler.next(machines).machineId,
             sampler.nextTimestamp(startOfDay, 1, ChronoUnit.DAYS)));
       }
       WriterUtil.writeToFileSorted(reassignments, getOutputDir().resolve(String.format(SENSOR_FILE,i+1)),
@@ -106,7 +105,7 @@ public class GenerateSensors extends AbstractGenerateCommand {
         int numMachinesInGroup = (int)Math.round(sampler.nextPositiveNormal(config.avgMachinesPerGroup,
             config.avgMachinesPerGroupDeviation));
         numMachinesInGroup = Math.min(machines.size(),numMachinesInGroup);
-        groups.add(new MachineGroup(machineGroupId++,faker.medical().hospitalName()+GROUP_NAME,
+        groups.add(new MachineGroup(machineGroupId++,faker.aviation().aircraft()+GROUP_NAME,
             sampler.nextTimestamp(startOfDay, 1, ChronoUnit.DAYS).toString(),
             sampler.withoutReplacement(numMachinesInGroup,machines)));
         sampler.withoutReplacement(numMachinesInGroup,machines);
@@ -125,18 +124,16 @@ public class GenerateSensors extends AbstractGenerateCommand {
 
     @Include
     int id;
-    int machineid;
-    Instant placed;
-    transient boolean useEpoch;
+    int machineId;
+    long placed;
 
     @Override
     public String toString() {
-      return SerializerUtil.toJson(Map.of("id",id,"patientid",machineid,
-          "placed",useEpoch?placed.toEpochMilli():placed.toString()));
+      return SerializerUtil.toJson(this);
     }
 
     public Sensor replaced(int machineid, Instant placementTime) {
-      return new Sensor(id, machineid, placementTime, useEpoch);
+      return new Sensor(id, machineid, placementTime.toEpochMilli());
     }
 
   }
@@ -144,21 +141,19 @@ public class GenerateSensors extends AbstractGenerateCommand {
   @Value
   public static class SensorReading {
 
-    int sensorid;
-    Instant time;
+    int sensorId;
+    long time;
     double temperature;
     double humidity;
 
-    transient boolean useEpoch;
-
     @Override
     public String toString() {
-      return Stream.of(sensorid, useEpoch?time.toEpochMilli():time.toString(), temperature/*, humidity*/).map(Objects::toString).collect(
+      return Stream.of(sensorId, time, temperature, humidity).map(Objects::toString).collect(
           Collectors.joining(", "));
     }
 
     public static String header() {
-      return StringUtils.join(new String[]{"sensorid", "time", "temperature"/*, "humidity"*/},", ");
+      return StringUtils.join(new String[]{"sensorid", "time", "temperature", "humidity"},", ");
     }
 
   }
@@ -169,7 +164,7 @@ public class GenerateSensors extends AbstractGenerateCommand {
     int groupId;
     String groupName;
     String created;
-    Collection<Patient> patients;
+    Collection<GroupMember> machines;
 
     @Override
     public String toString() {
@@ -179,9 +174,9 @@ public class GenerateSensors extends AbstractGenerateCommand {
   }
 
   @Value
-  public static class Patient {
+  public static class GroupMember {
 
-    int patientId;
+    int machineId;
 
   }
 
@@ -216,8 +211,6 @@ public class GenerateSensors extends AbstractGenerateCommand {
     public int maxMaxRampWidth = 10000;
 
     public double errorProbability = 0.00;
-
-    public boolean useEpoch = true;
 
 
 
