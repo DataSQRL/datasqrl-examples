@@ -1,24 +1,18 @@
 {
   "script": {
     "main": "recommendation.sqrl",
-    "graphql": "recommendation.graphqls"
+    "graphql": "clickstream.graphqls"
   },
   "profiles": [
     "datasqrl.profile.default",
     "datasqrl.profile.redpanda"
   ],
   "values": {
-    "mountDir": "${SQRL_DIR}/embedding:/embedding",
-    "create-topics" : ["clickstream", "content"]
+    "mountDir": "${SQRL_DIR}/embedding:/embedding"
   },
   "dependencies": [{
-    "clickstream" : {
-      "name": "clickstream-kafka",
-      "version": "1",
-      "variant": "dev"
-    },
     "content" : {
-      "name": "content-kafka",
+      "name": "content-file",
       "version": "1",
       "variant": "dev"
     },

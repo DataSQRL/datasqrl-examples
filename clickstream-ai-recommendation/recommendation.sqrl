@@ -1,5 +1,5 @@
-IMPORT yourdata.Clickstream;
-IMPORT yourdata.Content;
+IMPORT clickstream.Clickstream;
+IMPORT content.Content;
 IMPORT vector.*;
 
 /* Find next page visits within 10 minutes */
@@ -14,7 +14,7 @@ Recommendation := SELECT beforeURL AS url, afterURL AS recommendation,
                   GROUP BY url, recommendation
                   ORDER BY url ASC, frequency DESC;
 
-Content.embedding := onnxEmbed(text, '/build/embedding/model_quantized.onnx');
+Content.embedding := onnxEmbed(text, '/embedding/model_quantized.onnx');
 Content := DISTINCT Content ON url ORDER BY _source_time DESC;
 
 UserInterest := SELECT userid, CENTER(embedding) AS interest FROM Clickstream click
