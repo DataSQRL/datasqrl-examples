@@ -1,0 +1,20 @@
+{
+  "script": {
+    "main": "recommendation.sqrl",
+    "graphql": "clickstream.graphqls"
+  },
+  "profiles": [
+    "datasqrl.profile.default",
+    "profiles/redpanda"
+  ],
+  "values": {
+    "mountDir": "${SQRL_DIR}/embedding:/embedding"
+  },
+  "dependencies": [{
+    "content" : {
+      "name": "content-file",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

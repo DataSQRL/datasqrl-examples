@@ -25,32 +25,27 @@ There are two ways to run this example depending on how you want to ingest the c
 This method reads data from the stream directly and requires that you add the data to the stream
 specifically.
 
-In the project, we have two packages for the same data. The `yourdata` package specifies reading
-data through a Kafka connector. In `yourdatafile`, we use a connector that reads from the
-filesystem. Initially, we will use the `yourdata` package, which is already
-imported (`IMPORT yourdata.*`).
+In the project, we have two packages for the same data. The `content-kafka` package specifies reading
+data through a Kafka connector. The `content-file`, uses a connector that reads from the
+filesystem. Initially, we will use the `content-kafka` package, which is already
+imported (`IMPORT content.Content`, which has a dependency aliased in the package.json).
 
 Then, execute the following steps:
 
-1. Run the following command in the root directory to compile: `sqrl compile`
+1. Run the following command in the root directory to compile: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile`
     1. If you'd like to use [Yugabyte](https://www.yugabyte.com/) as the database, add the Yugabyte
        deployment profile (`profiles/yugabyte`) to the profiles section in the root `package.json`.
-2. Navigate to the build/deploy directory: cd build/deploy
-3. In the `flink.compose.yml` file, replace `<replace.me>:<replace.me>`
-   with `<absolute.path.to.embedding>:/build/embedding`. For example, if your
-   absolute path is `/Users/datasqrl/datasqrl-examples/clickstream-ai-recommendation/embedding`,
-   then replace it
-   with `/Users/datasqrl/datasqrl-examples/clickstream-ai-recommendation/embedding:/build/embedding`.
-4. Start the pipeline: docker compose up --build. This sets up the entire data pipeline with
+1. Add the current directory as an env variable: export SQRL_DIR=${PWD}
+1. Start the pipeline: `(cd build/deploy; docker compose up --build)`. This sets up the entire data pipeline with
    Redpanda, Flink, Postgres, and API server. It takes a few minutes for all the components to boot
    up.
-5. Once everything is started, open another terminal window to add data to Kafka using the
+1. Once everything is started, open another terminal window to add data to Kafka using the
    load_data.py script in the `yourdata-files` directory. This requires **kafka-python-ng** installed
-   via `pip3 install kafka-python-ng` (kafka-python contains a bug).
-6. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`.
+   via `pip3 install kafka-python-ng`.
+1. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`.
    Wait until it finishes, which takes about two minutes. Check the Flink Dashboard running
    at http://localhost:8081/ to see the progress. Wait until the task turns blue again.
-7. Load the clickstream
+1. Load the clickstream
    data: `python3 load_data.py clickstream.json.gz localhost:9094 clickstream --msg 100`. This loads
    100 clicks per second. Wait a few seconds for some data to load. Let this run in the background
    until it finishes (about 4 minutes).
@@ -89,16 +84,13 @@ Once you are done, hit `CTRL-C` and take down the pipeline containers with `dock
 ### From Local Files and API
 
 This method reads the content data from local files and ingests the clickstream data through the
-API.
-We need to use the `yourdatafile` package. Change `IMPORT yourdata.Content`
-to `IMPORT yourdatafile.Content` in the `recommendation.sqrl` file and change `script.graphql`
-to `recommendationMutation.graphqls` in the root package.json.
+API. Please look at the `package-mutation.json` and compare it with the `package.json` we used before.
+Notice that we are using different graphql files and different dependencies.
 
-Then, execute the following steps:
+Execute the following steps:
 
-1. Run the following command in the root directory to compile: `sqrl compile`
-2. Navigate to the build/deploy directory: `cd build/deploy`
-3. Start the pipeline: `docker compose up --build`
+1. Run the following command in the root directory to compile: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-mutation.json`
+2. Navigate to the build/deploy directory: `(cd build/deploy; docker compose up --build)`
 
 Open GraphiQL to add and query data.
 
@@ -106,6 +98,9 @@ First, add some clickstream data for the user with ID f5e9c688-408d-b54f-94aa-49
 running the following mutations one after the other. Each mutation simulates a user clicking on a
 specific URL. We expect the system to record these clicks and use them to generate personalized
 recommendations.
+
+Open GraphiQL to execute the following graphql commands:
+`http://localhost:8888/graphiql/`
 
 This mutation records a click event for the user on the page "Generosity: An Enhancement":
 

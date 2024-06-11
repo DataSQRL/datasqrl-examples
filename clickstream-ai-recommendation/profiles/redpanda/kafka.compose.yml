@@ -35,9 +35,18 @@ services:
       - 19644:9644
 
   kafka-setup:
-    image: docker.io/bitnami/kafka:3.4.0-debian-11-r38
-    volumes:
-      - './create-topics.sh:/create-topics.sh'
-    command: [ '/bin/bash', '/create-topics.sh' ]
+    build:
+      context: kafka
+      dockerfile: Dockerfile
+    env_file:
+      - ".env"
+    environment:
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+    entrypoint: /opt/bitnami/scripts/kafka/create-topics.sh
     depends_on:
-      - kafka
+      kafka:
+        condition: service_started
