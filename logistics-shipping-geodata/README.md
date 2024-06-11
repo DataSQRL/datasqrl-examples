@@ -9,8 +9,10 @@ imports included. How cool is that?
 ## How to compile and run the project
 
 - To compile the project, use the following
-  command: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile logistics.sqrl logistics.graphqls`
+  command: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile logistics.sqrl logistics.graphqls`
 - To run the project, execute: `(cd build/deploy; docker compose up --build)`
+
+Once you are done, hit CTRL-C and take down the pipeline containers with docker compose down -v.
 
 ## Exploring the Pipeline
 

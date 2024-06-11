@@ -15,12 +15,12 @@ See below for detailed instructions on how to run each data pipeline. Note, that
 
 To run this example, invoke the following command in this directory on Unix based systems to compile the project
 ```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile -c package-analytics-local.json
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
 ```
 
 If you are on windows using Powershell, you need to reference the local directory with a slightly different syntax:
 ```bash
-docker run -it --rm -v ${PWD}:/build datasqrl/cmd:v0.5.0 compile -c package-analytics-local.json
+docker run -it --rm -v ${PWD}:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
 ```
 
 Next, you run the data pipeline with docker compose:
@@ -40,7 +40,7 @@ To use Kafka as the data source, follow these steps:
 
 Invoke the following command in this directory:
 ```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile -c package-analytics-kafka.json
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-kafka.json
 ```
 
 Next, you run the data pipeline with docker compose:

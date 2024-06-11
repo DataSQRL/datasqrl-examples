@@ -8,7 +8,7 @@ We are building a Customer 360 for an e-commerce site - our SQRL Nut Shop. It co
 
 To run this example, invoke the following command in this directory to compile the data pipeline
 ```bash
- docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.0 compile customer360.sqrl
+ docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile customer360.sqrl
 ```
 
 Next, run the following to start the pipeline with Docker:
