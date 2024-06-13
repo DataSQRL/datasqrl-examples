@@ -1,0 +1,21 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "profiles": ["datasqrl.profile.default"],
+  "script": {
+    "main": "creditcard-rewards.sqrl",
+    "graphql": "creditcard-rewards.graphqls"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  },
+  "dependencies": [{
+    "creditcard-data": {
+      "name": "creditcard-s3",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}
