@@ -1,15 +1,18 @@
 {
-  "flink" : {
-    "format" : "flexible-json",
-    "path" : "s3://mybucket/merchantReward.jsonl",
-    "source.monitor-interval" : 1,
-    "connector" : "filesystem"
+  "flink": {
+    "format": "flexible-json",
+    "path": "s3://${S3_DATA_BUCKET}/merchantReward.jsonl",
+    "source.monitor-interval": 1,
+    "connector": "filesystem"
   },
-  "version" : 1,
-  "table" : {
-    "type" : "source",
-    "primary-key" : ["merchantId", "updatedTime"],
-    "timestamp" : "updatedTime",
-    "watermark-millis" : "1000"
+  "version": 1,
+  "table": {
+    "type": "source",
+    "primary-key": [
+      "merchantId",
+      "updatedTime"
+    ],
+    "timestamp": "updatedTime",
+    "watermark-millis": "1000"
   }
 }
