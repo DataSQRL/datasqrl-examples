@@ -30,5 +30,5 @@ SensorMaxTempTest := SELECT sensorid, maxTemp FROM SensorMaxTemp ORDER BY sensor
 /* Part 3: Integrate Chat Agent */
 IMPORT sensors.AddChatMessage;
 
-CustomerChatMessage := SELECT c.role, c.content, c.name, c.context.customerid, c.event_time AS timestamp,
+CustomerChatMessage := SELECT c.role, c.content, c.name, c.customerid, c.event_time AS timestamp,
                         c._uuid AS uuid FROM AddChatMessage c ORDER BY timestamp DESC;

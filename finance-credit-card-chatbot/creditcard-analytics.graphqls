@@ -49,10 +49,6 @@ input ChatMessageInput {
     role: String!
     content: String!
     name: String
-    context: ChatMessageContextInput
-}
-
-input ChatMessageContextInput {
     customerid: Int
 }
 
