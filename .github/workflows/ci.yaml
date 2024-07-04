@@ -56,8 +56,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
         run: |
-          export ECR_REPOSITORY="datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka "
-          docker tag deploy-database:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          export ECR_REPOSITORY="datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka"
+          docker tag deploy-database:latest "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
         shell: bash
