@@ -39,5 +39,6 @@ jobs:
 
       - name: Build Artifacts
         run: |
-          aws sts get-caller-identity
+          ls ${{ github.workspace }}
+          cd ${{ github.workspace }}/finance-credit-card-chatbot
         shell: bash
