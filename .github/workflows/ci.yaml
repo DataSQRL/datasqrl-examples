@@ -41,4 +41,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}
           cd ${{ github.workspace }}/finance-credit-card-chatbot
+
+          docker run hello-world
+          docker-compose -v
         shell: bash
