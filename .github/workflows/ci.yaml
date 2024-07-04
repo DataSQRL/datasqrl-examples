@@ -40,7 +40,7 @@ jobs:
       - name: Build Artifacts
         run: |
           cd ${{ github.workspace }}/finance-credit-card-chatbot
-          docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
+          docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
           cd build/deploy
           docker-compose build -v
           docker images
