@@ -39,9 +39,9 @@ jobs:
 
       - name: Build Artifacts
         run: |
-          ls ${{ github.workspace }}
           cd ${{ github.workspace }}/finance-credit-card-chatbot
-
-          docker run hello-world
-          docker-compose -v
+          docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
+          cd build/deploy
+          docker-compose build -v
+          docker images
         shell: bash
