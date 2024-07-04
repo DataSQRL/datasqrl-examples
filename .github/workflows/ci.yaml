@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+concurrency:
+  # If you have multiple workflows in the same repository,
+  # concurrency group names must be unique across workflows to avoid canceling in-progress jobs or runs from other workflows.
+  # Otherwise, any previously in-progress or pending job will be canceled, regardless of the workflow.
+  # To only cancel in-progress runs of the same workflow, you can use the github.workflow property to build the concurrency group:
+
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  build-artifacts:
+    name: "CI/BuildArtifacts"
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+    env:
+      ENV: DEV
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+          aws-region: us-east-1
+
+      - name: Getting Code
+        uses: actions/checkout@v3
+
+      - name: Build Artifacts
+        run: |
+          aws sts get-caller-identity
+        shell: bash

@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group 'com.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = '11'
+
+ext {
+    flinkVersion = "1.18.1"
+    jdbcVersion = "3.1.2-1.18"
+    kafkaVersion = "3.1.0-1.18"
+    sqrlVersion = "0.5.2"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
+}
+
+dependencies {
+    compileOnly "org.apache.flink:flink-java:$flinkVersion"
+    compileOnly "org.apache.flink:flink-streaming-java:$flinkVersion"
+    compileOnly "org.apache.flink:flink-table-api-java-bridge:$flinkVersion"
+
+    implementation "org.apache.flink:flink-connector-kafka:$kafkaVersion"
+    implementation "org.apache.flink:flink-connector-jdbc:$jdbcVersion"
+
+    implementation "co.decodable:decodable-pipeline-sdk:1.0.0.Beta6"
+
+    implementation "com.datasqrl:sqrl-lib-common:$sqrlVersion"
+    implementation "com.datasqrl:sqrl-json:$sqrlVersion"
+    implementation "com.datasqrl:sqrl-secure:$sqrlVersion"
+    implementation "com.datasqrl:sqrl-time:$sqrlVersion"
+    implementation "com.datasqrl:sqrl-text:$sqrlVersion"
+    implementation "com.datasqrl:sqrl-flexible-json:$sqrlVersion"
+    implementation "com.datasqrl:sqrl-jdbc-1.18:$sqrlVersion"
+
+    testRuntimeOnly fileTree(dir: 'lib', include: '*.jar')
+}
+
+shadowJar {
+    mergeServiceFiles()
+    manifest {
+        attributes 'Main-Class': 'com.datasqrl.FlinkMain'
+    }
+    from('.') {
+        include 'lib/**'
+        into('.')
+    }
+    zip64 = true
+    archiveFileName = 'FlinkJob.jar'
+}
