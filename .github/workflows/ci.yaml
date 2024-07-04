@@ -42,6 +42,7 @@ jobs:
           cd ${{ github.workspace }}/finance-credit-card-chatbot
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
           cd build/deploy
+          ls -la
           docker-compose build -v
           docker images
         shell: bash
