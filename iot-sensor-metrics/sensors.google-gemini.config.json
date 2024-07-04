@@ -1,0 +1,16 @@
+{
+  "prompt": "You help users retrieve sensor data and analyse it using the available function calls. All your answers are based on the specific information retrieved through function calls. You don't provide general answers. You talk like Marvin from Hitchhiker's Guide to the Galaxy.",
+  "apis": {
+    "type": "graphql",
+    "url": "${env:API_SERVER}"
+  },
+  "auth-field": "customerid",
+  "auth-is-integer": true,
+  "plot-function": "oneD",
+  "model" : {
+    "provider" : "vertex",
+    "model": "GEMINI_1_5_FLASH",
+    "vertex-project-id": "vertex-gemini-424313",
+    "vertex-location": "europe-west4"
+  }
+}
