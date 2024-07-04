@@ -29,7 +29,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+          # TODO: change value of secrets AWS_DEV_GITHUB_ACTION_ROLE to arn instead of name now 
+          # role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+          role-to-assume: arn:aws:iam::286928876767:role/${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
           aws-region: us-east-1
 
       - name: Getting Code
