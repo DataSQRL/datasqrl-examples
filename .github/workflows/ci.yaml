@@ -51,7 +51,7 @@ jobs:
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
-          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka"
+          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/deploy-server"
       
       - name: Login to Amazon ECR
         id: login-ecr
