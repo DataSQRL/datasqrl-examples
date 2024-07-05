@@ -16,7 +16,7 @@ concurrency:
 
 env:
   EXAMPLE_NAME: finance-credit-card-chatbot
-  DEPLOYMENT_PACKAGE_NAME: package-analytics-local.json
+  DEPLOYMENT_PACKAGE_NAME: package-analytics-local
 
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
       - name: Build Artifacts
         run: |
           cd "${{ github.workspace }}/$EXAMPLE_NAME"
-          docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "$DEPLOYMENT_PACKAGE_NAME"
+          docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "$DEPLOYMENT_PACKAGE_NAME.json"
           cd build/deploy
           ls -la
           docker compose build
@@ -55,7 +55,7 @@ jobs:
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
-          repository: "datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/deploy-server"
+          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-local/deploy-server"
       
       - name: Login to Amazon ECR
         id: login-ecr
