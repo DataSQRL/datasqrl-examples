@@ -14,6 +14,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  EXAMPLE_NAME: finance-credit-card-chatbot
+  DEPLOYMENT_PACKAGE_NAME: package-analytics-local.json
+
 
 jobs:
   build-artifacts:
@@ -40,7 +44,7 @@ jobs:
       - name: Build Artifacts
         run: |
           cd ${{ github.workspace }}/finance-credit-card-chatbot
-          docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
+          docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c {{ env.DEPLOYMENT_PACKAGE_NAME }}
           cd build/deploy
           ls -la
           docker compose build
@@ -51,7 +55,7 @@ jobs:
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
-          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/deploy-server"
+          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-local/deploy-server"
       
       - name: Login to Amazon ECR
         id: login-ecr
