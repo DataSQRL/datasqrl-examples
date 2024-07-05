@@ -75,7 +75,7 @@ jobs:
 
           # upload database schema
           cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql
-          aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/database-schema.sql
+          aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/
         shell: bash
       
       - name: Deploy
