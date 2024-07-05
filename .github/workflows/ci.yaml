@@ -57,16 +57,30 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       
-      - name: Tag and Push Docker Images to ECR repository
+      - name: Tag and Push Docker Images to ECR repository, Upload artifacts to S3
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           # IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
         run: |
           export ECR_REPOSITORY="datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka"
-          export IMAGE_TAG="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
-          docker tag deploy-database:latest $IMAGE_TAG
+          export IMAGE_TAG="$ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest"
+          docker tag deploy-server:latest $IMAGE_TAG
           docker push $IMAGE_TAG
 
+          # upload jar file
+          docker create --name temp_container deploy-flink-job-submitter
+          sudo docker cp temp_container:/scripts/FlinkJob.jar .
+          docker rm temp_container
+          aws s3 cp FlinkJob.jar s3://sqrl-examples-artifactory-dev/datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/
+
+          # upload database schema
+          cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql
+          aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/database-schema.sql
+        shell: bash
+      
+      - name: Deploy
+        run: |
+          echo "deploy cloud resources"
         shell: bash
   
   # deploy test infrastructure
