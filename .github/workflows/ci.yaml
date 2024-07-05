@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Artifacts
         run: |
-          cd ${{ github.workspace }}/finance-credit-card-chatbot
+          cd "${{ github.workspace }}/$EXAMPLE_NAME"
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "$DEPLOYMENT_PACKAGE_NAME"
           cd build/deploy
           ls -la
@@ -55,7 +55,7 @@ jobs:
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
-          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-local/deploy-server"
+          repository: "datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/deploy-server"
       
       - name: Login to Amazon ECR
         id: login-ecr
@@ -66,7 +66,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           # IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
         run: |
-          export ECR_REPOSITORY="datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka"
+          export ECR_REPOSITORY="datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}"
           export IMAGE_TAG="$ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest"
           docker tag deploy-server:latest $IMAGE_TAG
           docker push $IMAGE_TAG
@@ -75,11 +75,11 @@ jobs:
           docker create --name temp_container deploy-flink-job-submitter
           sudo docker cp temp_container:/scripts/FlinkJob.jar .
           docker rm temp_container
-          aws s3 cp FlinkJob.jar s3://sqrl-examples-artifactory-dev/datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/
+          aws s3 cp FlinkJob.jar s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
 
           # upload database schema
           cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql
-          aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka/
+          aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
         shell: bash
       
       - name: Deploy
