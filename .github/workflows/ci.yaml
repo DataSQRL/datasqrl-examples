@@ -78,7 +78,7 @@ jobs:
           aws s3 cp FlinkJob.jar s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
 
           # upload database schema
-          cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql
+          cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/
           aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
         shell: bash
       
