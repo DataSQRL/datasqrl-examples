@@ -49,7 +49,7 @@ jobs:
       
       - name: Create ECR repo if necessary
         id: ecr-repo
-        uses: @2iq/aws-ecr-create-repository@v1
+        uses: "@2iq/aws-ecr-create-repository@v1"
         with:
           ecr-name: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka"
       
