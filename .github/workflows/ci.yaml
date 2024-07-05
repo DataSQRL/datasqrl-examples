@@ -49,9 +49,9 @@ jobs:
       
       - name: Create ECR repo if necessary
         id: ecr-repo
-        uses: 2iq/aws-ecr-create-repository@v1
+        uses: int128/create-ecr-repository-action@v1
         with:
-          ecr-name: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka"
+          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-kafka"
       
       - name: Login to Amazon ECR
         id: login-ecr
