@@ -16,7 +16,7 @@ concurrency:
 
 env:
   EXAMPLE_NAME: finance-credit-card-chatbot
-  DEPLOYMENT_PACKAGE_NAME: package-analytics-local
+  DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
 
 
 jobs:
