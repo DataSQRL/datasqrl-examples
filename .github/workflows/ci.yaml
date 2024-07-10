@@ -85,6 +85,9 @@ jobs:
       - name: Deploy
         run: |
           echo "deploy cloud resources"
+          ls -la
+          pwd
+          echo ${{ secrets.SSH_KEY_SQRL_CLOUD }}
         shell: bash
   
   # deploy test infrastructure
