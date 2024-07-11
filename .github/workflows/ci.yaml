@@ -41,7 +41,7 @@ jobs:
 
       - name: Build Artifacts
         run: |
-          aws sts get-caller-identity --debug
+          echo $AWS_SECRET_ACCESS_KEY
           cd "${{ github.workspace }}/$EXAMPLE_NAME"
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "$DEPLOYMENT_PACKAGE_NAME.json"
           cd build/deploy
