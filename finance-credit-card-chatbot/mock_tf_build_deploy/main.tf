@@ -5,10 +5,10 @@ locals {
 
 
   local_data_locations = toset([
-    "/home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/creditcard-local/cardAssignment.jsonl",
-    "/home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/creditcard-local/merchant.jsonl",
-    "/home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/creditcard-local/merchantReward.jsonl",
-    "/home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/creditcard-local/transaction.jsonl",
+    "creditcard-local/cardAssignment.jsonl",
+    "creditcard-local/merchant.jsonl",
+    "creditcard-local/merchantReward.jsonl",
+    "creditcard-local/transaction.jsonl",
   ])
 
   engine_server_environment_variables = {

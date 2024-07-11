@@ -84,6 +84,7 @@ jobs:
         run: |
           cp /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql  /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
           cp /home/runner/work/datasqrl-examples/datasqrl-examples/FlinkJob.jar /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
+          cp -r /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/creditcard-local /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
 
           ls -la /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
         shell: bash
