@@ -98,8 +98,7 @@ jobs:
         run: |
             docker pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
             cd finance-credit-card-chatbot/mock_tf_build_deploy
-            ls -la
-            docker run public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/" -backend-config="region=us-east-1"
+            docker run --mount type=bind,source="$(pwd)",target=/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/" -backend-config="region=us-east-1"
         shell: bash
   
   # deploy test infrastructure
