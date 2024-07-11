@@ -110,8 +110,8 @@ jobs:
             docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat" -backend-config="region=us-east-1"
         shell: bash
       
-      - name: Terraform Init
-        id: init
+      - name: Terraform Plan
+        id: plan
         run: |
             docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform plan -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat" -backend-config="region=us-east-1"
         shell: bash
