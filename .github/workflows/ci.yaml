@@ -108,11 +108,13 @@ jobs:
             docker pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
             cd finance-credit-card-chatbot/mock_tf_build_deploy
             docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat" -backend-config="region=us-east-1"
+            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest ls -la
         shell: bash
       
       - name: Terraform Plan
         id: plan
         run: |
+            pwd
             docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform plan
         shell: bash
       
