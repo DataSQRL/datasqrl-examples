@@ -91,7 +91,7 @@ jobs:
       - name: Terraform Init
         id: init
         env:
-          GIT_SSH_COMMAND: "echo 'echo ${{ secrets.SSH_KEY_SQRL_CLOUD }}' > id_rsa
+          GIT_SSH_COMMAND: "echo '${{ secrets.SSH_KEY_SQRL_CLOUD }}' > id_rsa
           && ssh-keyscan github.com > known_hosts
           && chmod 600 id_rsa known_hosts
           && ssh -i ./id_rsa -o UserKnownHostsFile=./known_hosts"
