@@ -88,13 +88,18 @@ jobs:
           ls -la finance-credit-card-chatbot
         shell: bash
       
+      - name: Set up SSH
+      id: ssh_setup
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
+
       - name: Terraform Init
         id: init
-        env:
-          GIT_SSH_COMMAND: "echo '${{ secrets.SSH_KEY_SQRL_CLOUD }}' > id_rsa
-          && ssh-keyscan github.com > known_hosts
-          && chmod 600 id_rsa known_hosts
-          && ssh -i ./id_rsa -o UserKnownHostsFile=./known_hosts"
         run: |
             docker pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
             cd finance-credit-card-chatbot/mock_tf_build_deploy
