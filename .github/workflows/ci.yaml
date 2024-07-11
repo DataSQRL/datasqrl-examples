@@ -95,10 +95,10 @@ jobs:
           && ssh-keyscan github.com > known_hosts
           && chmod 600 id_rsa known_hosts
           && ssh -i ./id_rsa -o UserKnownHostsFile=./known_hosts"
-      run: |
-          git pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
-          cd finance-credit-card-chatbot/mock_tf_build_deploy
-          docker run public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init
-      shell: bash
+        run: |
+            git pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
+            cd finance-credit-card-chatbot/mock_tf_build_deploy
+            docker run public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init
+        shell: bash
   
   # deploy test infrastructure
