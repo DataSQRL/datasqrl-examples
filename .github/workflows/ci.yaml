@@ -41,6 +41,7 @@ jobs:
 
       - name: Build Artifacts
         run: |
+          env
           cd "${{ github.workspace }}/$EXAMPLE_NAME"
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "$DEPLOYMENT_PACKAGE_NAME.json"
           cd build/deploy
@@ -107,7 +108,6 @@ jobs:
         run: |
             docker pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
             cd finance-credit-card-chatbot/mock_tf_build_deploy
-            ls -la ~/.aws
             docker run -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat" -backend-config="region=us-east-1"
         shell: bash
   
