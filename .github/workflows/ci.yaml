@@ -99,7 +99,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
       
       - name: Verify SSH agent
-        run: ssh -T git@github.com
+        run: ssh -vT git@github.com
+        continue-on-error: true
 
       - name: Terraform Init
         id: init
