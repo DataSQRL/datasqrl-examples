@@ -118,7 +118,6 @@ jobs:
         shell: bash
       
       - name: Terraform Apply
-        if: github.event_name == 'push'
         id: apply
         run: |
             cd finance-credit-card-chatbot/mock_tf_build_deploy
