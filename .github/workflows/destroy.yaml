@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  # If you have multiple workflows in the same repository,
+  # concurrency group names must be unique across workflows to avoid canceling in-progress jobs or runs from other workflows.
+  # Otherwise, any previously in-progress or pending job will be canceled, regardless of the workflow.
+  # To only cancel in-progress runs of the same workflow, you can use the github.workflow property to build the concurrency group:
+
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  destroy-terraform:
+    name: "BuildArtifacts"
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+    env:
+      ENV: DEV
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+          aws-region: us-east-1
+
+      - name: Getting Code
+        uses: actions/checkout@v3
+      
+      - name: Set up SSH
+        id: ssh_setup
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
+      
+      - name: Verify SSH agent
+        run: ssh -vT git@github.com
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: |
+            docker pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
+            cd finance-credit-card-chatbot/mock_tf_build_deploy
+            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat" -backend-config="region=us-east-1"
+        shell: bash
+      
+      - name: Terraform Plan
+        id: plan
+        run: |
+            cd finance-credit-card-chatbot/mock_tf_build_deploy
+            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform plan
+        shell: bash
+      
+      - name: Terraform Destroy
+        id: apply
+        run: |
+            cd finance-credit-card-chatbot/mock_tf_build_deploy
+            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform destroy --auto-approve
+        shell: bash
+  
+  # deploy test infrastructure

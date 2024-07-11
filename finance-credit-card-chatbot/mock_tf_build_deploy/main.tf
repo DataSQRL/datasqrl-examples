@@ -35,9 +35,9 @@ module "sqrl-aws-managed-flink-example" {
 
   engine_db_username                        = "postgres"
   engine_db_dbname                          = "datasqrl"
-  engine_db_database_schema_script_location = "/home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql"
+  engine_db_database_schema_script_location = "database-schema.sql"
 
-  engine_flink_jar_file_path               = "/home/runner/work/datasqrl-examples/datasqrl-examples/FlinkJob.jar"
+  engine_flink_jar_file_path               = "FlinkJob.jar"
   engine_flink_aws_managed_property_groups = local.engine_flink_aws_managed_property_groups
   local_data_locations                     = local.local_data_locations
   engine_server_environment_variables      = local.engine_server_environment_variables

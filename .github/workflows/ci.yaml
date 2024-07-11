@@ -82,13 +82,13 @@ jobs:
       
       - name: Deploy
         run: |
-          echo "deploy cloud resources"
-          ls -la
-          pwd
-          ls -la finance-credit-card-chatbot
+          cp /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql  /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
+          cp /home/runner/work/datasqrl-examples/datasqrl-examples/FlinkJob.jar /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
+          
+          ls -la /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
         shell: bash
       
-      - name: Set up SSH
+      - name: Set up SSH to sqrl-cloud repo
         id: ssh_setup
         run: |
           mkdir -p ~/.ssh
@@ -97,10 +97,6 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
-      
-      - name: Verify SSH agent
-        run: ssh -vT git@github.com
-        continue-on-error: true
 
       - name: Terraform Init
         id: init
@@ -114,14 +110,14 @@ jobs:
         id: plan
         run: |
             cd finance-credit-card-chatbot/mock_tf_build_deploy
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform plan
+            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform plan
         shell: bash
       
       - name: Terraform Apply
         id: apply
         run: |
             cd finance-credit-card-chatbot/mock_tf_build_deploy
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform apply --auto-approve
+            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform apply --auto-approve
         shell: bash
   
   # deploy test infrastructure
