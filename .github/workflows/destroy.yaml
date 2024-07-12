@@ -9,17 +9,12 @@ on:
         default: "datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy"
 
 concurrency:
-  # If you have multiple workflows in the same repository,
-  # concurrency group names must be unique across workflows to avoid canceling in-progress jobs or runs from other workflows.
-  # Otherwise, any previously in-progress or pending job will be canceled, regardless of the workflow.
-  # To only cancel in-progress runs of the same workflow, you can use the github.workflow property to build the concurrency group:
-
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 
 jobs:
-  destroy-terraform:
+  destroy-tf-stack:
     name: "DestroyInfrastructure"
     runs-on: ubuntu-latest
     permissions:
