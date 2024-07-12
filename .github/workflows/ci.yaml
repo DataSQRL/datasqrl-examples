@@ -17,6 +17,15 @@ concurrency:
 env:
   EXAMPLE_NAME: finance-credit-card-chatbot
   DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
+  
+  # docker
+  DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
+  DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
+
+  # terraform
+  TF_S3_BACKEND_BUCKET_NAME: "bucket=sqrl-examples-artifactory-dev"
+  TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
+  TF_S3_BACKEND_KEY: "datasqrl-examples/${{ env.EXAMPLE_NAME }}//${{ env.DEPLOYMENT_PACKAGE_NAME }}/terraform/terraform.tfstate"
 
 
 jobs:
@@ -39,12 +48,11 @@ jobs:
       - name: Getting Code
         uses: actions/checkout@v3
 
-      - name: Build Artifacts
+      - name: SQRL Compile
         run: |
           cd "${{ github.workspace }}/$EXAMPLE_NAME"
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "$DEPLOYMENT_PACKAGE_NAME.json"
           cd build/deploy
-          ls -la
           docker compose build
           docker images
         shell: bash
@@ -97,7 +105,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-          docker pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
+          docker pull ${{ env.DOCKER_IMAGE }}
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
 
@@ -105,16 +113,16 @@ jobs:
         id: plan
         run: |
             cd finance-credit-card-chatbot/mock_tf_build_deploy
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform plan
+            ${{ env.DOCKER_COMMAND }} terraform init -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
+            ${{ env.DOCKER_COMMAND }} terraform plan
         shell: bash
       
-      - name: Terraform Apply
-        id: apply
-        run: |
-            cd finance-credit-card-chatbot/mock_tf_build_deploy
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform apply --auto-approve
-        shell: bash
+      # - name: Terraform Apply
+      #   id: apply
+      #   run: |
+      #       cd finance-credit-card-chatbot/mock_tf_build_deploy
+      #       ${{ env.DOCKER_COMMAND }} terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
+      #       ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
+      #   shell: bash
   
   # deploy test infrastructure
