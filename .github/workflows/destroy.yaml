@@ -1,7 +1,7 @@
-name: Destroy Terraform Stack
+name: destroy-terraform-stack
 
 'on': 
-  workflow_dispatch
+  workflow_dispatch:
     inputs:
       tf_script_dir:
         description: Path to directory where terraform scripts are stored
