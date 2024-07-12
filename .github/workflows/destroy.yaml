@@ -1,16 +1,14 @@
 name: TerraformDestroy
-
-on:
+'on':
   workflow_dispatch:
     inputs:
       tf_script_dir:
-        description: 'Path to directory where terraform scripts are stored'
+        description: Path to directory where terraform scripts are stored
         required: false
-        default: "datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy"
-
+        default: datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
 jobs:
   destroy-tf-stack:
-    name: "DestroyInfrastructure"
+    name: DestroyInfrastructure
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -22,12 +20,10 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+          role-to-assume: '${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}'
           aws-region: us-east-1
-
       - name: Getting Code
         uses: actions/checkout@v3
-      
       - name: Set up SSH
         id: ssh_setup
         run: |
@@ -36,11 +32,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
-      
+          SSH_PRIVATE_KEY: '${{ secrets.SSH_KEY_SQRL_CLOUD }}'
       - name: Terraform Destroy
         id: apply
-        run: |
-            cd "/home/runner/work/datasqrl-examples/{{ inputs.tf_script_dir }}"
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform destroy --auto-approve
+        run: >
+          cd "/home/runner/work/datasqrl-examples/{{ inputs.tf_script_dir }}"
+
+          docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env
+          AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v
+          "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform
+          destroy --auto-approve
         shell: bash
