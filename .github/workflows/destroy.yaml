@@ -8,11 +8,6 @@ on:
         required: false
         default: "datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-
 jobs:
   destroy-tf-stack:
     name: "DestroyInfrastructure"
