@@ -21,12 +21,13 @@ type SensorMaxTemp {
 }
 
 type CustomerChatMessage {
-  role: String!
-  content: String!
-  name: String
-  customerid: Int!
-  timestamp: String!
-  uuid: String!
+    role: String!
+    content: String!
+    name: String
+    functionCall: String
+    customerid: Int!
+    timestamp: String!
+    uuid: String!
 }
 
 type Subscription {
@@ -44,10 +45,11 @@ input ReadingInput {
 }
 
 input ChatMessageInput {
-  role: String!
-  content: String!
-  name: String
-  customerid: Int
+    role: String!
+    content: String!
+    name: String
+    functionCall: String
+    customerid: Int
 }
 
 type CreatedChatMessage {

@@ -1,6 +1,6 @@
 [
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
       "name": "total_rewards",
       "description": "Returns the total amount of rewards the customer has earned to date and the time since when they eared rewards",
@@ -20,7 +20,7 @@
     }
   },
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
       "name": "total_potential_rewards",
       "description": "Returns the total amount of rewards the customer could have earned for each type of credit card the customer does not yet have. Use this function to determine which credit card type to recommend to a customer.",
@@ -40,7 +40,7 @@
     }
   },
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
       "name": "rewards_by_week",
       "description": "Returns the total awards a customer earned by week starting from the most recent week.",
@@ -68,7 +68,7 @@
     }
   },
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
       "name": "potential_rewards_by_week",
       "description": "Returns the total awards a customer could have earned for a given card type by week starting from the most recent week. Use this function to show the customer what their reward earnings would have looked like, if they had a given card.",
@@ -100,7 +100,7 @@
     }
   },
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
       "name": "rewards",
       "description": "Returns all the rewards that a customer has earned in the given time period",
@@ -128,7 +128,7 @@
     }
   },
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
       "name": "potential_rewards",
       "description": "Returns all the potential rewards a customer could have earned in the given time period for the given card type. Use this function to show customers the rewards they would have earned if they had the given card.",
@@ -160,9 +160,9 @@
     }
   },
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
-      "name": "_saveChatMessage",
+      "name": "InternalSaveChatMessage",
       "description": "Saves User Chat Messages",
       "parameters": {
         "type": "object",
@@ -173,13 +173,13 @@
     },
     "context": ["customerid"],
     "api": {
-      "query": "mutation AddChatMsg($role: String!, $content: String!, $name: String, $context: ChatMessageContextInput!) {\n  AddChatMessage(message: {role: $role, content:$content, name: $name, context:$context}) {\n    event_time\n  }\n}"
+      "query": "mutation AddChatMsg($role: String!, $content: String!, $name: String, $functionCall: String, $customerid: Int!) {\n  AddChatMessage(message: {role: $role, content:$content, name: $name, functionCall: $functionCall, customerid:$customerid}) {\n    event_time\n  }\n}"
     }
   },
   {
-    "type": "graphql",
+    "type": "api",
     "function": {
-      "name": "_getChatMessages",
+      "name": "InternalGetChatMessages",
       "description": "Retrieves User Chat Messages",
       "parameters": {
         "type": "object",
@@ -190,7 +190,7 @@
     },
     "context": ["customerid"],
     "api": {
-      "query": "query GetChatMessages($customerid: Int!, $limit: Int = 10) {\nmessages: CustomerChatMessage(customerid: $customerid, limit:$limit) {\n  role\n  content\n name\n}\n}"
+      "query": "query GetChatMessages($customerid: Int!, $limit: Int = 10) {\nmessages: CustomerChatMessage(customerid: $customerid, limit:$limit) {\n  role\n  content\n  functionCall\n  name\n}\n}"
     }
   }
 ]

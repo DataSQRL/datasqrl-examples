@@ -66,6 +66,7 @@ type CustomerChatMessage {
     role: String!
     content: String!
     name: String
+    functionCall: String
     customerid: Int!
     timestamp: String!
     uuid: String!
@@ -79,6 +80,7 @@ input ChatMessageInput {
     role: String!
     content: String!
     name: String
+    functionCall: String
     customerid: Int
 }
 
