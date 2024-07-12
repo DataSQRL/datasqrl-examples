@@ -1,11 +1,10 @@
 name: TerraformDestroy
-'on':
-  workflow_dispatch:
-    inputs:
-      tf_script_dir:
-        description: Path to directory where terraform scripts are stored
-        required: false
-        default: datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
+'on': workflow_dispatch
+    # inputs:
+    #   tf_script_dir:
+    #     description: Path to directory where terraform scripts are stored
+    #     required: false
+    #     default: datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
 jobs:
   destroy-tf-stack:
     name: DestroyInfrastructure
@@ -36,7 +35,7 @@ jobs:
       - name: Terraform Destroy
         id: apply
         run: >
-          cd "/home/runner/work/datasqrl-examples/{{ inputs.tf_script_dir }}"
+          # cd "/home/runner/work/datasqrl-examples/{{ inputs.tf_script_dir }}"
 
           docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env
           AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v
