@@ -38,6 +38,7 @@ jobs:
         id: apply
         run: |
           cd "/home/runner/work/datasqrl-examples/${{ inputs.tf_script_dir }}"
+          # mock up artifacts for destroy command
           touch FlinkJob.jar
           touch database-schema.sql
 
