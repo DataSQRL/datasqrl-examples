@@ -38,7 +38,8 @@ jobs:
       - name: Terraform Destroy
         id: apply
         run: >
-          cd "/home/runner/work/datasqrl-examples/{{ inputs.tf_script_dir }}"
+          echo {{ inputs.tf_script_dir }}
+          cd /home/runner/work/datasqrl-examples/{{ inputs.tf_script_dir }}
 
           docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env
           AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v
