@@ -38,6 +38,9 @@ jobs:
         id: apply
         run: |
           cd "/home/runner/work/datasqrl-examples/${{ inputs.tf_script_dir }}"
+          touch FlinkJob.jar
+          touch database-schema.sql
+
           docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
-          docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform destroy --auto-approve
+          docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform destroy --auto-approve
         shell: bash
