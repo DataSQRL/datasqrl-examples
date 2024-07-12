@@ -1,4 +1,4 @@
-name: CI
+name: CI-terraform-destroy
 
 on:
   workflow_dispatch:
@@ -42,21 +42,6 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
-
-      - name: Terraform Init
-        id: init
-        run: |
-            cd /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
-            docker pull public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform init -backend-config="bucket=sqrl-examples-artifactory-dev" -backend-config="key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat" -backend-config="region=us-east-1"
-        shell: bash
-      
-      - name: Terraform Plan
-        id: plan
-        run: |
-            cd /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
-            docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest terraform plan
-        shell: bash
       
       - name: Terraform Destroy
         id: apply
