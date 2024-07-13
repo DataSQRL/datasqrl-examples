@@ -17,11 +17,9 @@ concurrency:
 env:
   EXAMPLE_NAME: finance-credit-card-chatbot
   DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
-  
   # docker
   DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
-  DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v "$(pwd)":/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
-
+  DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v $(pwd):/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
   # terraform
   TF_S3_BACKEND_BUCKET_NAME: "bucket=sqrl-examples-artifactory-dev"
   TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
@@ -124,5 +122,3 @@ jobs:
       #       ${{ env.DOCKER_COMMAND }} terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
       #       ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
       #   shell: bash
-  
-  # deploy test infrastructure
