@@ -97,6 +97,7 @@ jobs:
 
   deploy-terraform-stack:
     name: "Deploy Terraform Stack"
+    needs: build-artifacts
     runs-on: ubuntu-latest
     permissions:
       id-token: write
