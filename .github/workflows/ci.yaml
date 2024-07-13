@@ -23,7 +23,7 @@ env:
   # terraform
   TF_S3_BACKEND_BUCKET_NAME: "bucket=sqrl-examples-artifactory-dev"
   TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
-  TF_S3_BACKEND_KEY: "datasqrl-examples/${{ env.EXAMPLE_NAME }}//${{ env.DEPLOYMENT_PACKAGE_NAME }}/terraform/terraform.tfstate"
+  TF_S3_BACKEND_KEY: "datasqrl-examples/$EXAMPLE_NAME//$DEPLOYMENT_PACKAGE_NAME/terraform/terraform.tfstate"
 
 
 jobs:
