@@ -59,7 +59,7 @@ jobs:
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
-          repository: {{ env.ECR_REPOSITORY_SERVER }}
+          repository: ${{ env.ECR_REPOSITORY_SERVER }}
       
       - name: Login to Amazon ECR
         id: login-ecr
