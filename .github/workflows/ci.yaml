@@ -17,6 +17,7 @@ concurrency:
 env:
   EXAMPLE_NAME: finance-credit-card-chatbot
   DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
+  ECR_REPOSITORY_SERVER: "datasqrl-examples/$EXAMPLE_NAME/$DEPLOYMENT_PACKAGE_NAME/deploy-server"
   # docker
   DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
   DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v $(pwd):/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
@@ -47,19 +48,18 @@ jobs:
         uses: actions/checkout@v3
 
       - name: SQRL Compile
+        working-directory: "$EXAMPLE_NAME/build/deploy"
         run: |
-          cd "${{ github.workspace }}/$EXAMPLE_NAME"
+          echo "${{ github.workspace }}"
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "$DEPLOYMENT_PACKAGE_NAME.json"
-          cd build/deploy
-          docker compose build
-          docker images
+          docker compose build -v
         shell: bash
       
       - name: Create ECR repo if necessary
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
-          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/deploy-server"
+          repository: {{ env.ECR_REPOSITORY_SERVER }}
       
       - name: Login to Amazon ECR
         id: login-ecr
@@ -110,6 +110,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: |
+            echo "${{ env.TF_S3_BACKEND_BUCKET_NAME }}"
             cd finance-credit-card-chatbot/mock_tf_build_deploy
             ${{ env.DOCKER_COMMAND }} terraform init -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
             ${{ env.DOCKER_COMMAND }} terraform plan
