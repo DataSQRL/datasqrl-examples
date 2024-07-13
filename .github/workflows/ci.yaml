@@ -25,9 +25,9 @@ env:
   DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
   DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v $(pwd):/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
   # terraform
-  TF_S3_BACKEND_BUCKET_NAME: "bucket=sqrl-examples-artifactory-dev"
+  TF_S3_BACKEND_BUCKET_NAME: "sqrl-examples-artifactory-dev"
   TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
-  TF_S3_BACKEND_KEY: "datasqrl-examples/$EXAMPLE_NAME//$DEPLOYMENT_PACKAGE_NAME/terraform/terraform.tfstate"
+  TF_S3_BACKEND_KEY: "datasqrl-examples/$EXAMPLE_NAME/$DEPLOYMENT_PACKAGE_NAME/terraform/terraform.tfstate"
 
 
 jobs:
