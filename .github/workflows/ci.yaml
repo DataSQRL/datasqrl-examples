@@ -52,7 +52,6 @@ jobs:
         run: |
           echo "${{ github.workspace }}"
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "${{ env.DEPLOYMENT_PACKAGE_NAME }}.json"
-          docker compose build -v
         shell: bash
       
       - name: Build Docker Images
