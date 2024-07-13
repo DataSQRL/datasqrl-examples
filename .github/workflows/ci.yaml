@@ -62,7 +62,6 @@ jobs:
         shell: bash
       
       - name: Create ECR repo if necessary
-        working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
