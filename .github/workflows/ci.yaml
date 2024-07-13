@@ -48,14 +48,21 @@ jobs:
         uses: actions/checkout@v3
 
       - name: SQRL Compile
-        working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
+        working-directory: ${{ env.EXAMPLE_NAME }}
         run: |
           echo "${{ github.workspace }}"
           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "${{ env.DEPLOYMENT_PACKAGE_NAME }}.json"
           docker compose build -v
         shell: bash
       
+      - name: Build Docker Images
+        working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
+        run: |
+          docker compose build -v
+        shell: bash
+      
       - name: Create ECR repo if necessary
+        working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
