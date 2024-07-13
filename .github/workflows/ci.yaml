@@ -15,9 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  REPOSITORY_NAME: datasqrl-examples
   EXAMPLE_NAME: finance-credit-card-chatbot
   DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
-  ECR_REPOSITORY_SERVER: "datasqrl-examples/$EXAMPLE_NAME/$DEPLOYMENT_PACKAGE_NAME/deploy-server"
+  # ECR_REPOSITORY_SERVER: "datasqrl-examples/$EXAMPLE_NAME/$DEPLOYMENT_PACKAGE_NAME/deploy-server"
+
+  ARTIFACTORY_S3_BUCKET_NAME: "sqrl-examples-artifactory-dev"
   # docker
   DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
   DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v $(pwd):/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
@@ -29,7 +32,7 @@ env:
 
 jobs:
   build-artifacts:
-    name: "BuildArtifacts"
+    name: "Build Artifacts"
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -64,13 +67,14 @@ jobs:
         id: ecr-repo
         uses: int128/create-ecr-repository-action@v1
         with:
-          repository: ${{ env.ECR_REPOSITORY_SERVER }}
+          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/deploy-server"
       
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
       
       - name: Tag and Push Docker Images to ECR repository, Upload artifacts to S3
+        working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           # IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
@@ -90,33 +94,59 @@ jobs:
           cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/
           aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
         shell: bash
-      
-      - name: Deploy
-        run: |
-          cp /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/build/deploy/postgres/database-schema.sql  /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
-          cp /home/runner/work/datasqrl-examples/datasqrl-examples/FlinkJob.jar /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
-          cp -r /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/creditcard-local /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
 
-          ls -la /home/runner/work/datasqrl-examples/datasqrl-examples/finance-credit-card-chatbot/mock_tf_build_deploy
+  deploy-terraform-stack:
+    name: "Deploy Terraform Stack"
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+    env:
+      ENV: DEV
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+          aws-region: us-east-1
+
+      - name: Getting Code
+        uses: actions/checkout@v3
+
+      - name: Fetch Artifacts
+        working-directory: ${{ env.EXAMPLE_NAME }}
+        run: |
+          aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/database-schema.sql  ./mock_tf_build_deploy
+          aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/FlinkJob.jar ./mock_tf_build_deploy/
+          # load local data
+          cp -r ./creditcard-local ./mock_tf_build_deploy
+
+          ls -la ./mock_tf_build_deploy
         shell: bash
       
       - name: Set up SSH to sqrl-cloud repo
+        working-directory: "${{ env.EXAMPLE_NAME }}"
         id: ssh_setup
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-          docker pull ${{ env.DOCKER_IMAGE }}
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
+      
+      - name: Pull datasqrl/cloud Image
+        id: pull-datasqrl-cloud
+        run: |
+            docker pull ${{ env.DOCKER_IMAGE }}
+        shell: bash
 
       - name: Terraform Plan
+        working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
         id: plan
         run: |
             echo "${{ env.TF_S3_BACKEND_BUCKET_NAME }}"
-            cd finance-credit-card-chatbot/mock_tf_build_deploy
             ${{ env.DOCKER_COMMAND }} terraform init -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
             ${{ env.DOCKER_COMMAND }} terraform plan
         shell: bash
