@@ -65,5 +65,5 @@ PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWe
 /* Part 3: Integrate Chat Agent */
 IMPORT creditcard-analytics.AddChatMessage;
 
-CustomerChatMessage := SELECT c.role, c.content, c.name, c.customerid, c.event_time AS timestamp,
+CustomerChatMessage := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
                         c._uuid AS uuid FROM AddChatMessage c ORDER BY timestamp DESC;
