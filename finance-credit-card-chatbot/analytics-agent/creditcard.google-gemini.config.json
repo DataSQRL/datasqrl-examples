@@ -4,8 +4,6 @@
     "type": "graphql",
     "url": "${env:API_SERVER}"
   },
-  "auth-field": "customerid",
-  "auth-is-integer": true,
   "plot-function": "oneD",
   "model" : {
     "provider" : "vertex",

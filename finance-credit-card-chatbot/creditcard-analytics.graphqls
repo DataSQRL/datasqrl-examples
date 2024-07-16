@@ -1,10 +1,65 @@
 scalar DateTime
 
 type Query {
-    Transactions(customerid: Int!, fromTime: DateTime!, toTime: DateTime!): [CustomerTransaction!]
-    SpendingByDay(customerid: Int!, fromTime: DateTime!, toTime: DateTime!): [CustomerSpendingByDay!]
-    SpendingByCategory(customerid: Int!, limit: Int = 10, offset: Int = 0): [CustomerSpendingByCategory!]
-    CustomerChatMessage(customerid: Int!, limit: Int = 10, offset: Int = 0): [CustomerChatMessage!]
+    """
+    Returns all credit card transactions within a specified time period ordered by time (most recent first).
+    """
+    Transactions(
+        """
+        customerid: The ID of the customer whose transactions to query.
+        """
+        customerid: Int!,
+        """
+        fromTime: RFC-3339 compliant date time scalar. Returns transactions after this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
+        """
+        fromTime: DateTime!,
+        """
+        toTime: RFC-3339 compliant date time scalar. Returns transactions up to this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
+        """
+        toTime: DateTime!
+    ): [CustomerTransaction!]
+
+    """
+    Returns the total customer spending by day for the specified time period ordered by time (most recent first). When a particular day does not have any spending, no record is returned for that day.
+    """
+    SpendingByDay(
+        """
+        customerid: The ID of the customer whose spending to query.
+        """
+        customerid: Int!,
+        """
+        fromTime: RFC-3339 compliant date time scalar. Returns spending from this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
+        """
+        fromTime: DateTime!,
+        """
+        toTime: RFC-3339 compliant date time scalar. Returns spending up to this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
+        """
+        toTime: DateTime!
+    ): [CustomerSpendingByDay!]
+
+    """
+    Returns the customer spending by category by week in decreasing order of time, i.e. showing the most recent week first, then the week before that and so forth.
+    """
+    SpendingByCategory(
+        """
+        customerid: The ID of the customer whose spending to query.
+        """
+        customerid: Int!,
+        """
+        limit: The number of spending records to return. Each week has 12 records - one for each spending category. To return the spending records for multiple weeks, multiple the number of weeks by 12. For example, to return spending records for 5 week, set the limit to 60.
+        """
+        limit: Int = 10,
+        offset: Int = 0
+    ): [CustomerSpendingByCategory!]
+
+    """
+    Retrieves User Chat Messages
+    """
+    InternalGetChatMessages(
+        customerid: Int!,
+        limit: Int = 10,
+        offset: Int = 0
+    ): [CustomerChatMessage!]
 }
 
 type CustomerTransaction {
@@ -42,7 +97,7 @@ type Subscription {
 }
 
 type Mutation {
-    AddChatMessage(message: ChatMessageInput!): CreatedChatMessage
+    InternalSaveChatMessage(message: ChatMessageInput!): CreatedChatMessage
     AddTransaction(tx: TransactionInput!): CreatedTransaction
 }
 
