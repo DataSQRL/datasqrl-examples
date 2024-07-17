@@ -31,4 +31,5 @@ module "sqrl-aws-managed-flink-example" {
   engine_flink_jar_file_path               = "FlinkJob.jar"
   engine_flink_aws_managed_property_groups = local.engine_flink_aws_managed_property_groups
   engine_server_environment_variables      = local.engine_server_environment_variables
+  engine_flink_s3_data_bucket              = "sqrl-examples-data-bucket"
 }
