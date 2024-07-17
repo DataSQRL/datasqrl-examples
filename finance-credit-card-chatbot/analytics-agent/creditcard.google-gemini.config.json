@@ -4,7 +4,7 @@
     "type": "graphql",
     "url": "${env:API_SERVER}"
   },
-  "plot-function": "oneD",
+  "client_functions": "datacharts",
   "model" : {
     "provider" : "vertex",
     "name": "gemini-1.5-flash",

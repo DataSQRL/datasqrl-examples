@@ -5,7 +5,7 @@
     "url": "${env:API_SERVER}"
   },
   "context": ["customerId"],
-  "plot-function": "oneD",
+  "client_functions": "datacharts",
   "model" : {
     "provider" : "openai",
     "name": "gpt-4"

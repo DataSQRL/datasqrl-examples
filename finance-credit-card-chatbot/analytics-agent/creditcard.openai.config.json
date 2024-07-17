@@ -4,7 +4,7 @@
     "type": "graphql",
     "url": "${env:API_SERVER}"
   },
-  "plot-function": "oneD",
+  "client_functions": "datacharts",
   "model" : {
     "provider" : "openai",
     "name": "gpt-3.5-turbo"
