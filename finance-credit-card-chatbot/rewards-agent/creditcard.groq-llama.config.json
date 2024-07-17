@@ -7,6 +7,6 @@
   "plot-function": "oneD",
   "model" : {
     "provider" : "groq",
-    "model": "llama3-70b-8192"
+    "name": "llama3-70b-8192"
   }
 }

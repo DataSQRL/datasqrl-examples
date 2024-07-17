@@ -8,6 +8,6 @@
   "plot-function": "oneD",
   "model" : {
     "provider" : "openai",
-    "model": "gpt-4"
+    "name": "gpt-4"
   }
 }

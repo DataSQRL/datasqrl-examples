@@ -7,6 +7,6 @@
   "plot-function": "oneD",
   "model" : {
     "provider" : "bedrock",
-    "model": "meta.llama3-70b-instruct-v1:0"
+    "name": "meta.llama3-70b-instruct-v1:0"
   }
 }
