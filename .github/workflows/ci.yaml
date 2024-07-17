@@ -152,10 +152,10 @@ jobs:
             ${{ env.DOCKER_COMMAND }} terraform plan
         shell: bash
       
-      # - name: Terraform Apply
-      #   id: apply
-      #   run: |
-      #       cd finance-credit-card-chatbot/mock_tf_build_deploy
-      #       ${{ env.DOCKER_COMMAND }} terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
-      #       ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
-      #   shell: bash
+      - name: Terraform Apply
+        id: apply
+        run: |
+            cd finance-credit-card-chatbot/mock_tf_build_deploy
+            ${{ env.DOCKER_COMMAND }} terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
+            ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
+        shell: bash
