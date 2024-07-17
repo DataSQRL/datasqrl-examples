@@ -148,7 +148,7 @@ jobs:
         id: plan
         run: |
             echo "${{ env.TF_S3_BACKEND_BUCKET_NAME }}"
-            ${{ env.DOCKER_COMMAND }} terraform init -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
+            ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
             ${{ env.DOCKER_COMMAND }} terraform plan
         shell: bash
       
@@ -156,6 +156,6 @@ jobs:
         id: apply
         run: |
             cd finance-credit-card-chatbot/mock_tf_build_deploy
-            ${{ env.DOCKER_COMMAND }} terraform init -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
+            ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
             ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
         shell: bash
