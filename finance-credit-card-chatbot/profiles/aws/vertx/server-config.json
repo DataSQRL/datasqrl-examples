@@ -104,7 +104,7 @@
     "readIdleTimeout": 0,
     "writeIdleTimeout": 0,
     "idleTimeoutUnit": "SECONDS",
-    "ssl": false,
+    "ssl": true,
     "sslHandshakeTimeout": 10,
     "sslHandshakeTimeoutUnit": "SECONDS",
     "enabledCipherSuites": [],
