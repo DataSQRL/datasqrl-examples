@@ -33,5 +33,5 @@ module "sqrl-aws-managed-flink-example" {
   engine_server_environment_variables      = local.engine_server_environment_variables
   engine_flink_s3_data_bucket              = "sqrl-examples-data-bucket"
   create_customer_dns_record               = true
-  customer_dns_domain_name                 = customer1-pipeline.sqrl-dev.live
+  customer_dns_domain_name                 = "customer1-pipeline.sqrl-dev.live"
 }
