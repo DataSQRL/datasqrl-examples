@@ -141,7 +141,7 @@
       "extra_float_digits": "2"
     },
     "pipeliningLimit": 256,
-    "sslMode": "prefer",
+    "sslMode": "REQUIRE",
     "socketAddress": {
       "domainSocket": false,
       "inetSocket": true
