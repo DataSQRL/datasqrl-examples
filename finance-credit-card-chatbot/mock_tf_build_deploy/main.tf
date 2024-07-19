@@ -66,3 +66,12 @@ module "cluster" {
     Terraform   = "true"
   }
 }
+
+resource "aws_db_subnet_group" "aurora_subnet_group" {
+  name       = "db-subnet-group"
+  subnet_ids = ["subnet-0c26a243ec9827b61", "subnet-0d48ce4996d3600a2"] # Replace with your subnet IDs
+
+  tags = {
+    Name = "AuroraPostgreSQLSubnetGroup"
+  }
+}
