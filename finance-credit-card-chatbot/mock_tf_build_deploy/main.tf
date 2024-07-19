@@ -39,6 +39,7 @@ module "sqrl-aws-managed-flink-example" {
 
 module "cluster" {
   source  = "terraform-aws-modules/rds-aurora/aws"
+  version = "8.1.0"
 
   name           = "test-aurora-db-postgres96"
   engine         = "aurora-postgresql"
