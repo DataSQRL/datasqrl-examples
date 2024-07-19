@@ -52,16 +52,7 @@ module "cluster" {
     }
   }
 
-  vpc_id               = "vpc-12345678"
-  db_subnet_group_name = "db-subnet-group"
-  security_group_rules = {
-    ex1_ingress = {
-      cidr_blocks = ["10.20.0.0/20"]
-    }
-    ex1_ingress = {
-      source_security_group_id = "sg-12345678"
-    }
-  }
+  vpc_id               = "vpc-0812002a4607076a4"
 
   storage_encrypted   = true
   apply_immediately   = true
