@@ -54,6 +54,7 @@ module "cluster" {
 
   vpc_id               = "vpc-0812002a4607076a4"
   db_subnet_group_name = aws_db_subnet_group.aurora_subnet_group.name
+  master_username = "testuser"
 
   storage_encrypted   = true
   apply_immediately   = true
