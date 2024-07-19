@@ -121,7 +121,7 @@
     "tcpQuickAck": false,
     "tcpUserTimeout": 0,
     "connectTimeout": 60000,
-    "trustAll": false,
+    "trustAll": true,
     "metricsName": "",
     "reconnectAttempts": 0,
     "reconnectInterval": 1000,
