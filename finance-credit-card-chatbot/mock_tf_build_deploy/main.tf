@@ -53,7 +53,7 @@ module "cluster" {
   }
 
   vpc_id               = "vpc-0812002a4607076a4"
-  db_subnet_group_name = "db-subnet-group"
+  db_subnet_group_name = aws_db_subnet_group.aurora_subnet_group.name
 
   storage_encrypted   = true
   apply_immediately   = true
