@@ -53,6 +53,7 @@ module "cluster" {
   }
 
   vpc_id               = "vpc-0812002a4607076a4"
+  db_subnet_group_name = "db-subnet-group"
 
   storage_encrypted   = true
   apply_immediately   = true
