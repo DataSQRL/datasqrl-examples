@@ -4,8 +4,8 @@ scalar DateTime
 type Query {
     """Returns all the rewards that a customer has earned in the given time period"""
     Rewards(
-        """customerId: Customer identifier"""
-        customerId: Int!,
+        """customerid: Customer identifier"""
+        customerid: Int!,
         """fromTime: RFC-3339 compliant date time scalar. Returns rewards after this time. Use the start of the day only, e.g. 2024-01-19T00:00:00-00:00."""
         fromTime: DateTime!,
         """toTime: RFC-3339 compliant date time scalar. Returns rewards up to this time. Use the start of the day only, e.g. 2024-01-19T00:00:00-00:00."""
@@ -14,8 +14,8 @@ type Query {
 
     """Returns the total awards a customer earned by week starting from the most recent week."""
     RewardsByWeek(
-        """customerId: Customer identifier"""
-        customerId: Int!,
+        """customerid: Customer identifier"""
+        customerid: Int!,
         """limit: The number of weeks to return starting from most recent to less recent weeks. For example, if limit is 12 it will return the last 12 weeks of total rewards earned."""
         limit: Int = 12,
         """offset: The number of weeks to offset. For example, if offset is 4, it will skip the last 4 weeks of rewards earned and return the weeks before that."""
@@ -24,14 +24,14 @@ type Query {
 
     """Returns the total amount of rewards the customer has earned to date and the time since when they eared rewards"""
     TotalReward(
-        """customerId: Customer identifier"""
-        customerId: Int!
+        """customerid: Customer identifier"""
+        customerid: Int!
     ): TotalReward
 
     """Returns all the potential rewards a customer could have earned in the given time period for the given card type. Use this function to show customers the rewards they would have earned if they had the given card."""
     PotentialRewards(
-        """customerId: Customer identifier"""
-        customerId: Int!,
+        """customerid: Customer identifier"""
+        customerid: Int!,
         """cardType: The type of card to calculate potential rewards for (i.e. travel, sports, business, or family)"""
         cardType: String!,
         """fromTime: RFC-3339 compliant date time scalar. Returns rewards after this time. Use the start of the day only, e.g. 2024-01-19T00:00:00-00:00."""
@@ -42,8 +42,8 @@ type Query {
 
     """Returns the total awards a customer could have earned for a given card type by week starting from the most recent week. Use this function to show the customer what their reward earnings would have looked like, if they had a given card."""
     PotentialRewardsByWeek(
-        """customerId: Customer identifier"""
-        customerId: Int!,
+        """customerid: Customer identifier"""
+        customerid: Int!,
         """cardType: The type of card to calculate potential rewards for (e.g., travel, sports, business, family)"""
         cardType: String!,
         """limit: The number of weeks to return starting from most recent to less recent weeks. For example, if limit is 12 it will return the last 12 weeks of total rewards earned."""
@@ -54,13 +54,13 @@ type Query {
 
     """Returns the total amount of rewards the customer could have earned for each type of credit card the customer does not yet have. Use this function to determine which credit card type to recommend to a customer."""
     TotalPotentialReward(
-        """customerId: Customer identifier"""
-        customerId: Int!
+        """customerid: Customer identifier"""
+        customerid: Int!
     ): [TotalPotentialReward!]
 
     """Retrieves User Chat Messages"""
     InternalGetChatMessages(
-        customerId: Int!,
+        customerid: Int!,
         limit: Int = 10,
         offset: Int = 0
     ): [CustomerChatMessage!]
@@ -68,12 +68,12 @@ type Query {
 
 type Subscription {
     """Returns the rewards for a given customer immediately"""
-    CustomerRewards(customerId: Int!): CustomerRewards
+    CustomerRewards(customerid: Int!): CustomerRewards
 }
 
 type CustomerRewards {
     transactionId: Float!
-    customerId: Int!
+    customerid: Int!
     cardNo: Float!
     cardType: String!
     time: DateTime!
@@ -83,20 +83,20 @@ type CustomerRewards {
 }
 
 type RewardsByWeek {
-    customerId: Int!
+    customerid: Int!
     timeWeek: DateTime!
     total_reward: Float!
 }
 
 type TotalReward {
-    customerId: Int!
+    customerid: Int!
     total_reward: Float!
     since_time: DateTime!
 }
 
 type PotentialRewards {
     transactionId: Float!
-    customerId: Int!
+    customerid: Int!
     rewardCardType: String!
     time: DateTime!
     amount: Float!
@@ -105,14 +105,14 @@ type PotentialRewards {
 }
 
 type PotentialRewardsByWeek {
-    customerId: Int!
+    customerid: Int!
     cardType: String!
     timeWeek: DateTime!
     total_reward: Float!
 }
 
 type TotalPotentialReward {
-    customerId: Int!
+    customerid: Int!
     cardType: String!
     total_reward: Float!
     since_time: DateTime!
@@ -123,7 +123,7 @@ type CustomerChatMessage {
     content: String!
     name: String
     functionCall: String
-    customerId: Int!
+    customerid: Int!
     timestamp: String!
     uuid: String!
 }
@@ -138,7 +138,7 @@ input ChatMessageInput {
     content: String!
     name: String
     functionCall: String
-    customerId: Int
+    customerid: Int
 }
 
 type CreatedChatMessage {
