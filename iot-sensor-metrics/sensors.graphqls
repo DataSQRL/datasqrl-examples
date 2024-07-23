@@ -42,7 +42,7 @@ type Query {
         offset: Int = 0
     ): [SensorMaxTemp!]
 
-    InternalSaveChatMessage(
+    InternalGetChatMessages(
         customerid: Int!,
         limit: Int = 10,
         offset: Int = 0
@@ -77,7 +77,7 @@ type Subscription {
 
 type Mutation {
   AddReading(metric: ReadingInput!): SensorReading
-  InternalGetChatMessages(message: ChatMessageInput!): CreatedChatMessage
+  InternalSaveChatMessage(message: ChatMessageInput!): CreatedChatMessage
 }
 
 input ReadingInput {

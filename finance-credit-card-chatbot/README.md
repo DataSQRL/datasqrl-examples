@@ -75,9 +75,11 @@ Both use cases can be extended with a Generative AI data agent:
 To run the data agent as a chatbot, you follow these steps:
 
 1. Run the agent in docker:
-`docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} datasqrl/acorn /config/analytics-agent/creditcard.openai.config.json /config/creditcard-analytics.graphqls`
-   1. Replace `{ADD_YOUR_KEY}` with your OpenAI API key.
-   2. To run the agent for the credit card rewards use case, replace the folder `analytics-agent` with `rewards-agent` and the GraphQL file `creditcard-analytics.graphqls` with `creditcard-rewards.graphqls`.
+```bash
+docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} datasqrl/acorn /config/analytics-agent/creditcard.openai.config.json /config/creditcard-analytics.graphqls
+```
+   * Replace `{ADD_YOUR_KEY}` with your OpenAI API key.
+   * To run the agent for the credit card rewards use case, replace the folder `analytics-agent` with `rewards-agent` and the GraphQL file `creditcard-analytics.graphqls` with `creditcard-rewards.graphqls`.
 2. Open the [data agent chat](http://localhost:8080/) and enter a customer id (1-9) to "log in" as that customer. Then ask away. Questions like "what credit card would you recommend for me?" or "How many rewards did I earn?" or "How many rewards could I have earned?"
 
 The example above uses OpenAI as the LLM model provider. To use a different LLM model provider, you can change the configuration file (i.e. the first argument that ends with `config.json`):

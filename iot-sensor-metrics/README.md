@@ -46,13 +46,16 @@ Run the query a few times to add some data. Feel free to change the temperature 
 
 Once you are done, hit CTRL-C and take down the pipeline containers with docker compose down -v.
 
-<!--
-## 3. Run the ChatBot
 
-Run the ChatBot in the language of your choice. Check the particular language implementation for details (e.g. [Java](../../java/)).
+## 3. Run the AI Data Agent
 
-Provide the name of this example `sensor` as the command line argument.
-You can now add the ChatBot questions. You can add additional
-temperature readings and see how the answers update in realtime.
+To run a ChatBot interface for the sensor data, execute the following command by substituting your OpenAI API key for `{ADD_YOUR_KEY}`:
 
--->
+```bash
+docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} datasqrl/acorn /config/agent/sensors.openai.config.json /config/sensors.graphqls
+```
+
+Open the [data agent chat](http://localhost:8080/) and enter a customer id (1-9) to "log in" as that customer.
+
+You can add sensor data through the API as shown above or by telling the chatbot "Record 50 degrees for sensor 3". Then ask questions about the sensor data.
+
