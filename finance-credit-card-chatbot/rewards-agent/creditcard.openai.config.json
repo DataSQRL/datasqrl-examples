@@ -4,7 +4,7 @@
     "type": "graphql",
     "url": "${env:API_SERVER}"
   },
-  "context": ["customerId"],
+  "context": ["customerid"],
   "client_functions": "datacharts",
   "model" : {
     "provider" : "openai",
