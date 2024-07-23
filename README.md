@@ -13,9 +13,9 @@ This is a repository for real world [DataSQRL](https://github.com/DataSQRL/sqrl)
 
 ### Prerequisites
 
-Running these examples requires the DataSQRL compiler. The easiest way to run the DataSQRL compiler is in Docker. This requires that you have a [recent version of Docker](https://docs.docker.com/get-docker/) installed on your machine. Alternatively, you can also [install DataSQRL](/update) directly on your machine which is faster and provides additional testing features. 
+Running these examples requires the DataSQRL compiler. The easiest way to run the DataSQRL compiler is in Docker. This requires that you have a [recent version of Docker](https://docs.docker.com/get-docker/) installed on your machine.
 
-### Compiling
+### Compiling Examples
 
 To run the DataSQRL compiler on Linux or MacOS, open a terminal and run the following command:
 ```bash
@@ -29,7 +29,7 @@ docker run -it --rm -v ${PWD}:/build datasqrl/cmd:latest compile [ARGUMENTS GO H
 
 Check the `README.md` in the respective directory for more information on how to run each example. We will be using the Unix syntax, so keep in mind that you have to adjust the commands slightly on Windows machines by using `${PWD}` instead.
 
-### Running the Data Pipeline
+### Running Examples
 
 DataSQRL compiles all the assets for a completely integrated data pipeline. The assets are generated in the `build/deploy` folder. You can run that data pipeline with Docker:
 
@@ -43,11 +43,11 @@ Once you are done with the data pipeline, you can bring it down safely with:
 
 ## What is DataSQRL?
 
-![Example DataSQRL Feature Store](util/img/datasqrl_feature_store.png)
+![Example DataSQRL Feature Store](util/img/feature-store.png)
 
-DataSQRL is a flexible data development framework for building data pipelines, event-driven microservices, and other types of data products. It provides the basic structure, common patterns, and a set of tools for streamlining the development process.
+DataSQRL is a flexible data development framework for building various types of data architectures, like data pipelines, event-driven microservices, and Kappa. It provides the basic structure, common patterns, and a set of tools for streamlining the development process.
 
-DataSQRL integrates a broad array of technologies including Apache Flink, Apache Kafka, PostgreSQL, Apache Iceberg, Snowflake, Vert.x and others. By enabling developers to define data processing workflows in SQL and supporting custom functions in Java, Scala, and soon Python, DataSQRL generates the necessary glue code, schematics, and mappings to connect and configure these components seamlessly. DataSQRL simplifies the data engineering process by automating routine tasks such as testing, debugging, deployment, and maintenance of data pipelines.
+DataSQRL integrates a broad array of technologies including Apache Flink, Apache Kafka, PostgreSQL, Apache Iceberg, Snowflake, Vert.x and others. By enabling developers to define data processing workflows in SQL and supporting custom functions in Java, Scala, and soon Python, DataSQRL generates the necessary glue code, schematics, and mappings to connect and configure these components seamlessly. DataSQRL simplifies the data engineering process by automating routine tasks such as testing, debugging, deployment, and maintenance of data architectures.
 
 [DataSQRL](https://github.com/DataSQRL/sqrl) is an open-source project hosted on GitHub.
 [Click here](https://www.datasqrl.com) for more information and documentation on DataSQRL.
