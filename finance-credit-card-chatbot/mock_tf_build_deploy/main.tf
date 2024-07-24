@@ -15,5 +15,5 @@
 # }
 
 module "sqrl-aws-managed-flink-example" {
-  source = "git@github.com:DataSQRL/sqrl-cloud.git//component-aws-managed-full-stack-local?ref=33-refactor-top-level-maintf-with-cdktf"
+  source = "git@github.com:DataSQRL/sqrl-cloud.git//modules/component-aws-managed-full-stack-local?ref=33-refactor-top-level-maintf-with-cdktf"
 }
