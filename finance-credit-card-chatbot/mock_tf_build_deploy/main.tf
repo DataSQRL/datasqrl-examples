@@ -13,3 +13,28 @@
 #   create_customer_dns_record               = "true"
 #   customer_dns_domain_name                 = "customer1-pipeline.sqrl-dev.live"
 # }
+
+terraform {
+  required_version = ">= 1.2"
+
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2"
+    }
+
+    aws = {
+      version = "~> 5.42.0"
+      source  = "registry.terraform.io/hashicorp/aws"
+    }
+    random = {
+      version = ">= 3.6.0"
+      source  = "registry.terraform.io/hashicorp/random"
+    }
+  }
+}
+
+
+provider "aws" {
+  region = var.aws_region
+}
