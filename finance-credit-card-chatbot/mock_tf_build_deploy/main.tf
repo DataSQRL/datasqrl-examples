@@ -20,7 +20,7 @@ locals {
 
 
 module "sqrl-aws-managed-flink-example" {
-  source = "git@github.com:DataSQRL/sqrl-cloud.git//modules/component-aws-managed-full-stack-local"
+  source = "git@github.com:DataSQRL/sqrl-cloud.git//cdktf.out/stacks/test-tfcdk?ref=33-refactor-top-level-maintf-with-cdktf"
 
   engine_server_image = "286928876767.dkr.ecr.us-east-1.amazonaws.com/datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/deploy-server:latest"
 
