@@ -13,3 +13,7 @@
 #   create_customer_dns_record               = "true"
 #   customer_dns_domain_name                 = "customer1-pipeline.sqrl-dev.live"
 # }
+
+module "sqrl-aws-managed-flink-example" {
+  source = "git@github.com:DataSQRL/sqrl-cloud.git//component-aws-managed-full-stack-local?ref=33-refactor-top-level-maintf-with-cdktf"
+}
