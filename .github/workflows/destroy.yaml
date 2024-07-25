@@ -28,6 +28,7 @@ jobs:
       - name: Set up SSH
         id: ssh_setup
         run: |
+          echo "::add-mask::"
           echo '${{ secrets.SSH_KEY_SQRL_CLOUD }}'
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
