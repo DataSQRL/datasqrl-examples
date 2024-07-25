@@ -28,8 +28,6 @@ jobs:
       - name: Set up SSH
         id: ssh_setup
         run: |
-          echo '${{ secrets.SSH_KEY_SQRL_CLOUD }}' > secret.txt
-          cat secret.txt
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
