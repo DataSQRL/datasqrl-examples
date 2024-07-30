@@ -75,16 +75,15 @@ Both use cases can be extended with a Generative AI data agent:
 To run the data agent as a chatbot, you follow these steps:
 
 1. Run the agent in docker:
-`docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} -e API_SERVER=http://deploy-server-1:8888/graphql datasqrl/sqrl-apirag:v0.5.0 /config/analytics-agent/creditcard.openai.config.json /config/analytics-agent/creditcard.tools.json`
-   1. Replace `{ADD_YOUR_KEY` with your OpenAI API key.
-   2. You might have to replace the server name `deploy-server-1`. Run `docker ps` to check the name (last column) of the image called `deploy-server`.
-   3. To run the agent for the credit card rewards use case, replace the folder `analytics-agent` to `rewards-agent`
-2. Now, we need to connect this docker application to the data pipeline by adding them to the same network:
-   1. First, create a docker network: `docker network create agentnetwork`
-   2. Look up the docker container ids for the server and the data agent by running `docker ps`. Find the containers with the image names `deploy-server` and `datasqrl/sqrl-apirag`
-   3. For both of those container ids, run `docker network connect agentnetwork {CONTAINER ID}` where you replace `{CONTAINER ID}` with the id of the container.
-3. Open the [data agent chat](http://localhost:8080/) and enter a customer id (1-9) to "log in" as that customer. Then ask away. Questions like "what credit card would you recommend for me?" or "How many rewards did I earn?" or "How many rewards could I have earned?"
+```bash
+docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} datasqrl/acorn /config/analytics-agent/creditcard.openai.config.json /config/creditcard-analytics.graphqls
+```
+   * Replace `{ADD_YOUR_KEY}` with your OpenAI API key.
+   * To run the agent for the credit card rewards use case, replace the folder `analytics-agent` with `rewards-agent` and the GraphQL file `creditcard-analytics.graphqls` with `creditcard-rewards.graphqls`.
+2. Open the [data agent chat](http://localhost:8080/) and enter a customer id (1-9) to "log in" as that customer. Then ask away. Questions like "what credit card would you recommend for me?" or "How many rewards did I earn?" or "How many rewards could I have earned?"
 
 The example above uses OpenAI as the LLM model provider. To use a different LLM model provider, you can change the configuration file (i.e. the first argument that ends with `config.json`):
 * `creditcard.bedrock-llama.config.json`: Uses Llama3 on AWS Bedrock.
 * `creditcard.groq-llama.config.json`: Uses Llama3 on Groq.
+
+You may have to update the model provider configuration to match your cloud configuration for Bedrock or Google Vertex.
