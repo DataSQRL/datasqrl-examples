@@ -80,9 +80,11 @@ jobs:
           # IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
         run: |
           export ECR_REPOSITORY="datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}"
-          export IMAGE_TAG="$ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest"
-          docker tag deploy-server:latest $IMAGE_TAG
-          docker push $IMAGE_TAG
+
+          docker tag deploy-server:latest $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:${{ github.sha }}
+          docker tag deploy-server:latest $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:${{ github.sha }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest
 
           # upload jar file
           docker create --name temp_container deploy-flink-job-submitter
