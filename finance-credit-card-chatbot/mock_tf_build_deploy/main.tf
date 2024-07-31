@@ -1,5 +1,5 @@
 module "sqrl-aws-managed-flink-example" {
-  source = "git@github.com:DataSQRL/sqrl-cloud.git//cdktf.out/stacks/sqrlpipeline?ref=33-refactor-top-level-maintf-with-cdktf"
+  source = "git@github.com:DataSQRL/sqrl-cloud.git//cdktf.out/stacks/sqrlpipeline?ref=main"
   namespace  = "sqrl"
   aws_region = "us-east-1"
   engine_server_image = "286928876767.dkr.ecr.us-east-1.amazonaws.com/datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/deploy-server:latest"
