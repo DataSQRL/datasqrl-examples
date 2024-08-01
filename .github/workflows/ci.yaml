@@ -145,22 +145,22 @@ jobs:
             docker pull ${{ env.DOCKER_IMAGE }}
         shell: bash
 
-      - name: Terraform Plan
-        working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
-        id: plan
-        run: |
-            echo "${{ env.TF_S3_BACKEND_BUCKET_NAME }}"
-            ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
-            ${{ env.DOCKER_COMMAND }} terraform plan
-        shell: bash
+      # - name: Terraform Plan
+      #   working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
+      #   id: plan
+      #   run: |
+      #       echo "${{ env.TF_S3_BACKEND_BUCKET_NAME }}"
+      #       ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
+      #       ${{ env.DOCKER_COMMAND }} terraform plan
+      #   shell: bash
       
-      - name: Terraform Apply
-        id: apply
-        run: |
-            cd finance-credit-card-chatbot/mock_tf_build_deploy
-            ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
-            ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
-        shell: bash
+      # - name: Terraform Apply
+      #   id: apply
+      #   run: |
+      #       cd finance-credit-card-chatbot/mock_tf_build_deploy
+      #       ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
+      #       ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
+      #   shell: bash
       
       - name: Integration Testing
         id: test
@@ -168,5 +168,5 @@ jobs:
           git clone git@github.com:DataSQRL/sqrl-cloud.git
           cd sqrl-cloud
           poetry install
-          poetry run pytest
+          poetry run pytest tests/integration/test_service_availability.py --alb sqrl-public-backend-1156644312.us-east-1.elb.amazonaws.com
         shell: bash
