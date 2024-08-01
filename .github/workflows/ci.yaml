@@ -161,3 +161,12 @@ jobs:
             ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
             ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
         shell: bash
+      
+      - name: Integration Testing
+        id: test
+        run: |
+          git clone git@github.com:DataSQRL/sqrl-cloud.git
+          cd sqrl-cloud
+          poetry install
+          poetry run pytest
+        shell: bash
