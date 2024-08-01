@@ -167,6 +167,7 @@ jobs:
         run: |
           git clone git@github.com:DataSQRL/sqrl-cloud.git
           cd sqrl-cloud
+          pip install poetry
           poetry install
           poetry run pytest tests/integration/test_service_availability.py --alb sqrl-public-backend-1156644312.us-east-1.elb.amazonaws.com
         shell: bash
