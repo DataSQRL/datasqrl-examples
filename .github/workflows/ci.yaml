@@ -23,7 +23,7 @@ env:
   ARTIFACTORY_S3_BUCKET_NAME: "sqrl-examples-artifactory-dev"
   # docker
   DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
-  DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION -v ~/.ssh:/root/.ssh -v $(pwd):/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
+  DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION --env BACKEND_S3_BUCKET --env BACKEND_S3_KEY -v ~/.ssh:/root/.ssh -v $(pwd):/app -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
   # terraform
   TF_S3_BACKEND_BUCKET_NAME: "sqrl-examples-artifactory-dev"
   TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
@@ -145,22 +145,29 @@ jobs:
             docker pull ${{ env.DOCKER_IMAGE }}
         shell: bash
 
-      # - name: Terraform Plan
-      #   working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
-      #   id: plan
-      #   run: |
-      #       echo "${{ env.TF_S3_BACKEND_BUCKET_NAME }}"
-      #       ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config="bucket=${{ env.TF_S3_BACKEND_BUCKET_NAME }}" -backend-config="key=${{ env.TF_S3_BACKEND_KEY }}" -backend-config="region=${{ env.TF_S3_BACKEND_DEFAULT_REGION }}"
-      #       ${{ env.DOCKER_COMMAND }} terraform plan
-      #   shell: bash
+      - name: Terraform Plan
+        working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
+        id: plan
+        env:
+          BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
+          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_BUCKET_KEY }}
+          AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
+        run: |
+            ${{ env.DOCKER_COMMAND }} tf-init-s3-backend
+            ${{ env.DOCKER_COMMAND }} tf-plan
+        shell: bash
       
-      # - name: Terraform Apply
-      #   id: apply
-      #   run: |
-      #       cd finance-credit-card-chatbot/mock_tf_build_deploy
-      #       ${{ env.DOCKER_COMMAND }} terraform init -reconfigure -backend-config='bucket=sqrl-examples-artifactory-dev' -backend-config='key=datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat' -backend-config='region=us-east-1'
-      #       ${{ env.DOCKER_COMMAND }} terraform apply --auto-approve
-      #   shell: bash
+      - name: Terraform Apply
+        working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
+        id: apply
+        env:
+          BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
+          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_BUCKET_KEY }}
+          AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
+        run: |
+            ${{ env.DOCKER_COMMAND }} tf-init-s3-backend
+            ${{ env.DOCKER_COMMAND }} tf-apply
+        shell: bash
       
       - name: Integration Testing
         id: test
