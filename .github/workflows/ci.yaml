@@ -150,7 +150,7 @@ jobs:
         id: plan
         env:
           BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
-          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_BUCKET_KEY }}
+          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_KEY }}
           AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
         run: |
             ${{ env.DOCKER_COMMAND }} tf-init-s3-backend
@@ -162,7 +162,7 @@ jobs:
         id: apply
         env:
           BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
-          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_BUCKET_KEY }}
+          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_KEY }}
           AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
         run: |
             ${{ env.DOCKER_COMMAND }} tf-init-s3-backend
