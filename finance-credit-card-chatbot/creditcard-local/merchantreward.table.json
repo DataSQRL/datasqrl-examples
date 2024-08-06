@@ -1,7 +1,7 @@
 {
   "flink" : {
     "format" : "flexible-json",
-    "path" : "/data/merchantReward.jsonl",
+    "path" : "${DATA_PATH}/merchantReward.jsonl",
     "source.monitor-interval" : 1,
     "connector" : "filesystem"
   },

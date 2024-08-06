@@ -2,7 +2,7 @@
   "version": 1,
   "flink" : {
     "format" : "flexible-json",
-    "path" : "/data/vehicle_status.jsonl",
+    "path" : "${DATA_PATH}/vehicle_status.jsonl",
     "connector" : "filesystem"
   },
   "table" : {
