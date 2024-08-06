@@ -2,7 +2,7 @@
   "version": 1,
   "flink" : {
     "format" : "csv",
-    "path" : "/data/sensorreading.csv",
+    "path" : "${DATA_PATH}/sensorreading.csv",
     "connector" : "filesystem"
   },
   "table" : {
