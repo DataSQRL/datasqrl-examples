@@ -165,7 +165,8 @@ jobs:
           AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
         run: |
             ${{ env.DOCKER_COMMAND }} tf-apply
-            server_alb_dns_name=$(${{ env.DOCKER_COMMAND }} tf-fetch -- module.server.output.server_alb_dns_name)
+            ${{ env.DOCKER_COMMAND }} tf-state -- show list
+            server_alb_dns_name=$(${{ env.DOCKER_COMMAND }} tf-state -- show module.server.output.server_alb_dns_name)
             echo $server_alb_dns_name
             echo "server_alb_dns_name=$server_alb_dns_name" >> $GITHUB_ENV
         shell: bash
