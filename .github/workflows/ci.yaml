@@ -166,7 +166,7 @@ jobs:
         run: |
             ${{ env.DOCKER_COMMAND }} tf-apply
             ${{ env.DOCKER_COMMAND }} tf-state -- list
-            server_alb_dns_name=$(${{ env.DOCKER_COMMAND }} tf-state -- show module.sqrl-aws-managed-flink-example.module.server.aws_lb.public_backend)
+            server_alb_dns_name=$(${{ env.DOCKER_COMMAND }} tf-state -- show module.sqrl-aws-managed-flink-example.output.server_alb_dns_name)
             echo $server_alb_dns_name
             echo "server_alb_dns_name=$server_alb_dns_name" >> $GITHUB_ENV
         shell: bash
