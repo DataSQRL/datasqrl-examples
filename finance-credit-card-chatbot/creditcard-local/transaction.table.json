@@ -1,7 +1,7 @@
 {
   "flink" : {
     "format" : "flexible-json",
-    "path" : "/data/transaction.jsonl",
+    "path" : "${DATA_PATH}/transaction.jsonl",
     "source.monitor-interval" : 1,
     "connector" : "filesystem"
   },
