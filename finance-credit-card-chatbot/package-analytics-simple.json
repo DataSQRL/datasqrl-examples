@@ -1,0 +1,20 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres",  "flink"],
+  "script": {
+    "main": "creditcard-analytics-simple.sqrl",
+    "graphql": "creditcard-analytics-simple.graphqls"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  },
+  "dependencies": [{
+    "creditcard-data": {
+      "name": "creditcard-local",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

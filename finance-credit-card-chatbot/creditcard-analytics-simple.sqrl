@@ -1,0 +1,23 @@
+/* Import Data */
+IMPORT creditcard-data.Merchant;
+IMPORT creditcard-data.CardAssignment;
+IMPORT creditcard-data.Transaction;
+/* Import Functions */
+IMPORT time.*;
+
+/* Deduplicate CDC Streams */
+Merchant :=       DISTINCT Merchant ON merchantId ORDER BY updatedTime DESC;
+CardAssignment := DISTINCT CardAssignment ON cardNo ORDER BY timestamp DESC;
+
+
+/* Enrich credit card transactions with customer and merchant information */
+_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
+                              m.category, c.customerid
+                       FROM Transaction t
+                       TEMPORAL JOIN CardAssignment c ON t.cardNo = c.cardNo
+                       TEMPORAL JOIN Merchant m ON t.merchantId = m.merchantid ORDER BY t.time DESC;
+
+/* Query Endpoints */
+Transactions(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
+    SELECT * FROM _CustomerTransaction WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
+    ORDER BY time DESC LIMIT 10000;

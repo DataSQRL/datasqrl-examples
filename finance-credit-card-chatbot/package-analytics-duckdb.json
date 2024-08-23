@@ -1,0 +1,31 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "main": "creditcard-analytics-simple.sqrl",
+    "graphql": "creditcard-analytics-simple.graphqls"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  },
+  "dependencies": [{
+    "creditcard-data": {
+      "name": "creditcard-local",
+      "version": "1",
+      "variant": "dev"
+    }
+  }],
+  "engines": {
+    "flink": {
+      "connectors" : {
+        "iceberg" : {
+          "warehouse":"file:///Users/matthias/git/datasqrl-examples/finance-credit-card-chatbot/warehouse",
+          "catalog-type":"hadoop",
+          "catalog-name": "mydatabase"
+        }
+      }
+    }
+  }
+}
