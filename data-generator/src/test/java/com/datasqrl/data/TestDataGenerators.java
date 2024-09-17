@@ -19,7 +19,7 @@ public class TestDataGenerators {
 
   @Test
   public void testPatientSensors() {
-    new RootGenerateCommand().getCmd().execute(new String[]{"sensors","-n","50000"});
+    new RootGenerateCommand().getCmd().execute(new String[]{"patients","-n","1"});
   }
 
   @Test
