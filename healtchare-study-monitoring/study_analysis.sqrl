@@ -19,9 +19,7 @@ PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, meta
                   FROM EnrichedIndicators
                   GROUP BY patientId, timeHour, metadataId, name;
 
-
-
 Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
-Patient.metrics := JOIN PatientMetricsHourly m ON m.patientId = p.patientId ORDER BY timeHour DESC, name ASC;
+Patients.metrics := JOIN PatientMetricsHourly m ON m.patientId = @.patientId ORDER BY m.timeHour DESC, m.name ASC;
 
 
