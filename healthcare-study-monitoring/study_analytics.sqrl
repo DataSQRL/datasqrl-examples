@@ -1,0 +1,23 @@
+IMPORT data-local.*;
+
+_SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
+
+_EnrichedIndicators := SELECT * FROM ClinicalIndicator m
+    TEMPORAL JOIN _SensorPlacements p ON m.sensorId = p.sensorid
+    TEMPORAL JOIN _Metadata d ON d.metadataId = p.metadataId;
+
+IMPORT time.endOfHour;
+
+_PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, metadataId, name,
+                         avg(metric) as avgMetric
+                  FROM _EnrichedIndicators
+                  GROUP BY patientId, timeHour, metadataId, name;
+
+_ObservationGroup := DISTINCT ObservationGroup ON groupId ORDER BY createdDate DESC;
+
+_ObservationGroupMembership := SELECT groupID, groupName, p.patientId FROM _ObservationGroup g JOIN g.patients p;
+
+ObservationAggregate := SELECT groupID, timeHour, metadataId, name, MIN(avgMetric) AS minMetric, MAX(avgMetric) AS maxMetric
+                        FROM _PatientMetricsHourly p JOIN _ObservationGroupMembership o ON p.patientId = o.patientId
+                        GROUP BY groupID, timeHour, metadataId, name;
