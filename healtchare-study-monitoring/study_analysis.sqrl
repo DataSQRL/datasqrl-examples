@@ -21,5 +21,3 @@ PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, meta
 
 Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
 Patients.metrics := JOIN PatientMetricsHourly m ON m.patientId = @.patientId ORDER BY m.timeHour DESC, m.name ASC;
-
-
