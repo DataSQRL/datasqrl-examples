@@ -1,0 +1,13 @@
+IMPORT metrics.ClinicalIndicator;
+IMPORT masterdata.SensorPlacements;
+IMPORT masterdata.Metadata;
+
+SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
+
+EnrichedIndicators := SELECT * FROM ClinicalIndicator m
+    TEMPORAL JOIN SensorPlacements p ON m.sensorId = p.sensorid
+    TEMPORAL JOIN Metadata d ON d.metadataId = p.metadataId;
+
+EXPORT EnrichedIndicators TO sink.EnrichedIndicator;
+

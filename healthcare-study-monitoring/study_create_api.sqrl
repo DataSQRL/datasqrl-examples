@@ -1,4 +1,11 @@
-IMPORT data-local.*;
+IMPORT masterdata-local.*;
+
+CREATE TABLE ClinicalIndicator (
+   sensorId BIGINT,
+   metric DOUBLE
+);
+
+ClinicalIndicator := SELECT _uuid, sensorId, metric, event_time AS timestamp FROM ClinicalIndicator;
 
 SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
@@ -12,6 +19,10 @@ IndicatorAlerts := SELECT * FROM EnrichedIndicators
 
 EXPORT IndicatorAlerts TO logger.Alert;
 
+/*+test */
+IndicatorAlertsTest := SELECT sensorId, COUNT(metric) AS numAlerts FROM IndicatorAlerts
+                        GROUP BY sensorId ORDER BY sensorId ASC;
+
 IMPORT time.endOfHour;
 
 PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, metadataId, name,
@@ -21,11 +32,3 @@ PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, meta
 
 Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
 Patients.metrics := JOIN PatientMetricsHourly m ON m.patientId = @.patientId ORDER BY m.timeHour DESC, m.name ASC;
-
-ObservationGroup := DISTINCT ObservationGroup ON groupId ORDER BY createdDate DESC;
-
-ObservationGroupMembership := SELECT groupID, groupName, p.patientId FROM ObservationGroup g JOIN g.patients p;
-
-ObservationAggregate := SELECT groupID, timeHour, metadataId, name, MIN(avgMetric) AS minMetric, MAX(avgMetric) AS maxMetric
-                        FROM PatientMetricsHourly p JOIN ObservationGroupMembership o ON p.patientId = o.patientId
-                        GROUP BY groupID, timeHour, metadataId, name;

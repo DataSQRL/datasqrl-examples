@@ -1,5 +1,5 @@
-IMPORT data-local.ClinicalIndicator;
-IMPORT data-local.SensorPlacements;
+IMPORT metrics-local.ClinicalIndicator;
+IMPORT masterdata-local.SensorPlacements;
 
 SensorsDedup := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 

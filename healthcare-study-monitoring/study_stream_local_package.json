@@ -1,0 +1,29 @@
+{
+  "version": "1",
+  "enabled-engines": ["kafka", "flink"],
+  "script": {
+    "main": "study_stream.sqrl"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  },
+  "dependencies": [{
+    "metrics" : {
+      "name": "metrics-local",
+      "version": "1",
+      "variant": "dev"
+    },
+    "masterdata" : {
+      "name": "masterdata-local",
+      "version": "1",
+      "variant": "dev"
+    },
+    "sink" : {
+      "name": "sink-local",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}
