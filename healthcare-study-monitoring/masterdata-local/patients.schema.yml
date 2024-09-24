@@ -7,6 +7,10 @@ columns:
   type: "BIGINT"
   tests:
   - "not_null"
+- name: "studyId"
+  type: "BIGINT"
+  tests:
+    - "not_null"
 - name: "name"
   type: "STRING"
   tests:
