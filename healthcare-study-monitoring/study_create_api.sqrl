@@ -1,8 +1,8 @@
 IMPORT masterdata-local.*;
 
 CREATE TABLE ClinicalIndicator (
-   sensorId BIGINT,
-   metric DOUBLE
+   sensorId BIGINT NOT NULL,
+   metric DOUBLE NOT NULL
 );
 
 ClinicalIndicator := SELECT _uuid, sensorId, metric, event_time AS timestamp FROM ClinicalIndicator;
@@ -18,10 +18,6 @@ IndicatorAlerts := SELECT * FROM EnrichedIndicators
     WHERE metric < lowRange OR metric > highRange;
 
 EXPORT IndicatorAlerts TO logger.Alert;
-
-/*+test */
-IndicatorAlertsTest := SELECT sensorId, COUNT(metric) AS numAlerts FROM IndicatorAlerts
-                        GROUP BY sensorId ORDER BY sensorId ASC;
 
 IMPORT time.endOfHour;
 

@@ -11,6 +11,10 @@ EnrichedIndicators := SELECT * FROM ClinicalIndicator m
 IndicatorAlerts := SELECT * FROM EnrichedIndicators
     WHERE metric < lowRange OR metric > highRange;
 
+/*+test */
+IndicatorAlertsTest := SELECT sensorId, COUNT(metric) AS numAlerts FROM IndicatorAlerts
+                       GROUP BY sensorId ORDER BY sensorId ASC;
+
 EXPORT IndicatorAlerts TO logger.Alert;
 
 IMPORT time.endOfHour;
@@ -19,6 +23,10 @@ PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, meta
                          avg(metric) as avgMetric
                   FROM EnrichedIndicators
                   GROUP BY patientId, timeHour, metadataId, name;
+
+/*+test */
+PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetricsHourly
+                                                             WHERE patientId = 5 ORDER BY timeHour DESC, name ASC;
 
 Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
 Patients.metrics := JOIN PatientMetricsHourly m ON m.patientId = @.patientId ORDER BY m.timeHour DESC, m.name ASC;
