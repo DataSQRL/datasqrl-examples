@@ -3,10 +3,10 @@ IMPORT masterdata-local.SensorPlacements;
 
 SensorsDedup := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 
--- MyJoin := SELECT * FROM ClinicalIndicator i JOIN SensorPlacements s ON i.sensorId = s.sensorId;
-MyJoin := SELECT * FROM ClinicalIndicator i INNER JOIN SensorsDedup s ON i.sensorId = s.sensorId;
--- MyJoin := SELECT * FROM ClinicalIndicator i TEMPORAL JOIN SensorsDedup s ON i.sensorId = s.sensorId;
+MyJoin := SELECT * FROM ClinicalIndicator i JOIN SensorPlacements s ON i.sensorId = s.sensorId;
+MyInnerJoin := SELECT * FROM ClinicalIndicator i INNER JOIN SensorsDedup s ON i.sensorId = s.sensorId;
+MyTemporalJoin := SELECT * FROM ClinicalIndicator i TEMPORAL JOIN SensorsDedup s ON i.sensorId = s.sensorId;
 
-MyJoinSubset := SELECT * FROM MyJoin WHERE sensorId = 10;
+MyJoinSubset := SELECT * FROM MyInnerJoin WHERE sensorId = 10;
 
 EXPORT MyJoinSubset TO logger.jx1;
