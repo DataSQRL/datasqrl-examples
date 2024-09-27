@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       TZ: 'America/Los_Angeles'
@@ -21,10 +21,6 @@ jobs:
       run: |
         echo "Logging in with user: ${{ secrets.DOCKER_USERNAME }}"
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
