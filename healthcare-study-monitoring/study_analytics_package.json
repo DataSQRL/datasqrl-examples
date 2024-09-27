@@ -19,5 +19,8 @@
         }
       }
     }
+  },
+  "test-runner": {
+    "delay-sec": 120
   }
 }

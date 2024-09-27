@@ -1,0 +1,48 @@
+name: Build and test SQRL with Maven
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TZ: 'America/Los_Angeles'
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - name: "Healthcare Analytics Test"
+            path: "healthcare-study-monitoring"
+            command: |
+              docker run -i --rm \
+                -v $PWD:/build \
+                -e LOCAL_WAREHOUSE_DIR=/tmp/warehouse \
+                datasqrl/sqrl-demo:latest test -c study_analytics_package.json study_analytics.sqrl --snapshot snapshots-study-analytics
+          - name: "Healthcare Study API Test"
+            path: "healthcare-study-monitoring"
+            command: |
+              docker run -i --rm -v $PWD:/build datasqrl/sqrl-demo:latest test study_api.sqrl --tests tests-api --snapshot snapshots-study-api
+          - name: "Healthcare Study Stream Test"
+            path: "healthcare-study-monitoring"
+            command: |
+              docker run -i --rm -v $PWD:/build datasqrl/sqrl-demo:latest test -c study_stream_local_package.json study_stream.sqrl --snapshot snapshots-study-stream
+          - name: "Healthcare Create API Test"
+            path: "healthcare-study-monitoring"
+            command: |
+              docker run -i --rm -v $PWD:/build datasqrl/sqrl-demo:latest test study_create_api.sqrl --snapshot snapshots-create-api
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set timezone
+        run: echo "Timezone is $TZ"
+
+      - name: Pull SQRL demo Docker image
+        run: docker pull datasqrl/sqrl-demo:latest
+
+      - name: ${{ matrix.test.name }}
+        run: |
+          cd ${{ matrix.test.path }}
+          ${{ matrix.test.command }}
