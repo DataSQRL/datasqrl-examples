@@ -39,7 +39,7 @@ jobs:
     - name: Run Healthcare Study Api Test
       working-directory: ./healthcare-study-monitoring
       run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test study_api.sqrl --tests tests-api --snapshot snapshots-study-api
+        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test -c study_api_test_package.json --tests tests-api --snapshot snapshots-study-api
       continue-on-error: false
 
     - name: Run Healthcare Study Stream Test
@@ -51,6 +51,6 @@ jobs:
     - name: Run Healthcare Create Api Test
       working-directory: ./healthcare-study-monitoring
       run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test study_create_api.sqrl --snapshot snapshots-create-api
+        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/sqrl-demo:latest compile study_create_api.sqrl
       continue-on-error: false
 

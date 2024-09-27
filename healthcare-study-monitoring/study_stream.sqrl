@@ -11,3 +11,11 @@ EnrichedIndicators := SELECT * FROM ClinicalIndicator m
 
 EXPORT EnrichedIndicators TO sink.EnrichedIndicator;
 
+/*+test */
+TotalTest := SELECT COUNT(1) AS total_num FROM EnrichedIndicators;
+
+/*+test */
+Above70Test := SELECT COUNT(1) AS above70metric FROM EnrichedIndicators WHERE metric > 70;
+
+/*+test */
+InvalidMetricTest := SELECT * FROM EnrichedIndicators WHERE metric < 0 ORDER BY timestamp ASC;
