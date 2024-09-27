@@ -57,7 +57,26 @@ query {
 ### Study API
 This script creates a simple graphql api for the masterdata-local and metrics-kafka data.
 
+### Join Examples
+This script demonstrates the different types of join offered by flink. 
+
 ### Study Analytics
+This script creates a pipeline that included aggregation. 
+
+This script uses a package configuration, to compile/run/test such a script, you need to replace the command (compile/run/test) with `-c package_name.json`. 
+
+Running the study_analytics script would look like this:
+```
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/sqrl-demo:latest run -c study_analytics_package.json  
+```
 
 ### Study Stream Kafka
+This script shows how to ingest data from a kafka stream. 
+
+To run this example you need to expose the kafka port, this is done in the run command by adding the port with `-p xyz:123`. 
+
+For this example the command will look like this:
+```
+docker run -it -p 8081:8081 -p 9094:9094 --rm -v $PWD:/build datasqrl/sqrl-demo:latest -c study_stream_kafka_package.json
+```
 
