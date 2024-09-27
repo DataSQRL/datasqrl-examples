@@ -25,5 +25,8 @@
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }],
+  "test-runner": {
+    "delay-sec": 120
+  }
 }
