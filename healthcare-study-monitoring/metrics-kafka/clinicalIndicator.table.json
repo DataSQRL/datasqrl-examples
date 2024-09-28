@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "flink" : {
+    "connector" : "kafka",
+    "topic": "indicators",
+    "properties.bootstrap.servers": "kafka:9092",
+    "properties.group.id": "mygroup",
+    "scan.startup.mode": "earliest-offset",
+    "format" : "flexible-json"
+  },
+  "metadata" : {
+    "timestamp" : {
+      "attribute": "timestamp",
+      "type": "TIMESTAMP_WITH_LOCAL_TIME_ZONE(3)"
+    }
+  },
+  "table" : {
+    "type" : "source",
+    "primary-key" : [ "sensorId", "timestamp" ],
+    "timestamp" : "timestamp",
+    "watermark-millis" : 1
+  }
+}

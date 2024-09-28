@@ -1,0 +1,14 @@
+{
+  "version": "1",
+  "script": {
+    "main": "study_api.sqrl"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  },
+  "test-runner": {
+    "delay-sec": 200
+  }
+}

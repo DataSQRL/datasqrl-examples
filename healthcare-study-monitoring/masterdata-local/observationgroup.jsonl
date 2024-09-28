@@ -1,0 +1,6 @@
+{"groupId":1,"studyId":1,"groupName":"MESCALERO PUBLIC HEALTH SERVICES INDIAN HOSPITAL","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":2},{"patientId":15},{"patientId":10},{"patientId":12},{"patientId":9},{"patientId":10},{"patientId":15}]}
+{"groupId":2,"studyId":1,"groupName":"VIA CHRISTI HOSPITAL IN MANHATTAN","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":16},{"patientId":6},{"patientId":12},{"patientId":9},{"patientId":4}]}
+{"groupId":3,"studyId":1,"groupName":"BETSY JOHNSON HOSPITAL","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":2},{"patientId":18},{"patientId":10},{"patientId":12}]}
+{"groupId":4,"studyId":1,"groupName":"BHC ALHAMBRA HOSPITAL","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":8},{"patientId":13}]}
+{"groupId":5,"studyId":2,"groupName":"FALLS COMMUNITY HOSPITAL AND CLINIC","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":22},{"patientId":24},{"patientId":19},{"patientId":21},{"patientId":29}]}
+{"groupId":6,"studyId":2,"groupName":"AVERA TYLER HOSPITAL","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":23},{"patientId":25}]}

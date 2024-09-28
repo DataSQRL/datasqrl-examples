@@ -1,0 +1,26 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "main": "study_analytics.sqrl"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  },
+  "engines": {
+    "flink": {
+      "connectors" : {
+        "iceberg" : {
+          "warehouse":"${LOCAL_WAREHOUSE_DIR}",
+          "catalog-type":"hadoop",
+          "catalog-name": "mydatabase"
+        }
+      }
+    }
+  },
+  "test-runner": {
+    "delay-sec": 120
+  }
+}

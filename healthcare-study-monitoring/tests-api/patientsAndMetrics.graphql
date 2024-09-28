@@ -1,0 +1,14 @@
+query {
+    Patients(patientId: 5) {
+        name
+        bloodGroup
+        dateOfBirth
+        diagnosis
+        metrics(limit: 100) {
+            timeHour
+            metadataId
+            name
+            avgMetric
+        }
+    }
+}

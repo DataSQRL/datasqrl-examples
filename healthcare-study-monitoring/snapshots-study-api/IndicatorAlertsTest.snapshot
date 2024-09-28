@@ -1,0 +1,1 @@
+{"data":{"IndicatorAlertsTest":[{"sensorId":1.0,"numAlerts":1.0},{"sensorId":2.0,"numAlerts":1.0},{"sensorId":3.0,"numAlerts":2.0},{"sensorId":6.0,"numAlerts":2.0},{"sensorId":7.0,"numAlerts":2.0},{"sensorId":9.0,"numAlerts":1.0},{"sensorId":10.0,"numAlerts":3.0},{"sensorId":11.0,"numAlerts":2.0},{"sensorId":12.0,"numAlerts":2.0},{"sensorId":13.0,"numAlerts":1.0}]}}

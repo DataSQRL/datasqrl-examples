@@ -1,0 +1,27 @@
+---
+name: "patients"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "patientId"
+  type: "BIGINT"
+  tests:
+  - "not_null"
+- name: "studyId"
+  type: "BIGINT"
+  tests:
+    - "not_null"
+- name: "name"
+  type: "STRING"
+  tests:
+    - "not_null"
+- name: "bloodGroup"
+  type: "STRING"
+- name: "dateOfBirth"
+  type: "STRING"
+- name: "diagnosis"
+  type: "STRING"
+- name: "lastUpdated"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"

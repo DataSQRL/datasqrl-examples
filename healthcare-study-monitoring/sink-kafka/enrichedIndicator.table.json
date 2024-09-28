@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "flink" : {
+    "connector" : "kafka",
+    "topic": "enrichedindicators",
+    "properties.bootstrap.servers": "kafka:9092",
+    "properties.group.id": "mygroup",
+    "scan.startup.mode": "earliest-offset",
+    "format" : "flexible-json"
+  },
+  "table" : {
+    "type" : "sink"
+  }
+}

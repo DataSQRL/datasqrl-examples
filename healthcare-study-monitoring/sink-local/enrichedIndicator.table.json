@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "flink" : {
+    "format" : "flexible-json",
+    "path" : "${DATA_PATH}/sink/enrichedIndicator/",
+    "connector" : "filesystem",
+    "flexible-json.timestamp-format.standard": "ISO-8601"
+  },
+  "table" : {
+    "type" : "sink"
+  }
+}

@@ -3,6 +3,7 @@ package com.datasqrl.cmd;
 import com.datasqrl.data.GenerateClickstream;
 import com.datasqrl.data.GenerateCreditCards;
 import com.datasqrl.data.GenerateLoans;
+import com.datasqrl.data.GeneratePatients;
 import com.datasqrl.data.GenerateSensors;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -11,7 +12,8 @@ import picocli.CommandLine;
 import picocli.CommandLine.ScopeType;
 
 @CommandLine.Command(name = "datasqrl", mixinStandardHelpOptions = true, version = "0.1",
-    subcommands = {GenerateClickstream.class, GenerateSensors.class, GenerateLoans.class, GenerateCreditCards.class})
+    subcommands = {GenerateClickstream.class, GenerateSensors.class, GenerateLoans.class, GenerateCreditCards.class,
+    GeneratePatients.class})
 @Getter
 public class RootGenerateCommand implements Runnable {
 

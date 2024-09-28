@@ -1,0 +1,32 @@
+IMPORT metrics-local.ClinicalIndicator;
+IMPORT masterdata-local.*;
+
+SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
+
+EnrichedIndicators := SELECT * FROM ClinicalIndicator m
+    TEMPORAL JOIN SensorPlacements p ON m.sensorId = p.sensorid
+    TEMPORAL JOIN Metadata d ON d.metadataId = p.metadataId;
+
+IndicatorAlerts := SELECT * FROM EnrichedIndicators
+    WHERE metric < lowRange OR metric > highRange;
+
+/*+test */
+IndicatorAlertsTest := SELECT sensorId, COUNT(metric) AS numAlerts FROM IndicatorAlerts
+                       GROUP BY sensorId ORDER BY sensorId ASC;
+
+EXPORT IndicatorAlerts TO logger.Alert;
+
+IMPORT time.endOfHour;
+
+PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, metadataId, name,
+                         avg(metric) as avgMetric
+                  FROM EnrichedIndicators
+                  GROUP BY patientId, timeHour, metadataId, name;
+
+/*+test */
+PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetricsHourly
+                                                             WHERE patientId = 5 ORDER BY timeHour DESC, name ASC;
+
+Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
+Patients.metrics := JOIN PatientMetricsHourly m ON m.patientId = @.patientId ORDER BY m.timeHour DESC, m.name ASC;
