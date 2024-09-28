@@ -219,4 +219,5 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+py-venv
 # End of https://www.toptal.com/developers/gitignore/api/macos
