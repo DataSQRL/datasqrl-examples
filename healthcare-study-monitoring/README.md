@@ -77,6 +77,26 @@ To run this example you need to expose the kafka port, this is done in the run c
 
 For this example the command will look like this:
 ```
-docker run -it -p 8081:8081 -p 9094:9094 --rm -v $PWD:/build datasqrl/sqrl-demo:latest -c study_stream_kafka_package.json
+docker run -it -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/sqrl-demo:latest -c study_stream_kafka_package.json
 ```
 
+You'll need the kafka-python. We recommend using a new venv:
+
+Note: There is a breaking bug in the kafka-python library, please see the [issue](https://github.com/dpkp/kafka-python/issues/2412).
+```
+python3 -m venv py-venv
+source py-venv/bin/activate
+python -m pip install --break-system-packages git+https://github.com/dpkp/kafka-python.git
+```
+
+To load the data, go to the /util folder:
+```
+source py-venv/bin/activate
+python3 ../util/load_data.py ../data/clinicalindicator.jsonl localhost:9092 indicators
+```
+
+To observe the data, run:
+```
+source py-venv/bin/activate
+python3 ../util/read_data.py localhost:9092 enrichedindicators
+```
