@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "package": {
+    "name": "datasqrl.examples.medicalstudy",
+    "version": "0.5.5",
+    "variant": "default",
+    "latest": true,
+    "type": "source",
+    "license": "ASFv2",
+    "repository": "https://github.com/DataSQRL/datasqrl-examples/tree/main/healthcare-study-monitoring/masterdata-local",
+    "homepage": "https://github.com/DataSQRL/datasqrl-examples/tree/main/healthcare-study-monitoring/masterdata-local",
+    "description": "This data package is used by the Healthcare Study Monitoring Example which demonstrates DataSQRL’s capabilities in creating a data pipeline to monitor and analyze healthcare study data. We will create a pipeline that ingests raw data from clinical studies and exposes the data through a GraphQL API. The pipeline will combine study metadata, patient information, and sensor readings to provide insights into the studies.",
+    "documentation": "https://github.com/DataSQRL/datasqrl-examples/tree/main/healthcare-study-monitoring/masterdata-local/README.md",
+    "topics": ["datasqrl", "example", "medicalstudy", "medical", "study"]
+  }
+}
