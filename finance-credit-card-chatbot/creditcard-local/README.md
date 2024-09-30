@@ -9,7 +9,7 @@ and potential rewards based on different card types. With DataSQRL, this complex
 
 ## How to use the data package with an example
 
-We are going to build a data pipeline that aggregates shipment data.
+We are going to build a data pipeline that aggregates rewards data.
 With DataSQRL, you can implement the entire data pipeline in a single SQL script.
 
 1. Create a new folder for the data pipeline:
