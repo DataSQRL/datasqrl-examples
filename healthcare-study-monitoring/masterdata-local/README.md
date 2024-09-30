@@ -1,6 +1,6 @@
 # Data Package for the Healthcare Study Monitoring Example
 
-This data package is used by the Healthcare Study Monitoring Example which demonstrates DataSQRL’s capabilities in
+This data package is used by the Healthcare Study Monitoring Example which demonstrates DataSQRL's capabilities in
 creating a data pipeline to monitor and analyze healthcare study data. We will create a pipeline that ingests raw data
 from clinical studies and exposes the data through a GraphQL API. The pipeline will combine study metadata, patient
 information, and sensor readings to provide insights into the studies.
@@ -60,10 +60,10 @@ Fields:
 - patientId: Unique identifier for each patient.
 - studyId: Identifier for the healthcare study that the patient is enrolled in.
 - name: Full name of the patient.
-- bloodGroup: The patient’s blood group (e.g., O+, B-).
-- dateOfBirth: The patient’s date of birth.
+- bloodGroup: The patient's blood group (e.g., O+, B-).
+- dateOfBirth: The patient's date of birth.
 - diagnosis: The primary diagnosis or condition being treated or monitored for the patient.
-- lastUpdated: Timestamp when the patient’s information was last updated.
+- lastUpdated: Timestamp when the patient's information was last updated.
 
 Sample Data:
 ```json

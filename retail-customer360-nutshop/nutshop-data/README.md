@@ -22,12 +22,12 @@ This dataset contains the customer profile data, which is used to identify custo
 
 Fields:
 - id: Unique customer identifier.
-- first_name: The customer’s first name.
-- last_name: The customer’s last name.
-- email: Customer’s email address.
+- first_name: The customer's first name.
+- last_name: The customer's last name.
+- email: Customer's email address.
 - ip_address: IP address used by the customer.
 - country: Country of residence.
-- changed_on: Timestamp of the last change to the customer’s data.
+- changed_on: Timestamp of the last change to the customer's data.
 
 Sample Data:
 ```json
