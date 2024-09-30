@@ -1,0 +1,17 @@
+---
+name: "shipment_location"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "timestamp"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
+- name: "shipmentId"
+  type: "BIGINT"
+  tests:
+  - "not_null"
+- name: "vehicleId"
+  type: "BIGINT"
+  tests:
+  - "not_null"

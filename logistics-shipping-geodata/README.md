@@ -6,10 +6,129 @@ manage shipments as they move through the city and answer queries like the numbe
 customer and their current locations. Amazingly, all of this is achieved in just 22 lines of code,
 imports included. How cool is that?
 
-## How to compile and run the project
+## How to run this example
+
+We are going to build a data pipeline that aggregates shipment data.
+With DataSQRL, you can implement the entire data pipeline in a single SQL script.
+
+1. Create a new folder for the data pipeline:
+```bash
+mkdir logistics; cd logistics
+```
+
+2. Then create a new file called logistics.sqrl and copy-paste the following SQL code:
+```sql
+IMPORT datasqrl.examples.logistics.tables.Customer;
+IMPORT datasqrl.examples.logistics.tables.Shipment;
+IMPORT datasqrl.examples.logistics.tables.Vehicle;
+IMPORT datasqrl.examples.logistics.tables.Shipment_Location;
+IMPORT datasqrl.examples.logistics.tables.Vehicle_Status;
+
+
+-- Turn the Customer and Shipment CDC change streams to a state tables.
+Customer := DISTINCT Customer ON id ORDER BY lastUpdated DESC;
+Shipment := DISTINCT Shipment ON id ORDER BY lastUpdated DESC;
+
+-- Create a relationship between the two.
+Customer.shipments := JOIN Shipment s ON s.customerId = @.id;
+
+-- Add a statistics field to the customer to indicate how many shipments they have.
+Customer.statistics := SELECT count(*) shipment_count FROM @ JOIN @.shipments;
+
+-- Create relationship to shipment locations.
+Shipment.locations := JOIN Shipment_Location l ON l.shipmentId = @.id ORDER BY l.timestamp DESC;
+
+-- Create relationship to vehicle statuses.
+Shipment_Location.vehicle_statuses := JOIN Vehicle_Status s ON s.vehicleId = @.vehicleId ORDER BY s.timestamp DESC;
+```
+
+3. Then create a new file called logistics.graphql and copy-paste the following graphql code:
+```graphql
+type Customer {
+  id: Float!
+  lastUpdated: DateTime!
+  email: String!
+  phone: String!
+  shipments(limit: Int = 10, offset: Int = 0): [Shipment!]
+  statistics(limit: Int = 10, offset: Int = 0): [statistics!]
+}
+
+"An RFC-3339 compliant DateTime Scalar"
+scalar DateTime
+
+type Query {
+  Shipment(id: Float, limit: Int = 10, offset: Int = 0): [Shipment!]
+  Shipment_Location(limit: Int = 10, offset: Int = 0): [Shipment_Location!]
+  Vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
+  Vehicle_Status(limit: Int = 10, offset: Int = 0): [Vehicle_Status!]
+  Customer(email: String, id: Float, limit: Int = 10, offset: Int = 0): [Customer!]
+}
+
+type Shipment {
+  id: Float!
+  lastUpdated: DateTime!
+  origin: String!
+  lat: Float!
+  lon: Float!
+  weight: Float!
+  estimatedDelivery: DateTime!
+  customerId: Float!
+  locations(limit: Int = 10, offset: Int = 0): [Shipment_Location!]
+}
+
+type Shipment_Location {
+  timestamp: DateTime!
+  shipmentId: Float!
+  vehicleId: Float!
+  vehicle_statuses(limit: Int = 10, offset: Int = 0): [Vehicle_Status!]
+}
+
+type Vehicle {
+  id: Float!
+  type: String!
+  capacity: Float!
+}
+
+type Vehicle_Status {
+  timestamp: DateTime!
+  lat: Float!
+  lon: Float!
+  vehicleId: Float!
+}
+
+type statistics {
+  shipment_count: Float!
+  parent: Customer!
+}
+```
+4. Then create a new file called package.json and copy-paste the following code:
+```json
+{
+    "version": "1",
+    "script": {
+        "main": "logistics.sqrl",
+        "graphql": "logistics.graphqls"
+    },
+    "dependencies": [{
+        "datasqrl.examples.logistics": { "name": "datasqrl.examples.logistics", "version": "0.5.5", "variant": "default" }
+    }]
+}
+```
+
+5. Compile the SQL script to an integrated data pipeline:
+```bash
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.5 compile
+```
+
+6. By default, DataSQRL uses docker to run data pipelines locally. Start the pipeline with docker compose:
+```bash
+(cd build/deploy; docker compose up --build)
+```
+
+## How to compile and run the example
 
 - To compile the project, use the following
-  command: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile logistics.sqrl logistics.graphqls`
+  command: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.5 compile logistics.sqrl logistics.graphqls`
 - To run the project, execute: `(cd build/deploy; docker compose up --build)`
 
 Once you are done, hit CTRL-C and take down the pipeline containers with docker compose down -v.
@@ -20,14 +139,14 @@ Now that you've successfully compiled and started the pipeline, let’s explore 
 
 ### Understanding the Input Data
 
-First, let's examine the input data you will be working with, located in the `local-package` folder:
+First, let's examine the input data you will be working with, located in the `data` folder:
 
 #### Customers
 
 Typically, customer data might reside in a relational database management system (RDBMS) in a
 real-world scenario. In a streaming context, we simulate changes via Change Data Capture (CDC),
 where each record represents a data modification. While the initial data does not include changes,
-feel free to experiment by adding a new record to `local-package/customer.jsonl` to see how the
+feel free to experiment by adding a new record to `data/customer.jsonl` to see how the
 system reacts.
 
 ```json
