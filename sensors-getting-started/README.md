@@ -1,6 +1,6 @@
 # Sensors Package
 
-This example demonstrates DataSQRL’s capabilities by building a sensor metrics data pipeline. It serves as an ideal use
+This example demonstrates DataSQRL's capabilities by building a sensor metrics data pipeline. It serves as an ideal use
 case for real-time data aggregation, showcasing how sensor readings can be processed to monitor environmental changes
 such as temperature and humidity. In this example, we will compute the maximum temperature from sensors in just a few
 SQL queries. All of this is achieved in less than 15 lines of code, including imports!
@@ -75,7 +75,7 @@ The following GraphQL query retrieves the maximum temperature recorded in the la
   "data": {
     "SensorMaxTemp": [
       {
-        "maxTemp": 28.17
+        "maxTemp": 28.03122008
       }
     ]
   }
@@ -103,14 +103,29 @@ The response will provide a list of sensor readings aggregated by time:
     "data": {
         "SecReading": [
             {
+                "sensorid": 0,
+                "timeSec": "2024-04-04T00:08:19.999Z",
+                "temp": 21.10395002
+            },
+            {
                 "sensorid": 1,
-                "timeSec": "2024-04-04T00:00:00Z",
-                "temp": 28.1723170944317
+                "timeSec": "2024-04-04T00:08:19.999Z",
+                "temp": 28.03122008
             },
             {
                 "sensorid": 2,
-                "timeSec": "2024-04-04T00:00:00Z",
-                "temp": 7.9208043131776975
+                "timeSec": "2024-04-04T00:08:19.999Z",
+                "temp": 3.18097443
+            },
+            {
+                "sensorid": 3,
+                "timeSec": "2024-04-04T00:08:19.999Z",
+                "temp": 19.08475761
+            },
+            {
+                "sensorid": 4,
+                "timeSec": "2024-04-04T00:08:19.999Z",
+                "temp": 18.77942311
             }
         ]
     }

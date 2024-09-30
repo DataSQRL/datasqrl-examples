@@ -7,10 +7,10 @@
     "latest": true,
     "type": "source",
     "license": "ASFv2",
-    "repository": "",
+    "repository": "https://github.com/DataSQRL/datasqrl-examples/tree/main/sensors-getting-started",
     "homepage": "https://www.datasqrl.com/docs/getting-started/quickstart/",
-    "description": "This example demonstrates DataSQRL’s capabilities by building a sensor metrics data pipeline. It serves as an ideal use case for real-time data aggregation, showcasing how sensor readings can be processed to monitor environmental changes such as temperature and humidity. In this example, we will compute the maximum temperature from sensors in just a few SQL queries. All of this is achieved in less than 15 lines of code, including imports!",
-    "documentation": "",
+    "description": "This example demonstrates DataSQRL's capabilities by building a sensor metrics data pipeline. It serves as an ideal use case for real-time data aggregation, showcasing how sensor readings can be processed to monitor environmental changes such as temperature and humidity. In this example, we will compute the maximum temperature from sensors in just a few SQL queries. All of this is achieved in less than 15 lines of code, including imports!",
+    "documentation": "https://github.com/DataSQRL/datasqrl-examples/tree/main/sensors-getting-started/README.md",
     "topics": ["datasqrl", "example", "sensors", "metrics"]
   }
 }

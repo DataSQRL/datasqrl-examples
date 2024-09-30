@@ -101,26 +101,13 @@ type statistics {
   parent: Customer!
 }
 ```
-4. Then create a new file called package.json and copy-paste the following code:
-```json
-{
-    "version": "1",
-    "script": {
-        "main": "logistics.sqrl",
-        "graphql": "logistics.graphqls"
-    },
-    "dependencies": [{
-        "datasqrl.examples.logistics": { "name": "datasqrl.examples.logistics", "version": "0.5.5", "variant": "default" }
-    }]
-}
-```
 
-5. Compile the SQL script to an integrated data pipeline:
+4. Compile the SQL script to an integrated data pipeline:
 ```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.5 compile
+docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.5 compile logistics.sqrl logistics.graphqls
 ```
 
-6. By default, DataSQRL uses docker to run data pipelines locally. Start the pipeline with docker compose:
+5. By default, DataSQRL uses docker to run data pipelines locally. Start the pipeline with docker compose:
 ```bash
 (cd build/deploy; docker compose up --build)
 ```
@@ -135,7 +122,7 @@ Once you are done, hit CTRL-C and take down the pipeline containers with docker 
 
 ## Exploring the Pipeline
 
-Now that you've successfully compiled and started the pipeline, let’s explore its capabilities.
+Now that you've successfully compiled and started the pipeline, let's explore its capabilities.
 
 ### Understanding the Input Data
 
