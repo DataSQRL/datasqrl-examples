@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "package": {
+    "name": "datasqrl.examples.sensors",
+    "version": "0.5.5",
+    "variant": "default",
+    "latest": true,
+    "type": "source",
+    "license": "ASFv2",
+    "repository": "",
+    "homepage": "https://www.datasqrl.com/docs/getting-started/quickstart/",
+    "description": "This example demonstrates DataSQRL’s capabilities by building a sensor metrics data pipeline. It serves as an ideal use case for real-time data aggregation, showcasing how sensor readings can be processed to monitor environmental changes such as temperature and humidity. In this example, we will compute the maximum temperature from sensors in just a few SQL queries. All of this is achieved in less than 15 lines of code, including imports!",
+    "documentation": "",
+    "topics": ["datasqrl", "example", "sensors", "metrics"]
+  }
+}
