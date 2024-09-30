@@ -19,48 +19,65 @@ mkdir finance; cd finance
 
 2. Then create a new file called rewards.sqrl and copy-paste the following SQL code:
 ```sql
-/* Import Data */
 IMPORT datasqrl.examples.finance.Merchant;
 IMPORT datasqrl.examples.finance.CardAssignment;
 IMPORT datasqrl.examples.finance.Transaction;
-/* Import Functions */
+IMPORT datasqrl.examples.finance.MerchantReward;
 IMPORT time.*;
 
-/* Deduplicate CDC Streams */
 Merchant :=       DISTINCT Merchant ON merchantId ORDER BY updatedTime DESC;
+MerchantReward := DISTINCT MerchantReward ON merchantId ORDER BY updatedTime DESC;
 CardAssignment := DISTINCT CardAssignment ON cardNo ORDER BY timestamp DESC;
 
-/* Enrich credit card transactions with customer and merchant information */
-CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
-                              m.category, c.customerid
+/* Part 1: Compute customer rewards */
+_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
+                              m.merchantId, m.category, c.customerid, c.cardType
                        FROM Transaction t
                        TEMPORAL JOIN CardAssignment c ON t.cardNo = c.cardNo
                        TEMPORAL JOIN Merchant m ON t.merchantId = m.merchantid ORDER BY t.time DESC;
 
-SpendingByCategory := SELECT customerid, endOfWeek(time) as timeWeek, category, SUM(amount) as spending
-                          FROM CustomerTransaction
-                          GROUP BY customerid, timeWeek, category
-                          ORDER BY timeWeek DESC, category ASC;
+_CustomerTransactionRewards := SELECT t.*, r.rewardsByCard AS rewards FROM _CustomerTransaction t
+                              TEMPORAL JOIN MerchantReward r ON r.merchantId = t.merchantId;
 
-_SpendingByDay := SELECT customerid, endOfDay(time) as timeDay, SUM(amount) as spending
-                         FROM CustomerTransaction
-                         GROUP BY customerid, timeDay
-                         ORDER BY timeDay DESC;
+_CustomerTransactionRewardsByCard := SELECT t.*, t.amount * (r.rewardPercentage / 100.0) as reward, r.cardType AS rewardCardType
+                                    FROM _CustomerTransactionRewards t JOIN t.rewards r
+                                    WHERE timestampToEpoch(t.time) <= r.expirationTimestamp AND timestampToEpoch(t.time) >= r.startTimestamp;
 
-/* Query Endpoints */
-Transactions(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-    SELECT * FROM CustomerTransaction WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
-    ORDER BY time DESC LIMIT 10000;
+CustomerRewards := SELECT transactionId, customerId, cardNo, cardType, time, amount, reward, merchantName
+                  FROM _CustomerTransactionRewardsByCard
+                  WHERE cardType = rewardCardType;
 
-SpendingByDay(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-    SELECT timeDay, spending
-    FROM _SpendingByDay WHERE customerid = @customerid AND @fromTime <= timeDay AND @toTime > timeDay
-    ORDER BY timeDay DESC;
 
-IMPORT creditcard-analytics.InternalSaveChatMessage;
+/* Part 2a: Query and Analyze Rewards */
+Rewards(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
+SELECT * FROM CustomerRewards WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
+ORDER BY time DESC;
 
-InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
-                        c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
+TotalReward := SELECT customerId, SUM(reward) AS total_reward,
+                              MIN(time) as since_time
+                       FROM CustomerRewards GROUP BY customerId;
+
+RewardsByWeek := SELECT customerId, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
+                FROM CustomerRewards GROUP BY customerId, timeWeek ORDER BY timeWeek DESC;
+
+
+
+/* Part 2b: Compute potential rewards for personalized sales */
+_CustomerPotentialRewards := SELECT transactionId, customerId, rewardCardType, time, amount, reward, merchantName
+                            FROM _CustomerTransactionRewardsByCard
+                            WHERE cardType != rewardCardType;
+
+PotentialRewards(@customerid: BIGINT, @cardType: STRING, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
+SELECT * FROM _CustomerPotentialRewards WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
+AND rewardCardType = @cardType ORDER BY time DESC;
+
+TotalPotentialReward := SELECT customerId, rewardCardType AS cardType, SUM(reward) AS total_reward,
+                                       MIN(time) as since_time
+                                FROM _CustomerPotentialRewards
+                                GROUP BY customerId, cardType ORDER BY cardType DESC;
+
+PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
+                 FROM _CustomerPotentialRewards GROUP BY customerId, cardType, timeWeek ORDER BY timeWeek DESC;
 ```
 
 3. Then create a new file called rewards.graphql and copy-paste the following graphql code:
@@ -124,13 +141,6 @@ type Query {
         """customerid: Customer identifier"""
         customerid: Int!
     ): [TotalPotentialReward!]
-
-    """Retrieves User Chat Messages"""
-    InternalGetChatMessages(
-        customerid: Int!,
-        limit: Int = 10,
-        offset: Int = 0
-    ): [CustomerChatMessage!]
 }
 
 type Subscription {
