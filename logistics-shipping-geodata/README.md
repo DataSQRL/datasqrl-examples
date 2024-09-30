@@ -112,13 +112,10 @@ docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.5 compile logistics.sqrl lo
 (cd build/deploy; docker compose up --build)
 ```
 
-## How to compile and run the example
-
-- To compile the project, use the following
-  command: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.5 compile logistics.sqrl logistics.graphqls`
-- To run the project, execute: `(cd build/deploy; docker compose up --build)`
-
-Once you are done, hit CTRL-C and take down the pipeline containers with docker compose down -v.
+6. Once you are done, hit CTRL-C and take down the pipeline containers with:
+```bash
+docker compose down -v 
+```
 
 ## Exploring the Pipeline
 
