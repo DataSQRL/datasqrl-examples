@@ -12,6 +12,17 @@ on:
         required: true
         default: 'Smoke test'
         type: string
+      example:
+        description: Example to test
+        required: true
+        type: choice
+        default: healthcare
+        options:
+          - finance
+          - healthcare
+          - logistics
+          - iot-sensor
+          - retail
  pull_request:
     branches: [ "main" ]
 
