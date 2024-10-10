@@ -1,0 +1,31 @@
+scalar DateTime
+
+type Query {
+    """
+    Returns all credit card transactions within a specified time period ordered by time (most recent first).
+    """
+    Transactions(
+        """
+        customerid: The ID of the customer whose transactions to query.
+        """
+        customerid: Int!,
+        """
+        fromTime: RFC-3339 compliant date time scalar. Returns transactions after this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
+        """
+        fromTime: DateTime!,
+        """
+        toTime: RFC-3339 compliant date time scalar. Returns transactions up to this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
+        """
+        toTime: DateTime!
+    ): [CustomerTransaction!]
+
+}
+
+type CustomerTransaction {
+    transactionId: Int!
+    cardNo: String!
+    time: String!
+    amount: Float!
+    merchantName: String!
+    category: String!
+}
