@@ -1,0 +1,37 @@
+---
+name: "shipment"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "id"
+  type: "BIGINT"
+  tests:
+  - "not_null"
+- name: "lastUpdated"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
+- name: "origin"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "lat"
+  type: "DOUBLE"
+  tests:
+  - "not_null"
+- name: "lon"
+  type: "DOUBLE"
+  tests:
+  - "not_null"
+- name: "weight"
+  type: "DOUBLE"
+  tests:
+  - "not_null"
+- name: "estimatedDelivery"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
+- name: "customerId"
+  type: "BIGINT"
+  tests:
+  - "not_null"

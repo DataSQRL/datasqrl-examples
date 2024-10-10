@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "package": {
+    "name": "datasqrl.examples.retail",
+    "version": "0.5.5",
+    "variant": "default",
+    "latest": true,
+    "type": "source",
+    "license": "ASFv2",
+    "repository": "https://github.com/DataSQRL/datasqrl-examples/blob/main/retail-customer360-nutshop/nutshop-data",
+    "homepage": "https://github.com/DataSQRL/datasqrl-examples/blob/main/retail-customer360-nutshop/nutshop-data",
+    "description": "This data package is used by the Customer 360 (Retail) Example which demonstrates how to integrate data from multiple sources to create a comprehensive Customer 360 view. By combining customer data with orders and product information, we can offer customers a detailed look at their purchase history and enable analytics and search functionalities through a GraphQL API.",
+    "documentation": "https://github.com/DataSQRL/datasqrl-examples/blob/main/retail-customer360-nutshop/nutshop-data/README.md",
+    "topics": ["datasqrl", "example", "nutshop", "customer360", "customer", "360"]
+  }
+}

@@ -1,0 +1,21 @@
+---
+name: "vehicle_status"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "timestamp"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
+- name: "lat"
+  type: "DOUBLE"
+  tests:
+  - "not_null"
+- name: "lon"
+  type: "DOUBLE"
+  tests:
+  - "not_null"
+- name: "vehicleId"
+  type: "BIGINT"
+  tests:
+  - "not_null"
