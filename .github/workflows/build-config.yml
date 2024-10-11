@@ -109,7 +109,21 @@ jobs:
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test sensors.sqrl --snapshot snapshots
       continue-on-error: false
-    
+  
+    - name: Run Logistics Test
+      if: ${{ github.event.inputs.example == 'logistics' }}
+      working-directory: ./logistics-shipping-geodata
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test logistics.sqrl --snapshot snapshots
+      continue-on-error: false
+
+    - name: Run Retail Test
+      if: ${{ github.event.inputs.example == 'retail' }}
+      working-directory: ./retail-customer360-nutshop
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test customer360.sqrl --snapshot snapshots
+      continue-on-error: false
+
     - name: Run anyway
       if: ${{ github.event.inputs.example != 'healthcare' }}
       run: |
