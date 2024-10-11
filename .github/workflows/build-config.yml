@@ -23,7 +23,7 @@ on:
           - logistics
           - iot-sensor
           - retail
-          - reccomendation
+          - recommendation
  pull_request:
     branches: [ "main" ]
 
@@ -94,6 +94,13 @@ jobs:
       working-directory: ./finance-credit-card-chatbot
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test test -c package-rewards-local.json --snapshot snapshots-rewards
+      continue-on-error: false
+
+    - name: Run Clickstream Recommendation Test
+      if: ${{ github.event.inputs.example == 'recommendation' }}
+      working-directory: ./clickstream-ai-recommendation
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test test -c package.json --snapshot snapshots
       continue-on-error: false
     
     - name: Run anyway
