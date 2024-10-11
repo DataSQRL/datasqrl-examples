@@ -25,3 +25,8 @@ SimilarContent(@userid: String) :=
 SELECT c.*, coalesce(cosineSimilarity(i.interest, c.embedding),0.0) as similarity
 FROM Content c LEFT JOIN UserInterest i ON i.userid = @userid
 ORDER BY similarity DESC LIMIT 10;
+
+/*+test */
+ContentTest := SELECT * FROM Content 
+                      ORDER BY _source_time DESC 
+                      LIMIT 5;

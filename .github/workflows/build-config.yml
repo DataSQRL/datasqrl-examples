@@ -23,6 +23,7 @@ on:
           - logistics
           - iot-sensor
           - retail
+          - reccomendation
  pull_request:
     branches: [ "main" ]
 
