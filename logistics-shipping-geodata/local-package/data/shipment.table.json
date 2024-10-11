@@ -1,0 +1,19 @@
+{
+  "flink" : {
+    "format" : "flexible-json",
+    "path" : "${DATA_PATH}/shipment.jsonl",
+    "source.monitor-interval" : 1,
+    "connector" : "filesystem"
+  },
+  "metadata" : {
+    "_ingest_time" : {
+      "attribute" : "proctime()"
+    }
+  },
+  "version" : 1,
+  "table" : {
+    "type" : "source",
+    "primary-key" : [ "id", "lastUpdated", "origin", "lat", "lon", "weight", "estimatedDelivery", "customerId" ],
+    "timestamp" : "_ingest_time"
+  }
+}
