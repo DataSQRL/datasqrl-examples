@@ -102,6 +102,13 @@ jobs:
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test test -c package.json --snapshot snapshots
       continue-on-error: false
+
+    - name: Run IoT Sensor Test
+      if: ${{ github.event.inputs.example == 'iot-sensor' }}
+      working-directory: ./iot-sensor-metrics
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/sqrl-demo:latest test sensors.sqrl --snapshot snapshots
+      continue-on-error: false
     
     - name: Run anyway
       if: ${{ github.event.inputs.example != 'healthcare' }}
