@@ -1,8 +1,8 @@
 {
   "flink" : {
     "format" : "flexible-json",
-    "path" : "${DATA_PATH}/customer.jsonl",
-    "source.monitor-interval" : 1,
+    "path" : "${DATA_PATH}/shipment_location.jsonl",
+    "source.monitor-interval" : 10000,
     "connector" : "filesystem"
   },
   "metadata" : {
@@ -13,7 +13,7 @@
   "version" : 1,
   "table" : {
     "type" : "source",
-    "primary-key" : [ "id", "lastUpdated", "email", "phone" ],
+    "primary-key" : [ "timestamp", "shipmentId", "vehicleId" ],
     "timestamp" : "_ingest_time"
   }
 }

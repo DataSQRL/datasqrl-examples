@@ -1,0 +1,32 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "kafka", "flink"],
+  "profiles": ["datasqrl.profile.default"],
+  "script": {
+    "main": "creditcard-analytics.sqrl",
+    "graphql": "creditcard-analytics.graphqls"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "100 ms"
+    }
+  },
+  "engines": {
+    "flink": {
+      "connectors" : {
+        "iceberg" : {
+          "warehouse":"${LOCAL_WAREHOUSE_DIR}",
+          "catalog-type":"hadoop",
+          "catalog-name": "mydatabase"
+        }
+      }
+    }
+  },
+  "dependencies": [{
+    "creditcard-data": {
+      "name": "creditcard-local",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}
