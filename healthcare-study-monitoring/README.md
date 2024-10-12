@@ -61,14 +61,14 @@ This script creates a simple graphql api for the masterdata-local and metrics-ka
 This script demonstrates the different types of join offered by flink. 
 
 ### Study Analytics
-This script creates a pipeline that included aggregation. 
+This script produces study analytics for observations groups in iceberg tables that are queried by DuckDB.
 
-This script uses a package configuration, to compile/run/test such a script, you need to replace the command (compile/run/test) with `-c package_name.json`. 
+Run the study_analytics script using iceberg and duckdb locally as follows:
+```
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build  -e LOCAL_WAREHOUSE_DIR=warehouse datasqrl/cmd:latest run -c study_analytics_package.json
+```
 
-Running the study_analytics script would look like this:
-```
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_analytics_package.json  
-```
+We are setting the environment variable `LOCAL_WAREHOUSE_DIR` to instruct where to store the iceberg files. In this case, we are putting the locally in the `warehouse` folder.
 
 ### Study Stream Kafka
 This script shows how to ingest data from a kafka stream. 
