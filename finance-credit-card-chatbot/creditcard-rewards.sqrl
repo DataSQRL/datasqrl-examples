@@ -67,3 +67,13 @@ IMPORT creditcard-rewards.InternalSaveChatMessage;
 
 InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
                         c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
+
+/*+test */
+
+PotentialRewardsByWeekTest := SELECT customerId, cardType,
+                                   timeWeek, total_reward
+                                   FROM PotentialRewardsByWeek
+                                   ORDER BY total_reward DESC
+                                   LIMIT 5;
+
+

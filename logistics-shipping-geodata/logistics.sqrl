@@ -20,3 +20,12 @@ Shipment.locations := JOIN Shipment_Location l ON l.shipmentId = @.id ORDER BY l
 
 -- Create relationship to vehicle statuses.
 Shipment_Location.vehicle_statuses := JOIN Vehicle_Status s ON s.vehicleId = @.vehicleId ORDER BY s.timestamp DESC;
+
+
+/* =======TEST CASES======== */
+
+/*+test */
+CustomerTest := SELECT * FROM Customer ORDER BY lastUpdated DESC LIMIT 5;
+
+/*+test */
+ShipmentTest := SELECT * FROM Shipment ORDER BY lastUpdated DESC LIMIT 5;

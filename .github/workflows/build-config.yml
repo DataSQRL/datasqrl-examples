@@ -1,7 +1,31 @@
 name: Build and test SQRL with Maven
 on:
-  pull_request:
-    branches: [ "main", "healthcare"]
+ workflow_dispatch:
+    inputs:
+      repo:
+        description: Test runner
+        required: true
+        default: 'zharec'
+        type: string
+      note:
+        description: Test note
+        required: true
+        default: 'Smoke test'
+        type: string
+      example:
+        description: Example to test
+        required: true
+        type: choice
+        default: healthcare
+        options:
+          - finance
+          - healthcare
+          - logistics
+          - iot-sensor
+          - retail
+          - recommendation
+ pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -31,26 +55,78 @@ jobs:
       run: docker pull datasqrl/cmd:v0.5.6
 
     - name: Run Healthcare Analytics Test
+      if: ${{ github.event.inputs.example == 'healthcare' }}
       working-directory: ./healthcare-study-monitoring
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build -e LOCAL_WAREHOUSE_DIR=/tmp/warehouse datasqrl/cmd:v0.5.6 test -c study_analytics_package.json study_analytics.sqrl --snapshot snapshots-study-analytics
       continue-on-error: false
 
     - name: Run Healthcare Study Api Test
+      if: ${{ github.event.inputs.example == 'healthcare' }}
       working-directory: ./healthcare-study-monitoring
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c study_api_test_package.json --tests tests-api --snapshot snapshots-study-api
       continue-on-error: false
 
     - name: Run Healthcare Study Stream Test
+      if: ${{ github.event.inputs.example == 'healthcare' }}
       working-directory: ./healthcare-study-monitoring
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c study_stream_local_package.json study_stream.sqrl --snapshot snapshots-study-stream
       continue-on-error: false
 
     - name: Run Healthcare Create Api Test
+      if: ${{ github.event.inputs.example == 'healthcare' }}
       working-directory: ./healthcare-study-monitoring
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 compile study_create_api.sqrl
       continue-on-error: false
+
+    - name: Run Finance Analytics Test
+      if: ${{ github.event.inputs.example == 'finance' }}
+      working-directory: ./finance-credit-card-chatbot
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c package-analytics-local.json --snapshot snapshots-analytics
+      continue-on-error: false
+
+    - name: Run Finance Rewards Test
+      if: ${{ github.event.inputs.example == 'finance' }}
+      working-directory: ./finance-credit-card-chatbot
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test test -c package-rewards-local.json --snapshot snapshots-rewards
+      continue-on-error: false
+
+    - name: Run Clickstream Recommendation Test
+      if: ${{ github.event.inputs.example == 'recommendation' }}
+      working-directory: ./clickstream-ai-recommendation
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test test -c package.json --snapshot snapshots
+      continue-on-error: false
+
+    - name: Run IoT Sensor Test
+      if: ${{ github.event.inputs.example == 'iot-sensor' }}
+      working-directory: ./iot-sensor-metrics
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test sensors.sqrl --snapshot snapshots
+      continue-on-error: false
+  
+    - name: Run Logistics Test
+      if: ${{ github.event.inputs.example == 'logistics' }}
+      working-directory: ./logistics-shipping-geodata
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test logistics.sqrl --snapshot snapshots
+      continue-on-error: false
+
+    - name: Run Retail Test
+      if: ${{ github.event.inputs.example == 'retail' }}
+      working-directory: ./retail-customer360-nutshop
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test customer360.sqrl --snapshot snapshots
+      continue-on-error: false
+
+    - name: Run anyway
+      if: ${{ github.event.inputs.example != 'healthcare' }}
+      run: |
+        echo "This ran, I guess that is a good thing"
+      continue-on-error: true
 
