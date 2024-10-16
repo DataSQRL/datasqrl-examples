@@ -1,1 +1,1 @@
-{"data":{"SensorMaxTempTest":[]}}
+{"data":{"SensorMaxTempTest":[{"sensorid":5.0,"maxTemp":82.3},{"sensorid":3.0,"maxTemp":112.3},{"sensorid":2.0,"maxTemp":110.1},{"sensorid":1.0,"maxTemp":101.5}]}}

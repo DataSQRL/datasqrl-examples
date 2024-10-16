@@ -1,4 +1,5 @@
-IMPORT sensors.AddReading AS SensorReading;
+/* IMPORT sensors.AddReading AS SensorReading; */
+IMPORT sensor-local.AddReadings AS SensorReading;
 
 /* Provide query endpoint for readings by temperature */
 ReadingsAboveTemp(@temp: Int) := SELECT * FROM SensorReading WHERE temperature > @temp ORDER BY event_time DESC;
