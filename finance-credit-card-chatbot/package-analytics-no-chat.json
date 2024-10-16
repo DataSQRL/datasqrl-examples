@@ -1,14 +1,9 @@
 {
   "version": "1",
-  "enabled-engines": [
-    "vertx",
-    "postgres",
-    "kafka",
-    "flink"
-  ],
+  "enabled-engines": [],
   "profiles": [
     "datasqrl.profile.default",
-    "profiles/aws"
+    "/build/profiles/helm-profile"
   ],
   "script": {
     "main": "creditcard-analytics-no-chat.sqrl",
