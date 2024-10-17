@@ -1,0 +1,5 @@
+query {
+  Transactions(customerid: 1, fromTime: "2024-02-20T00:00:00Z", toTime: "2024-03-29T00:00:00Z") {
+	 transactionId
+  }
+}

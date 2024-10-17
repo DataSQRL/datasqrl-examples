@@ -32,4 +32,4 @@ MerchantTest := SELECT * FROM Merchant ORDER BY merchantId DESC, updatedTime DES
 CardAssignmentTest := SELECT * FROM CardAssignment ORDER BY cardNo DESC, timestamp DESC LIMIT 5;
 
 /*+test */
-CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY cardNo DESC, time DESC limit 5;
+CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY transactionId DESC, amount DESC limit 5;
