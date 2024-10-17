@@ -11,7 +11,7 @@ CardAssignment := DISTINCT CardAssignment ON cardNo ORDER BY timestamp DESC;
 
 
 /* Enrich credit card transactions with customer and merchant information */
-_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
+CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
                               m.category, c.customerid
                        FROM Transaction t
                        TEMPORAL JOIN CardAssignment c ON t.cardNo = c.cardNo
@@ -19,5 +19,17 @@ _CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.na
 
 /* Query Endpoints */
 Transactions(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-    SELECT * FROM _CustomerTransaction WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
+    SELECT * FROM CustomerTransaction WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
     ORDER BY time DESC LIMIT 10000;
+
+
+/* =======TEST CASES======== */
+
+/*+test */
+MerchantTest := SELECT * FROM Merchant ORDER BY merchantId DESC, updatedTime DESC  LIMIT 5;
+
+/*+test */
+CardAssignmentTest := SELECT * FROM CardAssignment ORDER BY cardNo DESC, timestamp DESC LIMIT 5;
+
+/*+test */
+CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY cardNo DESC, time DESC limit 5;

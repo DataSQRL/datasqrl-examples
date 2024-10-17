@@ -40,3 +40,22 @@ IMPORT creditcard-analytics.InternalSaveChatMessage;
 
 InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
                         c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
+
+/* =======TEST CASES======== */
+
+/*+test */
+CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY time DESC limit 5;
+
+/*+test */
+SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerid DESC, timeWeek DESC limit 5;
+
+/*+test */
+InternalGetChatMessagesTest := SELECT role, 
+                                      content,
+                                      name,
+                                      functionCall, 
+                                      customerid,
+                                      timestamp, 
+                                      uuid 
+                                      FROM InternalGetChatMessages
+                                      LIMIT 5;

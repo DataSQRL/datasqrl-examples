@@ -21,7 +21,7 @@
     "flink": {
       "connectors" : {
         "iceberg" : {
-          "warehouse":"file:///Users/matthias/git/datasqrl-examples/finance-credit-card-chatbot/warehouse",
+          "warehouse":"iceberg-warehouse",
           "catalog-type":"hadoop",
           "catalog-name": "mydatabase"
         }
