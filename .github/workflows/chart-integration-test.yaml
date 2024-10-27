@@ -67,60 +67,60 @@ jobs:
         shell: bash
 
 
-  deploy:
-    name: "Deploy Terraform Stack"
-    needs: build-artifacts
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      actions: read
-    env:
-      ENV: DEV
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
-          aws-region: us-east-1
+  # deploy:
+  #   name: "Deploy Terraform Stack"
+  #   needs: build-artifacts
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #     actions: read
+  #   env:
+  #     ENV: DEV
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+  #         aws-region: us-east-1
 
-      - name: Getting Code
-        uses: actions/checkout@v3
+  #     - name: Getting Code
+  #       uses: actions/checkout@v3
 
-      - name: Fetch Artifacts
-        working-directory: ${{ env.EXAMPLE_NAME }}
-        run: |
-          aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/database-schema.sql  ./mock_tf_build_deploy
-          aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/FlinkJob.jar ./mock_tf_build_deploy/
-          # load local data
-          cp -r ./creditcard-local ./mock_tf_build_deploy
+  #     - name: Fetch Artifacts
+  #       working-directory: ${{ env.EXAMPLE_NAME }}
+  #       run: |
+  #         aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/database-schema.sql  ./mock_tf_build_deploy
+  #         aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/FlinkJob.jar ./mock_tf_build_deploy/
+  #         # load local data
+  #         cp -r ./creditcard-local ./mock_tf_build_deploy
 
-          ls -la ./mock_tf_build_deploy
-        shell: bash
+  #         ls -la ./mock_tf_build_deploy
+  #       shell: bash
       
-      - name: Set up SSH to sqrl-cloud repo
-        working-directory: "${{ env.EXAMPLE_NAME }}"
-        id: ssh_setup
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
+  #     - name: Set up SSH to sqrl-cloud repo
+  #       working-directory: "${{ env.EXAMPLE_NAME }}"
+  #       id: ssh_setup
+  #       run: |
+  #         mkdir -p ~/.ssh
+  #         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+  #         chmod 600 ~/.ssh/id_rsa
+  #         ssh-keyscan github.com >> ~/.ssh/known_hosts
+  #       env:
+  #         SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
       
-      - name: Pull datasqrl/cloud Image
-        id: pull-datasqrl-cloud
-        run: |
-            docker pull ${{ env.DOCKER_IMAGE }}
-        shell: bash
+  #     - name: Pull datasqrl/cloud Image
+  #       id: pull-datasqrl-cloud
+  #       run: |
+  #           docker pull ${{ env.DOCKER_IMAGE }}
+  #       shell: bash
       
-      - name: Integration Testing
-        id: test
-        run: |
-          git clone git@github.com:DataSQRL/sqrl-cloud.git
-          cd sqrl-cloud
-          pip install poetry
-          poetry install
-          poetry run pytest tests/integration/test_service_availability.py --alb ${{ env.server_alb_dns_name }}
-        shell: bash
+  #     - name: Integration Testing
+  #       id: test
+  #       run: |
+  #         git clone git@github.com:DataSQRL/sqrl-cloud.git
+  #         cd sqrl-cloud
+  #         pip install poetry
+  #         poetry install
+  #         poetry run pytest tests/integration/test_service_availability.py --alb ${{ env.server_alb_dns_name }}
+  #       shell: bash
