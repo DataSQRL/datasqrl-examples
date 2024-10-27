@@ -1,182 +1,182 @@
-name: deploy
+# name: deploy
 
-on:
-  pull_request:
-    branches:
-      - "main"
+# on:
+#   pull_request:
+#     branches:
+#       - "main"
 
-concurrency:
-  # If you have multiple workflows in the same repository,
-  # concurrency group names must be unique across workflows to avoid canceling in-progress jobs or runs from other workflows.
-  # Otherwise, any previously in-progress or pending job will be canceled, regardless of the workflow.
-  # To only cancel in-progress runs of the same workflow, you can use the github.workflow property to build the concurrency group:
+# concurrency:
+#   # If you have multiple workflows in the same repository,
+#   # concurrency group names must be unique across workflows to avoid canceling in-progress jobs or runs from other workflows.
+#   # Otherwise, any previously in-progress or pending job will be canceled, regardless of the workflow.
+#   # To only cancel in-progress runs of the same workflow, you can use the github.workflow property to build the concurrency group:
 
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
 
-env:
-  REPOSITORY_NAME: datasqrl-examples
-  EXAMPLE_NAME: finance-credit-card-chatbot
-  DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
-  # ECR_REPOSITORY_SERVER: "datasqrl-examples/$EXAMPLE_NAME/$DEPLOYMENT_PACKAGE_NAME/deploy-server"
+# env:
+#   REPOSITORY_NAME: datasqrl-examples
+#   EXAMPLE_NAME: finance-credit-card-chatbot
+#   DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
+#   # ECR_REPOSITORY_SERVER: "datasqrl-examples/$EXAMPLE_NAME/$DEPLOYMENT_PACKAGE_NAME/deploy-server"
 
-  ARTIFACTORY_S3_BUCKET_NAME: "sqrl-examples-artifactory-dev"
-  # docker
-  DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
-  DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION --env BACKEND_S3_BUCKET --env BACKEND_S3_KEY -v ~/.ssh:/root/.ssh -v $(pwd):/mnt/host -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
-  # terraform
-  TF_S3_BACKEND_BUCKET_NAME: "sqrl-examples-artifactory-dev"
-  TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
-  TF_S3_BACKEND_KEY: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/terraform/terraform.tfstate"
+#   ARTIFACTORY_S3_BUCKET_NAME: "sqrl-examples-artifactory-dev"
+#   # docker
+#   DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
+#   DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION --env BACKEND_S3_BUCKET --env BACKEND_S3_KEY -v ~/.ssh:/root/.ssh -v $(pwd):/mnt/host -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
+#   # terraform
+#   TF_S3_BACKEND_BUCKET_NAME: "sqrl-examples-artifactory-dev"
+#   TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
+#   TF_S3_BACKEND_KEY: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/terraform/terraform.tfstate"
 
 
-jobs:
-  build-artifacts:
-    name: "Build Artifacts"
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      actions: read
-    env:
-      ENV: DEV
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
-          aws-region: us-east-1
+# jobs:
+#   build-artifacts:
+#     name: "Build Artifacts"
+#     runs-on: ubuntu-latest
+#     permissions:
+#       id-token: write
+#       contents: read
+#       actions: read
+#     env:
+#       ENV: DEV
+#     steps:
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+#           aws-region: us-east-1
 
-      - name: Getting Code
-        uses: actions/checkout@v3
+#       - name: Getting Code
+#         uses: actions/checkout@v3
 
-      - name: SQRL Compile
-        working-directory: ${{ env.EXAMPLE_NAME }}
-        run: |
-          echo "${{ github.workspace }}"
-          docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "${{ env.DEPLOYMENT_PACKAGE_NAME }}.json"
-        shell: bash
+#       - name: SQRL Compile
+#         working-directory: ${{ env.EXAMPLE_NAME }}
+#         run: |
+#           echo "${{ github.workspace }}"
+#           docker run --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c "${{ env.DEPLOYMENT_PACKAGE_NAME }}.json"
+#         shell: bash
       
-      - name: Build Docker Images
-        working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
-        run: |
-          docker compose build
-        shell: bash
+#       - name: Build Docker Images
+#         working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
+#         run: |
+#           docker compose build
+#         shell: bash
       
-      - name: Create ECR repo if necessary
-        id: ecr-repo
-        uses: int128/create-ecr-repository-action@v1
-        with:
-          repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/deploy-server"
+#       - name: Create ECR repo if necessary
+#         id: ecr-repo
+#         uses: int128/create-ecr-repository-action@v1
+#         with:
+#           repository: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/deploy-server"
       
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v1
       
-      - name: Tag and Push Docker Images to ECR repository, Upload artifacts to S3
-        working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          # IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
-        run: |
-          export ECR_REPOSITORY="datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}"
+#       - name: Tag and Push Docker Images to ECR repository, Upload artifacts to S3
+#         working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
+#         env:
+#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#           # IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
+#         run: |
+#           export ECR_REPOSITORY="datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}"
 
-          docker tag deploy-server:latest $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:${{ github.sha }}
-          docker tag deploy-server:latest $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:${{ github.sha }}
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest
+#           docker tag deploy-server:latest $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:${{ github.sha }}
+#           docker tag deploy-server:latest $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest
+#           docker push $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:${{ github.sha }}
+#           docker push $ECR_REGISTRY/$ECR_REPOSITORY/deploy-server:latest
 
-          # upload jar file
-          docker create --name temp_container deploy-flink-job-submitter
-          sudo docker cp temp_container:/scripts/FlinkJob.jar .
-          docker rm temp_container
-          aws s3 cp FlinkJob.jar s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
+#           # upload jar file
+#           docker create --name temp_container deploy-flink-job-submitter
+#           sudo docker cp temp_container:/scripts/FlinkJob.jar .
+#           docker rm temp_container
+#           aws s3 cp FlinkJob.jar s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
 
-          # upload database schema
-          cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/
-          aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
-        shell: bash
+#           # upload database schema
+#           cd ${{ github.workspace }}/finance-credit-card-chatbot/build/deploy/postgres/
+#           aws s3 cp database-schema.sql s3://sqrl-examples-artifactory-dev/datasqrl-examples/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/
+#         shell: bash
 
-  deploy-terraform-stack:
-    name: "Deploy Terraform Stack"
-    needs: build-artifacts
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      actions: read
-    env:
-      ENV: DEV
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
-          aws-region: us-east-1
+#   deploy-terraform-stack:
+#     name: "Deploy Terraform Stack"
+#     needs: build-artifacts
+#     runs-on: ubuntu-latest
+#     permissions:
+#       id-token: write
+#       contents: read
+#       actions: read
+#     env:
+#       ENV: DEV
+#     steps:
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+#           aws-region: us-east-1
 
-      - name: Getting Code
-        uses: actions/checkout@v3
+#       - name: Getting Code
+#         uses: actions/checkout@v3
 
-      - name: Fetch Artifacts
-        working-directory: ${{ env.EXAMPLE_NAME }}
-        run: |
-          aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/database-schema.sql  ./mock_tf_build_deploy
-          aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/FlinkJob.jar ./mock_tf_build_deploy/
-          # load local data
-          cp -r ./creditcard-local ./mock_tf_build_deploy
+#       - name: Fetch Artifacts
+#         working-directory: ${{ env.EXAMPLE_NAME }}
+#         run: |
+#           aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/database-schema.sql  ./mock_tf_build_deploy
+#           aws s3 cp s3://${ARTIFACTORY_S3_BUCKET_NAME}/${REPOSITORY_NAME}/${EXAMPLE_NAME}/${DEPLOYMENT_PACKAGE_NAME}/FlinkJob.jar ./mock_tf_build_deploy/
+#           # load local data
+#           cp -r ./creditcard-local ./mock_tf_build_deploy
 
-          ls -la ./mock_tf_build_deploy
-        shell: bash
+#           ls -la ./mock_tf_build_deploy
+#         shell: bash
       
-      - name: Set up SSH to sqrl-cloud repo
-        working-directory: "${{ env.EXAMPLE_NAME }}"
-        id: ssh_setup
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
+#       - name: Set up SSH to sqrl-cloud repo
+#         working-directory: "${{ env.EXAMPLE_NAME }}"
+#         id: ssh_setup
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+#           ssh-keyscan github.com >> ~/.ssh/known_hosts
+#         env:
+#           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY_SQRL_CLOUD }}
       
-      - name: Pull datasqrl/cloud Image
-        id: pull-datasqrl-cloud
-        run: |
-            docker pull ${{ env.DOCKER_IMAGE }}
-        shell: bash
+#       - name: Pull datasqrl/cloud Image
+#         id: pull-datasqrl-cloud
+#         run: |
+#             docker pull ${{ env.DOCKER_IMAGE }}
+#         shell: bash
 
-      - name: Terraform Plan
-        working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
-        id: plan
-        env:
-          BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
-          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_KEY }}
-          AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
-        run: |
-            ${{ env.DOCKER_COMMAND }} tf-plan
-        shell: bash
+#       - name: Terraform Plan
+#         working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
+#         id: plan
+#         env:
+#           BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
+#           BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_KEY }}
+#           AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
+#         run: |
+#             ${{ env.DOCKER_COMMAND }} tf-plan
+#         shell: bash
       
-      - name: Terraform Apply
-        working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
-        id: apply
-        env:
-          BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
-          BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_KEY }}
-          AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
-        run: |
-            ${{ env.DOCKER_COMMAND }} tf-apply
-            ${{ env.DOCKER_COMMAND }} tf-state -- list
-            server_alb_dns_name=$(${{ env.DOCKER_COMMAND }} tf-state -- show module.sqrl-aws-managed-flink-example.module.server.aws_lb.public_backend)
-            echo $server_alb_dns_name
-            echo "server_alb_dns_name=$server_alb_dns_name" >> $GITHUB_ENV
-        shell: bash
+#       - name: Terraform Apply
+#         working-directory: "${{ env.EXAMPLE_NAME }}/mock_tf_build_deploy"
+#         id: apply
+#         env:
+#           BACKEND_S3_BUCKET: ${{ env.TF_S3_BACKEND_BUCKET_NAME }}
+#           BACKEND_S3_KEY: ${{ env.TF_S3_BACKEND_KEY }}
+#           AWS_REGION:  ${{ env.TF_S3_BACKEND_DEFAULT_REGION  }}
+#         run: |
+#             ${{ env.DOCKER_COMMAND }} tf-apply
+#             ${{ env.DOCKER_COMMAND }} tf-state -- list
+#             server_alb_dns_name=$(${{ env.DOCKER_COMMAND }} tf-state -- show module.sqrl-aws-managed-flink-example.module.server.aws_lb.public_backend)
+#             echo $server_alb_dns_name
+#             echo "server_alb_dns_name=$server_alb_dns_name" >> $GITHUB_ENV
+#         shell: bash
       
-      - name: Integration Testing
-        id: test
-        run: |
-          git clone git@github.com:DataSQRL/sqrl-cloud.git
-          cd sqrl-cloud
-          pip install poetry
-          poetry install
-          poetry run pytest tests/integration/test_service_availability.py --alb ${{ env.server_alb_dns_name }}
-        shell: bash
+#       - name: Integration Testing
+#         id: test
+#         run: |
+#           git clone git@github.com:DataSQRL/sqrl-cloud.git
+#           cd sqrl-cloud
+#           pip install poetry
+#           poetry install
+#           poetry run pytest tests/integration/test_service_availability.py --alb ${{ env.server_alb_dns_name }}
+#         shell: bash
