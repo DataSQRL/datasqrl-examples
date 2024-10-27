@@ -64,28 +64,33 @@ jobs:
         working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
         run: |
           docker compose build
+          ls -la
         shell: bash
 
 
-  # deploy:
-  #   name: "Deploy Terraform Stack"
-  #   needs: build-artifacts
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #     actions: read
-  #   env:
-  #     ENV: DEV
-  #   steps:
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
-  #         aws-region: us-east-1
-
-  #     - name: Getting Code
-  #       uses: actions/checkout@v3
+  deploy:
+    name: "Deploy Terraform Stack"
+    needs: build-artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+    env:
+      ENV: DEV
+    steps:
+      - name: Getting Code
+        uses: actions/checkout@v3
+      - name: Setup Cluster
+        uses: debianmaster/actions-k3s@master
+        id: k3s
+        with:
+          version: 'latest'
+      - run: |
+          kubectl get nodes
+          kubectl get pods -A
+          sleep 20
+          kubectl get pods -A
 
   #     - name: Fetch Artifacts
   #       working-directory: ${{ env.EXAMPLE_NAME }}
