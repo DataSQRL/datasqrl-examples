@@ -1,4 +1,4 @@
-name: integration-test
+name: helm-chart-integration-test
 
 'on': 
   workflow_dispatch:
@@ -63,7 +63,7 @@ jobs:
       - name: Build Docker Images
         working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
         run: |
-          docker compose build -v
+          docker compose build
         shell: bash
 
 
