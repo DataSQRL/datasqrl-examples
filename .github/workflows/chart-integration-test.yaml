@@ -91,6 +91,7 @@ jobs:
       - name: Update kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name datasqrl-cloud
+          cat ~/.kube/config
 
       - name: Deploy to EKS
         uses: actions-hub/kubectl@master
