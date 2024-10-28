@@ -90,9 +90,7 @@ jobs:
       
       - name: Install AWS CLI
         run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+          aws eks
 
       - name: Deploy to EKS
         uses: actions-hub/kubectl@master
