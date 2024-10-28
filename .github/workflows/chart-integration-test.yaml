@@ -88,14 +88,15 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
       
-      - name: Install AWS CLI
+      - name: Update kubeconfig for EKS
         run: |
-          aws eks
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name datasqrl-cloud
+          cat ~/.kube/config | base64
 
       - name: Deploy to EKS
         uses: actions-hub/kubectl@master
         env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          KUBE_CONFIG: ~/.kube/config
         with:
           args: get pods -n github-action-test-ns-1
 
