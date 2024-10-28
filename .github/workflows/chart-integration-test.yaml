@@ -96,7 +96,7 @@ jobs:
       - name: Update kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name datasqrl-cloud
-          kubectl get ns
+          kubectl get pods -n github-action-test-ns-1
       
       - name: Update kubeconfig for EKS
         run: |
