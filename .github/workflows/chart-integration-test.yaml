@@ -97,7 +97,7 @@ jobs:
         uses: Azure/k8s-set-context@v3
         with:
           method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+          kubeconfig: ~/.kube/config
       
       - uses: azure/setup-kubectl@v4
         with:
