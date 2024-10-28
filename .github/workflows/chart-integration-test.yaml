@@ -108,7 +108,7 @@ jobs:
       
       - name: Destroy
         run: |
-          helm uninstall test-dependencies
+          helm uninstall test-dependencies -n "${{ env.TEST_K8S_NAMESPACE }}"
 
 
   #     - name: Fetch Artifacts
