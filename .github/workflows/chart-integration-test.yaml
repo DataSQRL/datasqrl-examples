@@ -93,12 +93,22 @@ jobs:
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name datasqrl-cloud
           cat ~/.kube/config | base64
 
-      - name: Deploy to EKS
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      - name: Kubernetes set context
+        uses: Azure/k8s-set-context@v3
         with:
-          args: get pods -n github-action-test-ns-1
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+      
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.29.1"
+        id: install
+      
+      - name: Update kubeconfig for EKS
+        run: |
+          kubectl get ns
+          # -n github-action-test-ns-1
+
 
   #     - name: Fetch Artifacts
   #       working-directory: ${{ env.EXAMPLE_NAME }}
