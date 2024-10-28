@@ -81,6 +81,11 @@ jobs:
     steps:
       - name: Getting Code
         uses: actions/checkout@v3
+      
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.29.1"
+        id: install
         
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -91,18 +96,7 @@ jobs:
       - name: Update kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name datasqrl-cloud
-          cat ~/.kube/config
-
-      - name: Kubernetes set context
-        uses: Azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ~/.kube/config
-      
-      - uses: azure/setup-kubectl@v4
-        with:
-          version: "v1.29.1"
-        id: install
+          kubectl get ns
       
       - name: Update kubeconfig for EKS
         run: |
