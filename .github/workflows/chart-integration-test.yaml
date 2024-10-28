@@ -91,7 +91,7 @@ jobs:
       - name: Update kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name datasqrl-cloud
-          cat ~/.kube/config | base64
+          cat ~/.kube/config
 
       - name: Kubernetes set context
         uses: Azure/k8s-set-context@v3
