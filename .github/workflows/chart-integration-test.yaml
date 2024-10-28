@@ -100,8 +100,7 @@ jobs:
       
       - name: Update kubeconfig for EKS
         run: |
-          kubectl get ns
-          # -n github-action-test-ns-1
+          kubectl get svc -n github-action-test-ns-1
 
 
   #     - name: Fetch Artifacts
