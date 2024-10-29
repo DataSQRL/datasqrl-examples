@@ -19,7 +19,8 @@
       "project-name": "myproject",
       "s3-data-bucket": "sqrl-examples-data-bucket",
       "sqrl_version": "v0.5.3",
-      "namespace": "github-action-test-ns-1"
+      "namespace": "github-action-test-ns-1",
+      "project_name": "myproject"
     }
   },
   "dependencies": [
