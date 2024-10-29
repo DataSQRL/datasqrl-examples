@@ -33,7 +33,7 @@ env:
 
 
 jobs:
-  build-artifacts-and-deploy:
+  build-artifacts:
     name: "Build Artifacts"
     runs-on: ubuntu-latest
     permissions:
