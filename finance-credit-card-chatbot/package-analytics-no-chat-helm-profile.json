@@ -14,10 +14,9 @@
       "table.exec.source.idle-timeout": "100 ms"
     },
     "deployment": {
-      "deployment_id": "4334-8b31-836c7c482c1e-53856403840b",
+      "id": "4334-8b31-836c7c482c1e-53856403840b",
       "shorten_id": "56403840b",
-      "project-name": "myproject",
-      "s3-data-bucket": "sqrl-examples-data-bucket",
+      "s3_data_bucket": "sqrl-examples-data-bucket",
       "sqrl_version": "v0.5.3",
       "namespace": "github-action-test-ns-1",
       "project_name": "myproject"
