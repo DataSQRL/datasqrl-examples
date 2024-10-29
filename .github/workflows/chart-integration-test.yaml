@@ -33,7 +33,7 @@ env:
 
 
 jobs:
-  build-artifacts:
+  build-artifacts-and-deploy:
     name: "Build Artifacts"
     runs-on: ubuntu-latest
     permissions:
@@ -71,21 +71,6 @@ jobs:
         run: |
           docker compose build
         shell: bash
-
-
-  deploy:
-    name: "Deploy Terraform Stack"
-    needs: build-artifacts
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      actions: read
-    env:
-      ENV: DEV
-    steps:
-      - name: Getting Code
-        uses: actions/checkout@v3
       
       - uses: azure/setup-kubectl@v4
         with:
@@ -113,6 +98,48 @@ jobs:
       - name: Destroy
         run: |
           helm uninstall test-dependencies -n "${{ env.TEST_K8S_NAMESPACE }}"
+
+
+  # deploy:
+  #   name: "Deploy Terraform Stack"
+  #   needs: build-artifacts
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #     actions: read
+  #   env:
+  #     ENV: DEV
+  #   steps:
+  #     - name: Getting Code
+  #       uses: actions/checkout@v3
+      
+  #     - uses: azure/setup-kubectl@v4
+  #       with:
+  #         version: "v1.29.1"
+  #       id: install
+        
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+  #         aws-region: ${{ secrets.AWS_REGION }}
+      
+  #     - name: Update kubeconfig for EKS and login ECR
+  #       run: |
+  #         aws ecr get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin 286928876767.dkr.ecr.us-east-1.amazonaws.com
+  #         aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name datasqrl-cloud
+      
+  #     - name: Update kubeconfig for EKS
+  #       working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
+  #       run: |
+  #         helm install test-dependencies oci://286928876767.dkr.ecr.us-east-1.amazonaws.com/namespace-dependencies --version "${{ env.HELM_CHART_VERSION }}" --namespace "${{ env.TEST_K8S_NAMESPACE }}"
+  #         helm install test-pipeline1 oci://286928876767.dkr.ecr.us-east-1.amazonaws.com/sqrlpipeline --version ${{ env.HELM_CHART_VERSION }} -f values.yaml --set-file flink_sql=./files/flink.sql --set-file database_schema_sql=./files/database-schema.sql --set-file server_config_json=./files/server-config.json --set-file server_model_json=./files/server-model.json --namespace "${{ env.TEST_K8S_NAMESPACE }}" --set deployment_id=53856403-840b-4334-8b31-836c7c482c1e
+  #         kubectl get pods -n "${{ env.TEST_K8S_NAMESPACE }}"
+      
+  #     - name: Destroy
+  #       run: |
+  #         helm uninstall test-dependencies -n "${{ env.TEST_K8S_NAMESPACE }}"
 
 
   #     - name: Fetch Artifacts
