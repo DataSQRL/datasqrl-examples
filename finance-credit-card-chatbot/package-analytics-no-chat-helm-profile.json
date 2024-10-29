@@ -18,7 +18,8 @@
       "shorten_id": "56403840b",
       "project-name": "myproject",
       "s3-data-bucket": "sqrl-examples-data-bucket",
-      "sqrl_version": "v0.5.3"
+      "sqrl_version": "v0.5.3",
+      "namespace": "github-action-test-ns-1"
     }
   },
   "dependencies": [
