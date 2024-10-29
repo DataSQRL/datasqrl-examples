@@ -73,11 +73,10 @@ jobs:
         shell: bash
       
       - name: Upload artifact
-        working-directory: ${{ env.EXAMPLE_NAME }}
         uses: actions/upload-artifact@v3
         with:
           name: build-deploy
-          path: build/deploy
+          path: "${{ env.EXAMPLE_NAME }}/build/deploy"
 
 
   deploy:
