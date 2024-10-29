@@ -20,7 +20,7 @@ concurrency:
 env:
   REPOSITORY_NAME: datasqrl-examples
   EXAMPLE_NAME: finance-credit-card-chatbot
-  DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
+  DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat-helm-profile
 
   ARTIFACTORY_S3_BUCKET_NAME: "sqrl-examples-artifactory-dev"
   # docker

@@ -1,0 +1,33 @@
+{
+  "version": "1",
+  "enabled-engines": [],
+  "profiles": [
+    "datasqrl.profile.default",
+    "./profiles/helm-profile"
+  ],
+  "script": {
+    "main": "creditcard-analytics-no-chat.sqrl",
+    "graphql": "creditcard-analytics-no-chat.graphqls"
+  },
+  "values": {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "100 ms"
+    },
+    "deployment": {
+      "deployment_id": "4334-8b31-836c7c482c1e-53856403840b",
+      "shorten_id": "56403840b",
+      "project-name": "myproject",
+      "s3-data-bucket": "sqrl-examples-data-bucket",
+      "sqrl_version": "v0.5.3"
+    }
+  },
+  "dependencies": [
+    {
+      "creditcard-data": {
+        "name": "creditcard-s3",
+        "version": "1",
+        "variant": "dev"
+      }
+    }
+  ]
+}
