@@ -63,13 +63,13 @@ jobs:
         run: |
           echo "${{ github.workspace }}"
           docker run --rm -v $PWD:/build datasqrl/cmd:"${{ inputs.sqrl_image_version }}" compile -c "${{ env.DEPLOYMENT_PACKAGE_NAME }}.json"
+          ls -la
         shell: bash
       
       - name: Build Docker Images
         working-directory: "${{ env.EXAMPLE_NAME }}/build/deploy"
         run: |
           docker compose build
-          ls -la
         shell: bash
 
 
@@ -106,7 +106,7 @@ jobs:
       - name: Update kubeconfig for EKS
         run: |
           helm install test-dependencies oci://286928876767.dkr.ecr.us-east-1.amazonaws.com/namespace-dependencies --version "${{ env.HELM_CHART_VERSION }}" --namespace "${{ env.TEST_K8S_NAMESPACE }}"
-          # helm install test-pipeline1 ../../charts/sqrlpipeline/sqrlpipeline-${{ env.HELM_CHART_VERSION }}.tgz -f values.yaml --set-file flink_sql=./files/flink.sql --set-file database_schema_sql=./files/database-schema.sql --set-file server_config_json=./files/server-config.json --set-file server_model_json=./files/server-model.json --namespace "${{ env.TEST_K8S_NAMESPACE }}" --set deployment_id=53856403-840b-4334-8b31-836c7c482c1e
+          helm install test-pipeline1 ../../charts/sqrlpipeline/sqrlpipeline-${{ env.HELM_CHART_VERSION }}.tgz -f values.yaml --set-file flink_sql=./files/flink.sql --set-file database_schema_sql=./files/database-schema.sql --set-file server_config_json=./files/server-config.json --set-file server_model_json=./files/server-model.json --namespace "${{ env.TEST_K8S_NAMESPACE }}" --set deployment_id=53856403-840b-4334-8b31-836c7c482c1e
           kubectl get pods -n "${{ env.TEST_K8S_NAMESPACE }}"
       
       - name: Destroy
