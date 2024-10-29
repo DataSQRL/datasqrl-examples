@@ -21,19 +21,15 @@ env:
   REPOSITORY_NAME: datasqrl-examples
   EXAMPLE_NAME: finance-credit-card-chatbot
   DEPLOYMENT_PACKAGE_NAME: package-analytics-no-chat
-  # ECR_REPOSITORY_SERVER: "datasqrl-examples/$EXAMPLE_NAME/$DEPLOYMENT_PACKAGE_NAME/deploy-server"
 
   ARTIFACTORY_S3_BUCKET_NAME: "sqrl-examples-artifactory-dev"
   # docker
   DOCKER_IMAGE: "public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
   DOCKER_COMMAND: "docker run --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN --env AWS_REGION --env BACKEND_S3_BUCKET --env BACKEND_S3_KEY -v ~/.ssh:/root/.ssh -v $(pwd):/mnt/host -v /var/run/docker.sock:/var/run/docker.sock public.ecr.aws/j5u7a3j2/datasqrl/cloud:latest"
-  # terraform
-  TF_S3_BACKEND_BUCKET_NAME: "sqrl-examples-artifactory-dev"
-  TF_S3_BACKEND_DEFAULT_REGION: "us-east-1"
-  TF_S3_BACKEND_KEY: "datasqrl-examples/finance-credit-card-chatbot/package-analytics-no-chat/terraform/terraform.tfstate"
 
   TEST_K8S_NAMESPACE: "github-action-test-ns-1"
   HELM_CHART_VERSION: "0.1.0"
+  HELM_PROFILE_VERSION: "TODO"
 
 
 jobs:
@@ -55,6 +51,12 @@ jobs:
 
       - name: Getting Code
         uses: actions/checkout@v3
+      
+      - name: Download helm profile
+        working-directory: ${{ env.EXAMPLE_NAME }}
+        run: |
+          echo "TODO: download helm profile from a remote repository"
+        shell: bash
 
       - name: SQRL Compile
         working-directory: ${{ env.EXAMPLE_NAME }}
@@ -104,6 +106,7 @@ jobs:
       - name: Update kubeconfig for EKS
         run: |
           helm install test-dependencies oci://286928876767.dkr.ecr.us-east-1.amazonaws.com/namespace-dependencies --version "${{ env.HELM_CHART_VERSION }}" --namespace "${{ env.TEST_K8S_NAMESPACE }}"
+          # helm install test-pipeline1 ../../charts/sqrlpipeline/sqrlpipeline-${{ env.HELM_CHART_VERSION }}.tgz -f values.yaml --set-file flink_sql=./files/flink.sql --set-file database_schema_sql=./files/database-schema.sql --set-file server_config_json=./files/server-config.json --set-file server_model_json=./files/server-model.json --namespace "${{ env.TEST_K8S_NAMESPACE }}" --set deployment_id=53856403-840b-4334-8b31-836c7c482c1e
           kubectl get pods -n "${{ env.TEST_K8S_NAMESPACE }}"
       
       - name: Destroy
