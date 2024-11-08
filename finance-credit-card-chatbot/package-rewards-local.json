@@ -1,7 +1,10 @@
 {
   "version": "1",
-  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
-  "profiles": ["datasqrl.profile.default"],
+  "enabled-engines": ["postgres_log", "flink", "postgres","vertx"],
+  "profiles": [
+    "datasqrl.profile.default",
+    "profiles/helm-profile"
+  ],
   "script": {
     "main": "creditcard-rewards.sqrl",
     "graphql": "creditcard-rewards.graphqls"
