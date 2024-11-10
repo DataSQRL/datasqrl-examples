@@ -5,7 +5,6 @@ import com.datasqrl.util.Configuration;
 import com.datasqrl.util.RandomSampler;
 import com.datasqrl.util.SerializerUtil;
 import com.datasqrl.util.WriterUtil;
-import com.github.javafaker.CreditCardType;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -17,6 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.Value;
+import net.datafaker.providers.base.Finance.CreditCardType;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "creditcard", description = "Generates Credit Card data")

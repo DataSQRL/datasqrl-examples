@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "enabled-engines": ["vertx", "iceberg", "snowflake", "flink"],
+  "enabled-engines": ["iceberg", "snowflake", "flink"],
   "script": {
     "main": "study_analytics.sqrl"
   },
