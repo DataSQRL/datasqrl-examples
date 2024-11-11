@@ -37,11 +37,11 @@ public class GenerateWarrants extends AbstractGenerateCommand {
     Instant initialTimestamp = startTime.minus(1, ChronoUnit.DAYS);
 
     List<Driver> drivers = IntStream.range(0,config.numDrivers)
-        .mapToObj(i -> Driver.generate(faker, sampler, initialTimestamp))
+        .mapToObj(i -> Driver.generate(faker, sampler, initialTimestamp.plus(i, ChronoUnit.SECONDS)))
         .toList();
 
     List<Vehicle> vehicles = IntStream.range(0, config.numVehicles)
-        .mapToObj(i -> Vehicle.generate(faker, sampler.next(drivers).driver_id, sampler, initialTimestamp))
+        .mapToObj(i -> Vehicle.generate(faker, sampler.next(drivers).driver_id, sampler, initialTimestamp.plus(i, ChronoUnit.SECONDS)))
         .toList();
 
     WriterUtil.writeToFile(drivers, getOutputDir().resolve(DRIVER_FILE), null, null);

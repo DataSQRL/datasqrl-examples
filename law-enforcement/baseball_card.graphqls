@@ -1,0 +1,128 @@
+"An RFC-3339 compliant DateTime Scalar"
+scalar DateTime
+
+type Query {
+  BoloDetails(make: String!, model: String, limit: Int = 10, offset: Int = 0): [BoloDetails!]
+  Driver(license_number: String!, limit: Int = 10, offset: Int = 0): [Driver!]
+  Vehicle(registration_number: String!, limit: Int = 10, offset: Int = 0): [Vehicle!]
+  WarrantsByCrime(crime: String, limit: Int = 10, offset: Int = 0): [WarrantsByCrime!]
+  WarrantsByState(status: String, limit: Int = 10, offset: Int = 0): [WarrantsByState!]
+  BolosByState(status: String, limit: Int = 10, offset: Int = 0): [BolosByState!]
+}
+
+type BoloDetails {
+  bolo_id: String!
+  vehicle_id: String!
+  issue_date: DateTime!
+  status: String!
+  last_updated: DateTime!
+  make: String!
+  model: String!
+  year: Float!
+  registration_state: String!
+  registration_number: String!
+  license_state: String!
+  driver_id: String!
+  driver(limit: Int = 10, offset: Int = 0): [Driver!]
+  vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
+}
+
+type BolosByState {
+  state: String!
+  status: String!
+  num_bolos: Float!
+}
+
+type Driver {
+  driver_id: String!
+  first_name: String!
+  last_name: String!
+  license_number: String!
+  license_state: String!
+  date_of_birth: String!
+  license_status: String!
+  license_expiry_date: DateTime!
+  last_updated: DateTime!
+  bolos(limit: Int = 10, offset: Int = 0): [BoloDetails!]
+  vehicles(limit: Int = 10, offset: Int = 0): [Vehicle!]
+  warrants(limit: Int = 10, offset: Int = 0): [Warrant!]
+}
+
+type Vehicle {
+  vehicle_id: String!
+  registration_number: String!
+  registration_state: String!
+  registration_expiry: DateTime!
+  make: String!
+  model: String!
+  year: Float!
+  owner_driver_id: String!
+  last_updated: DateTime!
+  bolos(limit: Int = 10, offset: Int = 0): [BoloDetails!]
+  driver(limit: Int = 10, offset: Int = 0): [Driver!]
+  tracking(limit: Int = 10, offset: Int = 0): [Tracking!]
+}
+
+type Warrant {
+  warrant_id: String!
+  person_id: String!
+  warrant_status: String!
+  crime_description: String!
+  state_of_issuance: String!
+  issue_date: DateTime!
+  last_updated: DateTime!
+}
+
+type WarrantsByCrime {
+  crime: String!
+  num_warrants: Float!
+}
+
+type WarrantsByState {
+  state: String!
+  status: String!
+  num_warrants: Float!
+}
+
+
+type Tracking {
+  latitude: Float!
+  longitude: Float!
+  event_time: DateTime!
+}
+
+type Mutation {
+  Tracking(encounter: TrackingInput!): TrackingCreated
+}
+
+input TrackingInput {
+  plate: String!
+  latitude: Float!
+  longitude: Float!
+}
+
+type TrackingCreated {
+  _uuid: String!
+  plate: String!
+}
+
+type Subscription {
+  TrackingAlert: TrackingAlert
+}
+
+type TrackingAlert {
+  bolo_id: String!
+  vehicle_id: String!
+  issue_date: DateTime!
+  status: String!
+  last_updated: DateTime!
+  make: String!
+  model: String!
+  year: Float!
+  registration_state: String!
+  registration_number: String!
+  license_state: String!
+  driver_id: String!
+  latitude: Float!
+  longitude: Float!
+}

@@ -1,0 +1,21 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "profiles": ["datasqrl.profile.default"],
+  "script": {
+    "main": "baseball_card.sqrl",
+    "graphql": "baseball_card.graphqls"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "5 ms"
+    }
+  },
+  "dependencies": [{
+    "data": {
+      "name": "data-dev",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}
