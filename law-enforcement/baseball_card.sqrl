@@ -39,6 +39,13 @@ WarrantsByCrime := SELECT crime_description AS crime, COUNT(1) as num_warrants
                    WHERE warrant_status = 'active' OR warrant_status = 'urgent'
                    GROUP BY crime ORDER BY crime ASC;
 
+/*+ test */
+BolosWATest := SELECT * FROM BolosByState WHERE state = 'WA';
+
+/*+ test */
+WarrantsTest := SELECT warrant_status, COUNT(1) AS num_warrants
+                FROM Warrant GROUP BY warrant_status ORDER BY warrant_status ASC;
+
 /* License plate tracking and alerting */
 
 IMPORT baseball_card.Tracking;
