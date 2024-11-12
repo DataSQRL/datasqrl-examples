@@ -47,7 +47,7 @@ public class GeneratePatients extends AbstractGenerateCommand {
 
     //Patients
     List<Patient> patients = IntStream.range(1,1+config.numPatients)
-        .mapToObj(i -> new Patient(i, faker.name().name(), faker.name().bloodGroup(),
+        .mapToObj(i -> new Patient(i, faker.name().name(), faker.bloodtype().bloodGroup(),
             formatter.format(faker.date().birthday()), faker.medical().diseaseName(),
             initialTimestamp.toString()))
         .toList();

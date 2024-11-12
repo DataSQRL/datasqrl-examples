@@ -1,0 +1,73 @@
+IMPORT data.Driver;
+IMPORT data.Vehicle;
+IMPORT data.Warrant;
+IMPORT data.Bolo;
+
+Driver := DISTINCT Driver ON driver_id ORDER BY last_updated DESC;
+Vehicle := DISTINCT Vehicle ON vehicle_id ORDER BY last_updated DESC;
+
+Driver.warrants := JOIN Warrant w ON w.person_id = @.driver_id ORDER BY issue_date DESC;
+Driver.vehicles := JOIN Vehicle v ON v.owner_driver_id = @.driver_id;
+Vehicle.driver := JOIN Driver d ON @.owner_driver_id = d.driver_id;
+
+_EnrichedBolo := SELECT b.bolo_id, b.vehicle_id, b.issue_date, b.status, b.last_updated,
+                       v.make, v.model, v.year, v.registration_state, v.registration_number,
+                       d.license_state, d.driver_id
+                       FROM Bolo b
+                TEMPORAL JOIN Vehicle v ON b.vehicle_id = v.vehicle_id
+                TEMPORAL JOIN Driver d ON d.driver_id = v.owner_driver_id;
+
+--EXPORT _EnrichedBolo TO logger.Bolo;
+
+BoloDetails := DISTINCT _EnrichedBolo ON bolo_id ORDER BY last_updated DESC;
+BoloDetails.vehicle := JOIN Vehicle v ON v.vehicle_id = @.vehicle_id;
+BoloDetails.driver := JOIN Driver d ON d.driver_id = @.driver_id;
+
+Driver.bolos := JOIN BoloDetails b ON b.driver_id = @.driver_id ORDER BY issue_date DESC;
+Vehicle.bolos := JOIN BoloDetails b ON b.vehicle_id = @.vehicle_id ORDER BY issue_date DESC;
+
+
+
+
+
+
+
+/* Analytics */
+WarrantsByState := SELECT state_of_issuance AS state, warrant_status AS status, COUNT(1) as num_warrants
+                   FROM Warrant GROUP BY state, status ORDER BY state ASC, status ASC;
+
+WarrantsByCrime := SELECT crime_description AS crime, COUNT(1) as num_warrants
+                   FROM Warrant
+                   WHERE warrant_status = 'active' OR warrant_status = 'urgent'
+                   GROUP BY crime ORDER BY crime ASC;
+
+IMPORT time.endOfWeek;
+
+BolosByWeekState := SELECT endOfWeek(last_updated) AS week,
+                           registration_state AS state, COUNT(1) as num_bolos
+                FROM _EnrichedBolo GROUP BY week, state ORDER BY week DESC, state ASC;
+
+
+/*+ test */
+BolosWATest := SELECT * FROM BolosByState WHERE state = 'WA';
+
+/*+ test */
+WarrantsTest := SELECT warrant_status, COUNT(1) AS num_warrants
+                FROM Warrant GROUP BY warrant_status ORDER BY warrant_status ASC;
+
+
+
+
+
+/* License plate tracking and alerting */
+
+IMPORT baseball_card.Tracking;
+
+Vehicle.tracking := JOIN Tracking t ON t.plate = @.registration_number ORDER BY t.event_time DESC;
+
+TrackingAlert := SELECT b.*, t.latitude, t.longitude FROM Tracking t
+                 INNER JOIN _EnrichedBolo b ON b.registration_number = t.plate
+                 WHERE b.status = 'active'
+                   AND b.last_updated < t.event_time AND b.last_updated + INTERVAL 60 DAYS >= t.event_time;
+
+--EXPORT TrackingAlert TO logger.Alert;

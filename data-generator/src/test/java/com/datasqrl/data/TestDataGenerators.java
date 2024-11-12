@@ -32,5 +32,10 @@ public class TestDataGenerators {
     new RootGenerateCommand().getCmd().execute(new String[]{"creditcard","-n","100","-o","data/creditcard"});
   }
 
+  @Test
+  public void TestWarrants() {
+    new RootGenerateCommand().getCmd().execute(new String[]{"warrants","-n","100","-o","data/warrants"});
+  }
+
 
 }

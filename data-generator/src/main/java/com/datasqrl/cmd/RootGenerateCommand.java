@@ -5,6 +5,7 @@ import com.datasqrl.data.GenerateCreditCards;
 import com.datasqrl.data.GenerateLoans;
 import com.datasqrl.data.GeneratePatients;
 import com.datasqrl.data.GenerateSensors;
+import com.datasqrl.data.GenerateWarrants;
 import java.nio.file.Path;
 import java.util.Locale;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import picocli.CommandLine.ScopeType;
 
 @CommandLine.Command(name = "datasqrl", mixinStandardHelpOptions = true, version = "0.1",
     subcommands = {GenerateClickstream.class, GenerateSensors.class, GenerateLoans.class, GenerateCreditCards.class,
-    GeneratePatients.class})
+    GeneratePatients.class, GenerateWarrants.class})
 @Getter
 public class RootGenerateCommand implements Runnable {
 

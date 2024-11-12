@@ -1,0 +1,41 @@
+---
+name: "driver"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "driver_id"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "first_name"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "last_name"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "license_number"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "license_state"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "date_of_birth"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "license_status"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "license_expiry_date"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
+- name: "last_updated"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"

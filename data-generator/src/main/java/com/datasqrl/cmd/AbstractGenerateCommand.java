@@ -3,7 +3,7 @@ package com.datasqrl.cmd;
 import com.datasqrl.util.Configuration;
 import com.datasqrl.util.ConfigurationMapper;
 import com.datasqrl.util.RandomSampler;
-import com.github.javafaker.Faker;
+import net.datafaker.Faker;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;

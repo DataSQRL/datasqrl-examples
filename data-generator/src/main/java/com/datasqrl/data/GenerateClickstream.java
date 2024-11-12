@@ -5,7 +5,7 @@ import com.datasqrl.util.Configuration;
 import com.datasqrl.util.StringTransformer;
 import com.datasqrl.util.WriterUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Book;
+import net.datafaker.providers.base.Book;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.io.IOException;

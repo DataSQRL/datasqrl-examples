@@ -1,0 +1,33 @@
+---
+name: "warrant"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "warrant_id"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "person_id"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "warrant_status"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "crime_description"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "state_of_issuance"
+  type: "STRING"
+  tests:
+  - "not_null"
+- name: "issue_date"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
+- name: "last_updated"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
