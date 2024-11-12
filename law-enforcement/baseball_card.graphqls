@@ -7,7 +7,7 @@ type Query {
   Vehicle(registration_number: String!, limit: Int = 10, offset: Int = 0): [Vehicle!]
   WarrantsByCrime(crime: String, limit: Int = 10, offset: Int = 0): [WarrantsByCrime!]
   WarrantsByState(status: String, limit: Int = 10, offset: Int = 0): [WarrantsByState!]
-  BolosByState(status: String, limit: Int = 10, offset: Int = 0): [BolosByState!]
+  BolosByWeekState(state: String, limit: Int = 10, offset: Int = 0): [BolosByWeekState!]
 }
 
 type BoloDetails {
@@ -27,9 +27,9 @@ type BoloDetails {
   vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
 }
 
-type BolosByState {
+type BolosByWeekState {
+  week: DateTime!
   state: String!
-  status: String!
   num_bolos: Float!
 }
 
