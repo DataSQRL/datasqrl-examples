@@ -57,44 +57,21 @@ Look up a vehicle by license plate to get complete information:
 
 ```graphql
 {
-  Vehicle(registration_number: "zro-2535") {
-    driver {
-      first_name
-      last_name
-      warrants {
-        warrant_id
-        warrant_status
-        issue_date
-        crime_description
-      }
+    Vehicle(registration_number: "gwv-9659") {
+        vehicle_id
+        registration_state
+        registration_number
+        registration_expiry
+        make
+        model
+        year
+        owner_driver_id
+        bolos {
+            bolo_id
+            status
+            issue_date
+        }
     }
-    bolos {
-      bolo_id
-      status
-    }
-  }
-}
-```
-
-```graphql
-{
-  Vehicle(registration_number: "gwv-9659") {
-    driver {
-      first_name
-      last_name
-      warrants {
-        warrant_id
-        warrant_status
-        issue_date
-        crime_description
-      }
-    }
-    bolos {
-      bolo_id
-      status
-      issue_date
-    }
-  }
 }
 ```
 
@@ -102,23 +79,16 @@ What Bolo's are there for similar makes and models?
 
 ```graphql
 {
-  BoloDetails(make: "Honda", model: "CR-V") {
-   	bolo_id
-    issue_date
-    model
-    year
-    registration_state
-    registration_number
-    driver {
-      first_name
-      last_name
-      date_of_birth
-      warrants {
+    BoloDetails(make: "Honda", model: "CR-V") {
+        bolo_id
         issue_date
-        warrant_status
-      }
+        model
+        year
+        registration_state
+        registration_number
+        license_state
+        driver_id
     }
-  }
 }
 ```
 
@@ -177,10 +147,6 @@ Query to retrieve tracking information:
 ```graphql
 {
   Vehicle(registration_number: "dkx-1292") {
-    driver {
-      first_name
-      last_name
-    }
     bolos {
       bolo_id
       status
@@ -192,3 +158,16 @@ Query to retrieve tracking information:
   }
 }
 ```
+
+## AI Agent
+
+To access the information with the help of an AI assistant, run the following command to launch the agent:
+
+```bash
+docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={YOUR-OPEN-AI-API-KEY} datasqrl/acorn /config/agent/openai.config.json /config/baseball_card.graphqls
+```
+
+Then open the agent in the [browser](http://localhost:8080/?login=false) and ask questions such as:
+
+* "Pull up information on driver's license ZK035266"
+* "Show me bolo statistics for the state of washington over the last 11 weeks"

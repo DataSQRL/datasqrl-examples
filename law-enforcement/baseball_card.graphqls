@@ -1,13 +1,121 @@
 "An RFC-3339 compliant DateTime Scalar"
 scalar DateTime
 
+
 type Query {
-  BoloDetails(make: String!, model: String, limit: Int = 10, offset: Int = 0): [BoloDetails!]
-  Driver(license_number: String!, limit: Int = 10, offset: Int = 0): [Driver!]
-  Vehicle(registration_number: String!, limit: Int = 10, offset: Int = 0): [Vehicle!]
-  WarrantsByCrime(crime: String, limit: Int = 10, offset: Int = 0): [WarrantsByCrime!]
-  WarrantsByState(status: String, limit: Int = 10, offset: Int = 0): [WarrantsByState!]
-  BolosByWeekState(state: String, limit: Int = 10, offset: Int = 0): [BolosByWeekState!]
+  """
+  Fetches Bolo details with specified vehicle characteristics.
+  """
+  BoloDetails(
+    """
+    The make of the vehicle (e.g., Ford, Toyota).
+    """
+    make: String!,
+
+    """
+    The model of the vehicle.
+    """
+    model: String,
+
+    """
+    The maximum number of results to return. Defaults to 10.
+    """
+    limit: Int = 10,
+
+    """
+    The number of results to skip before starting to return results. Defaults to 0.
+    """
+    offset: Int = 0
+  ): [BoloDetails!]
+
+  """
+  Retrieves driver information using their license number.
+  """
+  Driver(
+    """
+    The license number of the driver.
+    """
+    license_number: String!,
+
+    """
+    The maximum number of results to return. Defaults to 10.
+    """
+    limit: Int = 10,
+
+    """
+    The number of results to skip before starting to return results. Defaults to 0.
+    """
+    offset: Int = 0
+  ): [Driver!]
+
+  """
+  Retrieves vehicle details using the registration number.
+  """
+  Vehicle(
+    """
+    The registration number of the vehicle, i.e. the license plate number.
+    """
+    registration_number: String!,
+
+    """
+    The maximum number of results to return. Defaults to 10.
+    """
+    limit: Int = 10,
+
+    """
+    The number of results to skip before starting to return results. Defaults to 0.
+    """
+    offset: Int = 0
+  ): [Vehicle!]
+
+  """
+  Fetches statistics on warrants filtered by the type of crime.
+  """
+  WarrantsByCrime(
+    """
+    The type of crime.
+    """
+    crime: String,
+
+    limit: Int = 100,
+    offset: Int = 0
+  ): [WarrantsByCrime!]
+
+  """
+  Fetches statistics on warrants issued by state filtered by their status.
+  """
+  WarrantsByState(
+    """
+    The status of the warrant (one of: active, urgent, closed, suspended).
+    """
+    status: String,
+
+    limit: Int = 100,
+
+    offset: Int = 0
+  ): [WarrantsByState!]
+
+  """
+  Fetches Bolo (be on the lookout) statistics by week filtered by state. It returns the data ordered
+  by week starting from the most recent and going backwards from there.
+  """
+  BolosByWeekState(
+    """
+    The state for which Bolos are to be fetched abbreviated to two uppercase letters (e.g. WA, CA).
+    """
+    state: String,
+
+    """
+    The maximum number of results to return. Defaults to 100. Set to the number of past weeks to return
+    multiplied by the number of states.
+    """
+    limit: Int = 100,
+
+    """
+    The number of results to skip before starting to return results. Defaults to 0.
+    """
+    offset: Int = 0
+  ): [BolosByWeekState!]
 }
 
 type BoloDetails {
@@ -23,8 +131,7 @@ type BoloDetails {
   registration_number: String!
   license_state: String!
   driver_id: String!
-  driver(limit: Int = 10, offset: Int = 0): [Driver!]
-  vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
+
 }
 
 type BolosByWeekState {
@@ -59,7 +166,6 @@ type Vehicle {
   owner_driver_id: String!
   last_updated: DateTime!
   bolos(limit: Int = 10, offset: Int = 0): [BoloDetails!]
-  driver(limit: Int = 10, offset: Int = 0): [Driver!]
   tracking(limit: Int = 10, offset: Int = 0): [Tracking!]
 }
 
