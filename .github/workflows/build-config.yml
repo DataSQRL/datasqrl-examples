@@ -1,4 +1,4 @@
-name: Build and test SQRL with Maven
+name: Build and test DataSQRL Examples
 on:
  workflow_dispatch:
     inputs:
@@ -24,6 +24,7 @@ on:
           - iot-sensor
           - retail
           - recommendation
+          - law
  pull_request:
     branches: [ "main" ]
 
