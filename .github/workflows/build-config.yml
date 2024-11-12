@@ -124,6 +124,13 @@ jobs:
         docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test customer360.sqrl --snapshot snapshots
       continue-on-error: false
 
+    - name: Run Law Enforcement Test
+      if: ${{ github.event.inputs.example == 'law' }}
+      working-directory: ./law-enforcement
+      run: |
+        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c baseball-card-local.json --snapshot snapshots
+      continue-on-error: false
+
     - name: Run anyway
       if: ${{ github.event.inputs.example != 'healthcare' }}
       run: |
