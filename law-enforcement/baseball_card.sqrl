@@ -49,7 +49,7 @@ BolosByWeekState := SELECT endOfWeek(last_updated) AS week,
 
 
 /*+ test */
-BolosWATest := SELECT * FROM BolosByState WHERE state = 'WA';
+BolosWATest := SELECT * FROM BolosByWeekState WHERE state = 'WA';
 
 /*+ test */
 WarrantsTest := SELECT warrant_status, COUNT(1) AS num_warrants
