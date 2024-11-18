@@ -6,11 +6,6 @@
     "main": "creditcard-rewards.sqrl",
     "graphql": "creditcard-rewards.graphqls"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "1000 ms"
-    }
-  },
   "dependencies": [{
     "creditcard-data": {
       "name": "creditcard-local",
