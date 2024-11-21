@@ -18,3 +18,4 @@
 {"metadataId":18,"name":"Bleeding tendency Marker","lowRange":50.0,"highRange":102.0,"lastUpdated":"2024-09-15T00:00:00Z"}
 {"metadataId":19,"name":"General weakness Marker","lowRange":22.0,"highRange":38.0,"lastUpdated":"2024-09-15T00:00:00Z"}
 {"metadataId":20,"name":"Pain in the ear Marker","lowRange":2.0,"highRange":118.0,"lastUpdated":"2024-09-15T00:00:00Z"}
+{"metadataId":20,"name":"Pain in the ear Marker","lowRange":2.0,"highRange":117.0,"lastUpdated":"2024-09-30T00:00:00Z"}

@@ -4,3 +4,4 @@
 {"groupId":4,"studyId":1,"groupName":"BHC ALHAMBRA HOSPITAL","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":8},{"patientId":13}]}
 {"groupId":5,"studyId":2,"groupName":"FALLS COMMUNITY HOSPITAL AND CLINIC","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":22},{"patientId":24},{"patientId":19},{"patientId":21},{"patientId":29}]}
 {"groupId":6,"studyId":2,"groupName":"AVERA TYLER HOSPITAL","createdDate":"2024-09-15T00:00:00Z","patients":[{"patientId":23},{"patientId":25}]}
+{"groupId":6,"studyId":2,"groupName":"AVERA TYLER HOSPITAL","createdDate":"2024-09-30T00:00:00Z","patients":[{"patientId":23},{"patientId":25},{"patientId":22}]}

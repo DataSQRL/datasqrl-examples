@@ -28,3 +28,4 @@
 {"patientId":28,"studyId":2,"name":"Ha White","bloodGroup":"A+","dateOfBirth":"1973-12-31","diagnosis":"Dysfunctional uterine bleeding","lastUpdated":"2024-09-15T00:00:00Z"}
 {"patientId":29,"studyId":2,"name":"Jim Nitzsche","bloodGroup":"B+","dateOfBirth":"1975-01-02","diagnosis":"Flu","lastUpdated":"2024-09-15T00:00:00Z"}
 {"patientId":30,"studyId":2,"name":"Kermit Friesen","bloodGroup":"O-","dateOfBirth":"1979-11-15","diagnosis":"Headache","lastUpdated":"2024-09-15T00:00:00Z"}
+{"patientId":30,"studyId":2,"name":"Kermit Friesens","bloodGroup":"O-","dateOfBirth":"1979-11-15","diagnosis":"Headache","lastUpdated":"2024-09-30T00:00:00Z"}

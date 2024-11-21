@@ -59,3 +59,4 @@
 {"sensorId":59,"patientId":2,"metadataId":17,"eventId":"490aa4d1-4dfc-4439-aea6-25a519172a27","placedTimestamp":"2024-09-15T00:00:00Z"}
 {"sensorId":60,"patientId":16,"metadataId":15,"eventId":"8c1f127c-4d2b-43ad-bc67-70cdb41220f2","placedTimestamp":"2024-09-15T00:00:00Z"}
 {"sensorId":10,"patientId":25,"metadataId":9,"eventId":"cdd85197-29fb-41f0-83f1-4ea2b2bbcdb5","placedTimestamp":"2024-09-16T14:54:00Z"}
+{"sensorId":10,"patientId":22,"metadataId":9,"eventId":"cdd85197-29fb-41f0-83f1-4ea2b2bbcdb5","placedTimestamp":"2024-09-30T00:00:00Z"}

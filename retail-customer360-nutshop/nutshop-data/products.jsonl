@@ -204,4 +204,5 @@
 {"id":204,"name":"walnuts, dry roasted, with salt added","sizing":"1 lbs","weight_in_gram":454,"type":"Nuts","category":"walnuts","usda_id":170594,"updated":"2023-01-01T22:14:30.525Z"}
 {"id":205,"name":"breadfruit seeds, roasted","sizing":"1 lbs","weight_in_gram":454,"type":"Seeds","category":"breadfruit seeds","usda_id":170595,"updated":"2023-01-01T22:14:30.525Z"}
 {"id":206,"name":"cottonseed kernels, roasted (glandless)","sizing":"1 lbs","weight_in_gram":454,"type":"Seeds","category":"cottonseed kernels","usda_id":170596,"updated":"2023-01-01T22:14:30.525Z"}
-{"id":207,"name":"cottonseed kernels, roasted (glandless)","sizing":"2 lbs","weight_in_gram":907,"type":"Seeds","category":"cottonseed kernels","usda_id":170596,"updated":"2023-01-01T22:14:30.525Z"}]
+{"id":207,"name":"cottonseed kernels, roasted (glandless)","sizing":"2 lbs","weight_in_gram":907,"type":"Seeds","category":"cottonseed kernels","usda_id":170596,"updated":"2023-01-01T22:14:30.525Z"}
+{"id":207,"name":"cottonseed kernels, roasted (gland-less)","sizing":"2 lbs","weight_in_gram":907,"type":"Seeds","category":"cottonseed kernels","usda_id":170596,"updated":"2023-02-22T20:21:33.575Z"}
