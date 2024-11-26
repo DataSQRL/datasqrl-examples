@@ -65,7 +65,7 @@ PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWe
 /* Part 3: Integrate Chat Agent */
 IMPORT creditcard-rewards.InternalSaveChatMessage;
 
-InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
+InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.userid, c.event_time AS timestamp,
                         c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
 
 
