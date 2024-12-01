@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "flink" : {
+    "connector": "print",
+    "print-identifier": "Customer-Rewards"
+  },
+  "table" : {
+    "type" : "sink",
+    "primary-key" : ["customerId"]
+  }
+}
