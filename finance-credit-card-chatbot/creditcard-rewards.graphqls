@@ -60,7 +60,7 @@ type Query {
 
     """Retrieves User Chat Messages"""
     InternalGetChatMessages(
-        customerid: Int!,
+        userid: String!,
         limit: Int = 10,
         offset: Int = 0
     ): [CustomerChatMessage!]
@@ -123,7 +123,7 @@ type CustomerChatMessage {
     content: String!
     name: String
     functionCall: String
-    customerid: Int!
+    userid: String!
     timestamp: String!
     uuid: String!
 }
@@ -138,9 +138,9 @@ input ChatMessageInput {
     content: String!
     name: String
     functionCall: String
-    customerid: Int
+    userid: String!
 }
 
 type CreatedChatMessage {
-    event_time: String!
+    _uuid: String!
 }
