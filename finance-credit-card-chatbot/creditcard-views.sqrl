@@ -1,0 +1,39 @@
+/* Import Data */
+IMPORT creditcard-data.Merchant AS Merchant;
+IMPORT creditcard-data.CardAssignment AS _CardAssignment;
+IMPORT creditcard-data.Transaction AS _Transaction;
+/* Import Functions */
+IMPORT time.*;
+
+/* Deduplicate CDC Streams */
+Merchant :=       DISTINCT Merchant ON merchantId ORDER BY updatedTime DESC;
+_CardAssignment := DISTINCT _CardAssignment ON cardNo ORDER BY timestamp DESC;
+
+/* Enrich credit card transactions with customer and merchant information */
+/*+partition_key(customerid) */
+_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, t.merchantid,
+                              m.category, c.customerid
+                       FROM _Transaction t
+                       TEMPORAL JOIN _CardAssignment c ON t.cardNo = c.cardNo
+                       TEMPORAL JOIN Merchant m ON t.merchantId = m.merchantid ORDER BY t.time DESC;
+
+SpendingByCategory := SELECT customerid, endOfWeek(time) as timeWeek, category, SUM(amount) as spending
+                          FROM _CustomerTransaction
+                          GROUP BY customerid, timeWeek, category
+                          ORDER BY timeWeek DESC, category ASC;
+
+SpendingByDay := SELECT customerid, endOfDay(time) as timeDay, SUM(amount) as spending
+                         FROM _CustomerTransaction
+                         GROUP BY customerid, timeDay
+                         ORDER BY timeDay DESC;
+
+CustomerTransactionWithMerchant :=
+                SELECT * FROM _CustomerTransaction t
+                INNER JOIN Merchant m ON t.merchantid = m.merchantid;
+
+
+/* =======TEST CASES======== */
+
+/*+test */
+SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerid DESC, timeWeek DESC limit 5;
+
