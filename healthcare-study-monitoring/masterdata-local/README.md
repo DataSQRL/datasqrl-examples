@@ -23,7 +23,7 @@ This dataset contains information about the clinical indicators (also known as m
 
 Fields:
 - metadataId: Unique identifier for each clinical indicator.
-- name: The name of the clinical indicator (e.g., “Vomiting coffee ground material Marker”).
+- name: The name of the clinical indicator (e.g., "Vomiting coffee ground material Marker").
 - lowRange: The lowest value that is considered within the normal range for the indicator.
 - highRange: The highest value that is considered within the normal range for the indicator.
 - lastUpdated: Timestamp when the metadata was last updated.
