@@ -2,7 +2,7 @@
   "flink" : {
     "format" : "flexible-json",
     "path" : "${DATA_PATH}/warrant.jsonl",
-    "source.monitor-interval" : 10000,
+    "source.monitor-interval": "10 min",
     "connector" : "filesystem"
   },
   "version" : 1,
