@@ -2,7 +2,7 @@
   "version": "1",
   "package": {
     "name": "datasqrl.examples.medicalstudy",
-    "version": "0.5.5",
+    "version": "0.5.6",
     "variant": "default",
     "latest": true,
     "type": "source",

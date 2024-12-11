@@ -20,13 +20,13 @@ Each dataset has a unique structure, and its elements are described below with s
 #### Card Assignment Data
 
 This dataset represents the assignment of credit cards to customers. Each card has an associated customer, a card number,
-and a card type (e.g., “family”, “travel”). The timestamp indicates when the card assignment was made.
+and a card type (e.g., "family", "travel"). The timestamp indicates when the card assignment was made.
 
 Fields:
 - customerId: Unique identifier for the customer.
 - cardNo: Credit card number (in string format).
 - timestamp: Time of card assignment in ISO 8601 format (UTC).
-- cardType: The category of the card (e.g., “family”, “travel”). This may be blank if unspecified.
+- cardType: The category of the card (e.g., "family", "travel"). This may be blank if unspecified.
 
 Sample Record:
 ```json
@@ -41,7 +41,7 @@ a category of goods or services they provide, and an updated timestamp.
 Fields:
 - merchantId: Unique identifier for the merchant.
 - name: The name of the merchant.
-- category: The type of goods or services provided by the merchant (e.g., “Clothing & Apparel”, “Housing & Utilities”).
+- category: The type of goods or services provided by the merchant (e.g., "Clothing & Apparel", "Housing & Utilities").
 - updatedTime: The time when this merchant information was last updated, in ISO 8601 format.
 
 Sample Record:
@@ -56,7 +56,7 @@ This dataset provides information on rewards offered by specific merchants for d
 Fields:
 - merchantId: Unique identifier for the merchant.
 - rewardsByCard: An array of reward structures associated with specific card types. Each entry in the array includes:
-- cardType: The type of card eligible for the reward (e.g., “travel”, “sports”).
+- cardType: The type of card eligible for the reward (e.g., "travel", "sports").
 - rewardPercentage: The percentage of reward offered on purchases with this card type.
 - startTimestamp: Start of the reward period in Unix epoch time.
 - expirationTimestamp: End of the reward period in Unix epoch time.
