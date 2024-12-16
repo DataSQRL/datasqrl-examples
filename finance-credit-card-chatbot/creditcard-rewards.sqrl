@@ -26,7 +26,7 @@ CustomerRewards := SELECT transactionId, customerId, cardNo, cardType, time, amo
                   FROM _CustomerTransactionRewardsByCard
                   WHERE cardType = rewardCardType;
 
-EXPORT CustomerRewards TO creditcard-data.RewardSink;
+EXPORT CustomerRewards TO creditcard-sink.RewardSink;
 
 
 /* Part 2a: Query and Analyze Rewards */

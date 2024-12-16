@@ -11,6 +11,11 @@
       "name": "creditcard-local",
       "version": "1",
       "variant": "dev"
+    },
+    "creditcard-sink": {
+      "name": "sink-local",
+      "version": "1",
+      "variant": "dev"
     }
   }]
 }

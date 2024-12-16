@@ -17,6 +17,11 @@
       "name": "creditcard-kafka",
       "version": "1",
       "variant": "dev"
+    },
+    "creditcard-sink": {
+      "name": "creditcard-kafka",
+      "version": "1",
+      "variant": "dev"
     }
   }]
 }
