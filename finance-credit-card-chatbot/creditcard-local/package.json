@@ -2,7 +2,7 @@
   "version": "1",
   "package": {
     "name": "datasqrl.examples.finance",
-    "version": "0.5.6",
+    "version": "0.5.7",
     "variant": "default",
     "latest": true,
     "type": "source",
