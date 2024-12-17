@@ -40,19 +40,7 @@ jobs:
       with:
         timezoneLinux: "America/Los_Angeles"
 
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Debugging login
-      run: |
-        echo "Logging in with user: ${{ secrets.DOCKER_USERNAME }}"
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Pull SQRL demo Docker image
+    - name: Pull SQRL Docker image
       run: docker pull datasqrl/cmd:v0.5.6
 
     - name: Run Healthcare Analytics Test
