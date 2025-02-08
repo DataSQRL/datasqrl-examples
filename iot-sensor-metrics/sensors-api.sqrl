@@ -1,0 +1,35 @@
+/* IMPORT sensors.AddReading AS SensorReading; */
+IMPORT sensors.AddReading AS SensorReading;
+
+/* Provide query endpoint for readings by temperature */
+ReadingsAboveTemp(@temp: Int) := SELECT * FROM SensorReading WHERE temperature > @temp ORDER BY event_time DESC;
+
+/* Produce an alert stream for high temperatures */
+HighTemp := SELECT * FROM SensorReading  WHERE temperature > 100;
+
+/* Get max temperature in last minute per sensor */
+SensorMaxTempLastMinute := SELECT sensorid, max(temperature) as maxTemp, max(event_time) as last_updated
+                 FROM SensorReading
+                 WHERE event_time >= now() - INTERVAL 1 MINUTE
+                 GROUP BY sensorid;
+
+/* Get the max temperature overall per sensor */
+SensorMaxTemp := SELECT sensorid, max(temperature) as maxTemp, max(event_time) as last_updated
+                 FROM SensorReading
+                 GROUP BY sensorid;
+
+/* =======TEST CASES======== */
+
+/*+test */
+SensorHighTempTest := SELECT COUNT(*) as num, AVG(temperature) as avg_temp FROM HighTemp;
+
+/*+test */
+SensorMaxTempTest := SELECT sensorid, maxTemp FROM SensorMaxTemp ORDER BY sensorid DESC;
+
+/* ======= CHAT AGENT HISTORY ==== */
+
+/* Part 3: Integrate Chat Agent */
+IMPORT sensors.InternalSaveChatMessage;
+
+InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
+                        c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
