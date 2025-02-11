@@ -231,7 +231,7 @@ public class GenerateCreditCards extends AbstractGenerateCommand {
 
   public static class Config implements Configuration {
 
-    public int numCustomers = 10;
+    public int numCustomers = 1000;
 
     public int numMerchants = 100;
 
