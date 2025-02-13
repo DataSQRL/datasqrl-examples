@@ -1,0 +1,15 @@
+{
+  "flink" : {
+    "format" : "flexible-json",
+    "path" : "${DATA_PATH}/maintenance.jsonl",
+    "source.monitor-interval" : 10000,
+    "connector" : "filesystem"
+  },
+  "version" : 1,
+  "table" : {
+    "type" : "source",
+    "primary-key" : [ "work_order_id", "lastUpdated" ],
+    "timestamp" : "lastUpdated",
+    "watermark-millis" : "0"
+  }
+}

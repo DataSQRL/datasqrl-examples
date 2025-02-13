@@ -1,0 +1,29 @@
+IMPORT test-data.Assets;
+IMPORT test-data.Maintenance AS MaintenanceUpdates;
+IMPORT test-data.Measurement;
+IMPORT operations-agent.AddFlowRate AS Flowrate;
+IMPORT time.endOfSecond;
+
+Assets := DISTINCT Assets ON asset_id ORDER BY lastUpdated DESC;
+Maintenance := DISTINCT MaintenanceUpdates ON work_order_id ORDER BY lastUpdated DESC;
+Assets.maintenance := JOIN Maintenance m ON @.asset_id = m.asset_id ORDER BY m.lastUpdated DESC;
+
+EXPORT Flowrate TO print.Flowrate;
+
+EnrichedFlowRate := SELECT f.*, a.asset_number, a.asset_name, a.description
+                    FROM Flowrate f
+                    TEMPORAL JOIN Assets a ON f.assetId = a.asset_id;
+
+EXPORT EnrichedFlowRate TO print.EnrichedFlowRate;
+
+LowFlowRate := SELECT * FROM EnrichedFlowRate WHERE flowrate < 200;
+
+FlowRateByRange(@assetId: BIGINT, @minRate: DOUBLE, @maxRate: DOUBLE) := SELECT * FROM EnrichedFlowRate
+        WHERE assetId = @assetId AND flowrate >= @minRate AND flowrate <= @maxRate ORDER BY event_time DESC LIMIT 100;
+
+RecentPressure := SELECT assetId, endOfSecond(timestamp, 10) AS timestamp_normalized,
+                             AVG(pressure_psi) AS pressure_psi,
+                             AVG(temperature_f) AS temperature_f
+                  FROM Measurement
+                  GROUP BY assetId, timestamp_normalized ORDER BY timestamp_normalized DESC;
+

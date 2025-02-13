@@ -1,0 +1,21 @@
+---
+name: "measurement"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "assetId"
+  type: "BIGINT"
+  tests:
+  - "not_null"
+- name: "pressure_psi"
+  type: "DOUBLE"
+  tests:
+  - "not_null"
+- name: "temperature_f"
+  type: "DOUBLE"
+  tests:
+  - "not_null"
+- name: "timestamp"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"

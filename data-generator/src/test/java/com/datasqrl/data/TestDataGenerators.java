@@ -37,5 +37,11 @@ public class TestDataGenerators {
     new RootGenerateCommand().getCmd().execute(new String[]{"warrants","-n","100","-o","data/warrants"});
   }
 
+  @Test
+  public void testMeasurements() {
+    new RootGenerateCommand().getCmd().execute(new String[]{"measurement","-n","8000","-o","data/well"});
+  }
+
+
 
 }
