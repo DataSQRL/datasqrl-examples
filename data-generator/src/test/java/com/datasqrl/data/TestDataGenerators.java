@@ -29,13 +29,19 @@ public class TestDataGenerators {
 
   @Test
   public void testCreditCard() {
-    new RootGenerateCommand().getCmd().execute(new String[]{"creditcard","-n","100","-o","data/creditcard"});
+    new RootGenerateCommand().getCmd().execute(new String[]{"creditcard","-n","365","-o","data/creditcard"});
   }
 
   @Test
   public void TestWarrants() {
     new RootGenerateCommand().getCmd().execute(new String[]{"warrants","-n","100","-o","data/warrants"});
   }
+
+  @Test
+  public void testMeasurements() {
+    new RootGenerateCommand().getCmd().execute(new String[]{"measurement","-n","8000","-o","data/well"});
+  }
+
 
 
 }

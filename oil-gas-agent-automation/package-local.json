@@ -1,0 +1,14 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "profiles": ["datasqrl.profile.default"],
+  "script": {
+    "main": "operations-agent.sqrl",
+    "graphql": "operations-agent.graphqls"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "flink" : {
+    "format" : "flexible-json",
+    "path" : "${DATA_PATH}/flowrate.jsonl.gz",
+    "source.monitor-interval" : 10000,
+    "connector" : "filesystem"
+  },
+  "version" : 1,
+  "table" : {
+    "type" : "source",
+    "primary-key" : [ "assetId", "event_time" ],
+    "timestamp" : "event_time",
+    "watermark-millis" : "0"
+  }
+}
