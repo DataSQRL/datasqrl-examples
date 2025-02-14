@@ -2,8 +2,18 @@
 scalar DateTime
 
 type Query {
+  """
+  Returns information about the well/asset including it's maintenance records, manual,
+  description, and other important information.
+  """
   Assets(asset_id: Int!, limit: Int = 20, offset: Int = 0): [Assets!]
+  """
+  Returns the flowrate readings for a given well/asset within the specified range order by timestamp decreasing.
+  """
   FlowRateByRange(assetId: Int!, minRate: Float = 0, maxRate: Float = 10000): [EnrichedFlowRate!]
+  """
+  Returns recent pressure and temperature readings for a given well/asset by id.
+  """
   RecentPressure(assetId: Int!, limit: Int = 25, offset: Int = 0): [RecentPressure!]
 }
 
