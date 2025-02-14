@@ -1,7 +1,7 @@
 {
   "flink" : {
     "format" : "flexible-json",
-    "path" : "${DATA_PATH}/measurement.jsonl",
+    "path" : "${DATA_PATH}/measurement.jsonl.gz",
     "source.monitor-interval" : 10000,
     "connector" : "filesystem"
   },
