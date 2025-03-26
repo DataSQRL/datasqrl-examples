@@ -35,6 +35,7 @@ jobs:
     env:
       TZ: 'America/Los_Angeles'
     steps:
+    - uses: actions/checkout@v4
     - name: Setup Timezone
       uses: szenius/set-timezone@v1.1
       with:
@@ -42,6 +43,16 @@ jobs:
 
     - name: Pull SQRL Docker image
       run: docker pull datasqrl/cmd:v0.5.6
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Run Healthcare Analytics Test
       if: ${{ github.event.inputs.example == 'healthcare' }}
@@ -72,18 +83,25 @@ jobs:
       continue-on-error: false
 
     - name: Run Finance Analytics Test
-      if: ${{ github.event.inputs.example == 'finance' }}
-      working-directory: ./finance-credit-card-chatbot
+      working-directory: finance-credit-card-chatbot/
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c package-analytics-local.json --snapshot snapshots-analytics
       continue-on-error: false
 
     - name: Run Finance Rewards Test
-      if: ${{ github.event.inputs.example == 'finance' }}
-      working-directory: ./finance-credit-card-chatbot
+      working-directory: finance-credit-card-chatbot/
       run: |
         docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test test -c package-rewards-local.json --snapshot snapshots-rewards
       continue-on-error: false
+
+    - name: Publish finance
+      uses: docker/build-push-action@v3
+      with:
+        context: finance-credit-card-chatbot
+        file: finance-credit-card-chatbot/Dockerfile
+        push: true
+        tags: datasqrl/examples:finance
+        platforms: linux/amd64,linux/arm64
 
     - name: Run Clickstream Recommendation Test
       if: ${{ github.event.inputs.example == 'recommendation' }}
