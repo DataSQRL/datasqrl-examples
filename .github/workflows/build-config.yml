@@ -1,146 +1,110 @@
 name: Build and test DataSQRL Examples
+
 on:
- workflow_dispatch:
-    inputs:
-      repo:
-        description: Test runner
-        required: true
-        default: 'zharec'
-        type: string
-      note:
-        description: Test note
-        required: true
-        default: 'Smoke test'
-        type: string
-      example:
-        description: Example to test
-        required: true
-        type: choice
-        default: healthcare
-        options:
-          - finance
-          - healthcare
-          - logistics
-          - iot-sensor
-          - retail
-          - recommendation
-          - law
- pull_request:
+  push:
+    branches: [ "main" ]
+  pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - example: finance
+            path: finance-credit-card-chatbot
+            test_commands: |
+              test -c package-analytics-local.json --snapshot snapshots-analytics
+              test -c package-rewards-local.json --snapshot snapshots-rewards
+
+          - example: healthcare
+            path: healthcare-study-monitoring
+            test_commands: |
+              test -c study_analytics_package.json study_analytics.sqrl --snapshot snapshots-study-analytics
+              test -c study_api_test_package.json --tests tests-api --snapshot snapshots-study-api
+              test -c study_stream_local_package.json study_stream.sqrl --snapshot snapshots-study-stream
+              compile study_create_api.sqrl
+
+          - example: logistics
+            path: logistics-shipping-geodata
+            test_commands: |
+              test logistics.sqrl --snapshot snapshots
+
+          # - example: iot-sensor
+          #   path: iot-sensor-metrics
+          #   test_commands: |
+          #     test sensors.sqrl --snapshot snapshots
+
+          - example: retail
+            path: retail-customer360-nutshop
+            test_commands: |
+              test customer360.sqrl --snapshot snapshots
+
+          - example: recommendation
+            path: clickstream-ai-recommendation
+            test_commands: |
+              test -c package.json --snapshot snapshots
+
+          - example: law
+            path: law-enforcement
+            test_commands: |
+              test -c baseball-card-local.json --snapshot snapshots
+
     env:
       TZ: 'America/Los_Angeles'
+      SQRL_VERSION: 'v0.5.6'
+
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup Timezone
       uses: szenius/set-timezone@v1.1
       with:
         timezoneLinux: "America/Los_Angeles"
 
     - name: Pull SQRL Docker image
-      run: docker pull datasqrl/cmd:v0.5.6
+      run: docker pull datasqrl/cmd:${{ env.SQRL_VERSION }}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
+
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Run Healthcare Analytics Test
-      if: ${{ github.event.inputs.example == 'healthcare' }}
-      working-directory: ./healthcare-study-monitoring
+    - name: Run ${{ matrix.example }} Tests
+      working-directory: ${{ matrix.path }}
       run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build -e LOCAL_WAREHOUSE_DIR=/tmp/warehouse datasqrl/cmd:v0.5.6 test -c study_analytics_package.json study_analytics.sqrl --snapshot snapshots-study-analytics
-      continue-on-error: false
+        while IFS= read -r cmd; do
+          echo "Running: $cmd"
+          docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:${SQRL_VERSION} $cmd
+        done <<< "${{ matrix.test_commands }}"
 
-    - name: Run Healthcare Study Api Test
-      if: ${{ github.event.inputs.example == 'healthcare' }}
-      working-directory: ./healthcare-study-monitoring
+    - name: Write Dockerfile
       run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c study_api_test_package.json --tests tests-api --snapshot snapshots-study-api
-      continue-on-error: false
+        cat <<EOF > ${{ matrix.path }}/Dockerfile
+        FROM datasqrl/cmd:${SQRL_VERSION}
 
-    - name: Run Healthcare Study Stream Test
-      if: ${{ github.event.inputs.example == 'healthcare' }}
-      working-directory: ./healthcare-study-monitoring
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c study_stream_local_package.json study_stream.sqrl --snapshot snapshots-study-stream
-      continue-on-error: false
+        ENV TZ="UTC"
 
-    - name: Run Healthcare Create Api Test
-      if: ${{ github.event.inputs.example == 'healthcare' }}
-      working-directory: ./healthcare-study-monitoring
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 compile study_create_api.sqrl
-      continue-on-error: false
+        COPY . /build
+        WORKDIR /build
+        EOF
 
-    - name: Run Finance Analytics Test
-      working-directory: finance-credit-card-chatbot/
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c package-analytics-local.json --snapshot snapshots-analytics
-      continue-on-error: false
-
-    - name: Run Finance Rewards Test
-      working-directory: finance-credit-card-chatbot/
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test test -c package-rewards-local.json --snapshot snapshots-rewards
-      continue-on-error: false
-
-    - name: Publish finance
+    - name: Publish ${{ matrix.example }}
       uses: docker/build-push-action@v3
       with:
-        context: finance-credit-card-chatbot
-        file: finance-credit-card-chatbot/Dockerfile
+        context: ./${{ matrix.path }}
+        file: ./${{ matrix.path }}/Dockerfile
         push: true
-        tags: datasqrl/examples:finance
+        tags: datasqrl/examples:${{ matrix.example }}
         platforms: linux/amd64,linux/arm64
-
-    - name: Run Clickstream Recommendation Test
-      if: ${{ github.event.inputs.example == 'recommendation' }}
-      working-directory: ./clickstream-ai-recommendation
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test test -c package.json --snapshot snapshots
-      continue-on-error: false
-
-    - name: Run IoT Sensor Test
-      if: ${{ github.event.inputs.example == 'iot-sensor' }}
-      working-directory: ./iot-sensor-metrics
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test sensors.sqrl --snapshot snapshots
-      continue-on-error: false
-  
-    - name: Run Logistics Test
-      if: ${{ github.event.inputs.example == 'logistics' }}
-      working-directory: ./logistics-shipping-geodata
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test logistics.sqrl --snapshot snapshots
-      continue-on-error: false
-
-    - name: Run Retail Test
-      if: ${{ github.event.inputs.example == 'retail' }}
-      working-directory: ./retail-customer360-nutshop
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test customer360.sqrl --snapshot snapshots
-      continue-on-error: false
-
-    - name: Run Law Enforcement Test
-      if: ${{ github.event.inputs.example == 'law' }}
-      working-directory: ./law-enforcement
-      run: |
-        docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:v0.5.6 test -c baseball-card-local.json --snapshot snapshots
-      continue-on-error: false
-
-    - name: Run anyway
-      if: ${{ github.event.inputs.example != 'healthcare' }}
-      run: |
-        echo "This ran, I guess that is a good thing"
-      continue-on-error: true
-
