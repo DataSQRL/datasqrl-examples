@@ -56,7 +56,7 @@ jobs:
 
     env:
       TZ: 'America/Los_Angeles'
-      SQRL_VERSION: 'v0.5.6'
+      SQRL_VERSION: 'v0.5.10'
 
     steps:
     - uses: actions/checkout@v4
