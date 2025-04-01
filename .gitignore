@@ -3,6 +3,7 @@
 target
 h2.db.mv.db
 cache
+.project
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
