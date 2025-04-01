@@ -54,9 +54,9 @@ jobs:
               test -c baseball-card-local.json --snapshot snapshots
 
           - example: oil-gas
-            path: oil-gas
+            path: oil-gas-agent-automation
             test_commands: |
-              run -c package-local.json
+              test -c package-local.json
 
     env:
       TZ: 'America/Los_Angeles'

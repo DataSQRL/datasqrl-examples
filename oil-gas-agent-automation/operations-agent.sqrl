@@ -27,3 +27,6 @@ RecentPressure := SELECT assetId, endOfSecond(timestamp, 10) AS timestamp_normal
                   FROM Measurement
                   GROUP BY assetId, timestamp_normalized ORDER BY timestamp_normalized DESC;
 
+/*+ test */
+RecentPressureTest := SELECT * FROM RecentPressure ORDER BY timestamp_normalized DESC;
+
