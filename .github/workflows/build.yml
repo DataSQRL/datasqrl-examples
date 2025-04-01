@@ -33,10 +33,10 @@ jobs:
             test_commands: |
               test logistics.sqrl --snapshot snapshots
 
-          # - example: iot-sensor
-          #   path: iot-sensor-metrics
-          #   test_commands: |
-          #     test sensors.sqrl --snapshot snapshots
+          - example: iot-sensor
+            path: iot-sensor-metrics
+            test_commands: |
+              test sensors.sqrl --snapshot snapshots
 
           - example: retail
             path: retail-customer360-nutshop

@@ -29,7 +29,10 @@ SensorMaxTempTest := SELECT sensorid, maxTemp FROM SensorMaxTemp ORDER BY sensor
 /* ======= CHAT AGENT HISTORY ==== */
 
 /* Part 3: Integrate Chat Agent */
+/*
+FIXME commented out as there is no InternalSaveChatMessage inside sensor-local
 IMPORT sensors.InternalSaveChatMessage;
 
 InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
                         c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
+*/
