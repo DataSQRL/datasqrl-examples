@@ -4,7 +4,6 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -53,6 +52,11 @@ jobs:
             path: law-enforcement
             test_commands: |
               test -c baseball-card-local.json --snapshot snapshots
+
+          - example: oil-gas
+            path: oil-gas
+            test_commands: |
+              run -c package-local.json
 
     env:
       TZ: 'America/Los_Angeles'
