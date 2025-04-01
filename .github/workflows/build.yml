@@ -88,6 +88,11 @@ jobs:
     - name: Run ${{ matrix.example }} Tests
       working-directory: ${{ matrix.path }}
       run: |
+        if [ -z "${{ matrix.test_commands }}" ]; then
+          echo "No test commands specified for ${{ matrix.example }}"
+          exit 1
+        fi
+
         while IFS= read -r cmd; do
           echo "Running: $cmd"
           docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:${SQRL_VERSION} $cmd
