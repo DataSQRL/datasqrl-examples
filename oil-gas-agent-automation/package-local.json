@@ -1,10 +1,8 @@
 {
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
-  "profiles": ["datasqrl.profile.default"],
   "script": {
-    "main": "operations-agent.sqrl",
-    "graphql": "operations-agent.graphqls"
+    "main": "operations-agent.sqrl"
   },
   "values" : {
     "flink-config": {
