@@ -1,5 +1,7 @@
 # Clickstream Recommendation
 
+> ⚠️ **Warning:** This example has not yet been updated to 0.6 and uses an older version of DataSQRL
+
 This example demonstrates DataSQRL's capabilities by creating personalized content recommendations
 based on clickstream data and content vector embeddings. The pipeline ingests data, processes it,
 and serves recommendations in real time, highlighting the power of DataSQRL in handling streaming

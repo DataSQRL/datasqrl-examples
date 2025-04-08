@@ -20,7 +20,7 @@ columns:
   - name: "startTimestamp"
     type: "BIGINT"
     tests:
-      - "not_null"
+    - "not_null"
   - name: "expirationTimestamp"
     type: "BIGINT"
     tests:

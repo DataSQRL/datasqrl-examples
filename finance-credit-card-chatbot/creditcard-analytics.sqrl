@@ -1,61 +1,77 @@
 /* Import Data */
-IMPORT creditcard-data.Merchant;
-IMPORT creditcard-data.CardAssignment;
-IMPORT creditcard-data.Transaction;
+IMPORT creditcard-data.Merchant AS _MerchantStream;
+IMPORT creditcard-data.CardAssignment AS _CardAssignmentStream;
+IMPORT creditcard-data.Transaction AS _Transaction;
 /* Import Functions */
 IMPORT time.*;
 
 /* Deduplicate CDC Streams */
-Merchant :=       DISTINCT Merchant ON merchantId ORDER BY updatedTime DESC;
-CardAssignment := DISTINCT CardAssignment ON cardNo ORDER BY timestamp DESC;
+_Merchant :=       DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
+_CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp` DESC;
 
 /* Enrich credit card transactions with customer and merchant information */
-CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
-                              m.category, c.customerid
-                       FROM Transaction t
-                       TEMPORAL JOIN CardAssignment c ON t.cardNo = c.cardNo
-                       TEMPORAL JOIN Merchant m ON t.merchantId = m.merchantid ORDER BY t.time DESC;
+CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount, m.name AS merchantName,
+                              m.category, c.customerId
+                       FROM _Transaction t
+                        JOIN _CardAssignment FOR SYSTEM_TIME AS OF t.`time` c ON t.cardNo = c.cardNo
+                        JOIN _Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId;
 
-SpendingByCategory := SELECT customerid, endOfWeek(time) as timeWeek, category, SUM(amount) as spending
-                          FROM CustomerTransaction
-                          GROUP BY customerid, timeWeek, category
-                          ORDER BY timeWeek DESC, category ASC;
+/*+query_by_all(customerId) */
+SpendingByCategory := SELECT customerId, window_time as timeWeek, category, SUM(amount) as spending
+                      FROM TABLE(TUMBLE(TABLE CustomerTransaction, DESCRIPTOR(`time`), INTERVAL '7' DAY))
+                      GROUP BY customerId, window_start, window_end, window_time, category
+                      ORDER BY window_time DESC, category ASC;
 
-_SpendingByDay := SELECT customerid, endOfDay(time) as timeDay, SUM(amount) as spending
-                         FROM CustomerTransaction
-                         GROUP BY customerid, timeDay
-                         ORDER BY timeDay DESC;
+_SpendingByDay := SELECT customerId, window_time as timeDay, SUM(amount) as spending
+                 FROM TABLE(TUMBLE(TABLE CustomerTransaction, DESCRIPTOR(`time`), INTERVAL '1' DAY))
+                 GROUP BY customerId, window_start, window_end, window_time
+                 ORDER BY window_time DESC;
 
 /* Query Endpoints */
-Transactions(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-    SELECT * FROM CustomerTransaction WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
-    ORDER BY time DESC LIMIT 10000;
+Transactions(customerId BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
+    SELECT * FROM CustomerTransaction WHERE customerId = :customerId AND :fromTime <= `time` AND :toTime > `time`
+    ORDER BY `time` DESC LIMIT 10000;
 
-SpendingByDay(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
+SpendingByDay(customerId BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
     SELECT timeDay, spending
-    FROM _SpendingByDay WHERE customerid = @customerid AND @fromTime <= timeDay AND @toTime > timeDay
+    FROM _SpendingByDay WHERE customerId = :customerId AND :fromTime <= timeDay AND :toTime > timeDay
     ORDER BY timeDay DESC;
 
-IMPORT creditcard-analytics.InternalSaveChatMessage;
+NewCustomerTransaction(customerId BIGINT) :=
+    SUBSCRIBE SELECT * FROM CustomerTransaction WHERE customerId = :customerId;
 
-InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
-                        c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
+/* ==== Agent message history === */
+
+CREATE TABLE InternalSaveChatMessage (
+    uuid STRING NOT NULL METADATA FROM 'uuid',
+    role STRING NOT NULL,
+    content STRING NOT NULL,
+    name STRING,
+    functionCall STRING,
+    customerId INT,
+    event_time TIMESTAMP_LTZ(3) METADATA FROM 'timestamp'
+);
+
+/*+query_by_all(customerId) */
+InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerId,
+                                  c.event_time AS `timestamp`, uuid
+                           FROM InternalSaveChatMessage c ORDER BY event_time DESC;
 
 /* =======TEST CASES======== */
 
 /*+test */
-CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY time DESC limit 5;
+CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY `time` DESC limit 5;
 
 /*+test */
-SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerid DESC, timeWeek DESC limit 5;
+SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerId DESC, timeWeek DESC, category ASC limit 5;
 
 /*+test */
 InternalGetChatMessagesTest := SELECT role, 
                                       content,
                                       name,
                                       functionCall, 
-                                      customerid,
-                                      timestamp, 
+                                      customerId,
+                                      `timestamp`,
                                       uuid 
                                       FROM InternalGetChatMessages
                                       LIMIT 5;
