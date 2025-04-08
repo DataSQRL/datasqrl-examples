@@ -1,81 +1,97 @@
-IMPORT creditcard-data.Merchant;
-IMPORT creditcard-data.CardAssignment;
-IMPORT creditcard-data.Transaction;
-IMPORT creditcard-data.MerchantReward;
-IMPORT time.*;
+IMPORT creditcard-data.Merchant AS _MerchantStream;
+IMPORT creditcard-data.CardAssignment AS _CardAssignmentStream;
+IMPORT creditcard-data.Transaction AS _Transaction;
+IMPORT creditcard-data.MerchantReward AS _MerchantRewardStream;
 
-Merchant :=       DISTINCT Merchant ON merchantId ORDER BY updatedTime DESC;
-MerchantReward := DISTINCT MerchantReward ON merchantId ORDER BY updatedTime DESC;
-CardAssignment := DISTINCT CardAssignment ON cardNo ORDER BY timestamp DESC;
+
+/* Deduplicate CDC Streams */
+_Merchant :=       DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
+_CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp` DESC;
+_MerchantReward := DISTINCT _MerchantRewardStream ON merchantId ORDER BY updatedTime DESC;
 
 /* Part 1: Compute customer rewards */
-_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.time, t.amount, m.name AS merchantName,
-                              m.merchantId, m.category, c.customerid, c.cardType
-                       FROM Transaction t
-                       TEMPORAL JOIN CardAssignment c ON t.cardNo = c.cardNo
-                       TEMPORAL JOIN Merchant m ON t.merchantId = m.merchantid ORDER BY t.time DESC;
+_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount, m.name AS merchantName,
+                              m.merchantId, m.category, c.customerId, c.cardType
+                       FROM _Transaction t
+                        JOIN _CardAssignment FOR SYSTEM_TIME AS OF t.`time` c ON t.cardNo = c.cardNo
+                        JOIN _Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId;
 
 _CustomerTransactionRewards := SELECT t.*, r.rewardsByCard AS rewards FROM _CustomerTransaction t
-                              TEMPORAL JOIN MerchantReward r ON r.merchantId = t.merchantId;
+                              JOIN _MerchantReward FOR SYSTEM_TIME AS OF t.`time` r ON r.merchantId = t.merchantId;
 
 _CustomerTransactionRewardsByCard := SELECT t.*, t.amount * (r.rewardPercentage / 100.0) as reward, r.cardType AS rewardCardType
-                                    FROM _CustomerTransactionRewards t JOIN t.rewards r
-                                    WHERE timestampToEpoch(t.time) <= r.expirationTimestamp AND timestampToEpoch(t.time) >= r.startTimestamp;
+                                    FROM _CustomerTransactionRewards t CROSS JOIN UNNEST(t.rewards) r
+                                    WHERE UNIX_TIMESTAMP(DATE_FORMAT(t.`time`,'yyyy-MM-dd HH:mm:ss')) BETWEEN r.startTimestamp AND r.expirationTimestamp;
 
-CustomerRewards := SELECT transactionId, customerId, cardNo, cardType, time, amount, reward, merchantName
+CustomerRewards := SELECT transactionId, customerId, cardNo, cardType, `time`, amount, reward, merchantName
                   FROM _CustomerTransactionRewardsByCard
                   WHERE cardType = rewardCardType;
 
+NewCustomerRewards(customerId BIGINT NOT NULL) := SUBSCRIBE SELECT * FROM CustomerRewards WHERE customerId = :customerId;
+
 EXPORT CustomerRewards TO creditcard-sink.RewardSink;
 
-
 /* Part 2a: Query and Analyze Rewards */
-Rewards(@customerid: BIGINT, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-SELECT * FROM CustomerRewards WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
-ORDER BY time DESC;
+Rewards(customerId BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
+SELECT * FROM CustomerRewards WHERE customerId = :customerId AND :fromTime <= `time` AND :toTime > `time`
+ORDER BY `time` DESC;
 
+/*+query_by_all(customerId) */
 TotalReward := SELECT customerId, SUM(reward) AS total_reward,
-                              MIN(time) as since_time
+                              MIN(`time`) as since_time
                        FROM CustomerRewards GROUP BY customerId;
 
-RewardsByWeek := SELECT customerId, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
-                FROM CustomerRewards GROUP BY customerId, timeWeek ORDER BY timeWeek DESC;
-
+/*+query_by_all(customerId) */
+RewardsByWeek := SELECT customerId, window_time as timeWeek, SUM(reward) as total_reward
+                FROM TABLE(TUMBLE(TABLE CustomerRewards, DESCRIPTOR(`time`), INTERVAL '7' DAY))
+                      GROUP BY customerId, window_start, window_end, window_time
+                      ORDER BY window_time DESC;
 
 
 /* Part 2b: Compute potential rewards for personalized sales */
-_CustomerPotentialRewards := SELECT transactionId, customerId, rewardCardType, time, amount, reward, merchantName
+_CustomerPotentialRewards := SELECT transactionId, customerId, rewardCardType, `time`, amount, reward, merchantName
                             FROM _CustomerTransactionRewardsByCard
-                            WHERE cardType != rewardCardType;
+                            WHERE cardType <> rewardCardType;
 
-PotentialRewards(@customerid: BIGINT, @cardType: STRING, @fromTime: TIMESTAMP, @toTime: TIMESTAMP) :=
-SELECT * FROM _CustomerPotentialRewards WHERE customerid = @customerid AND @fromTime <= time AND @toTime > time
-AND rewardCardType = @cardType ORDER BY time DESC;
+PotentialRewards(customerId BIGINT NOT NULL, cardType STRING NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
+SELECT * FROM _CustomerPotentialRewards WHERE customerId = :customerId AND :fromTime <= `time` AND :toTime > `time`
+AND rewardCardType = :cardType ORDER BY `time` DESC;
 
+/*+query_by_all(customerId) */
 TotalPotentialReward := SELECT customerId, rewardCardType AS cardType, SUM(reward) AS total_reward,
-                                       MIN(time) as since_time
+                                       MIN(`time`) as since_time
                                 FROM _CustomerPotentialRewards
-                                GROUP BY customerId, cardType ORDER BY cardType DESC;
+                                GROUP BY customerId, rewardCardType ORDER BY cardType DESC;
 
-PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, endOfWeek(time) as timeWeek, SUM(reward) as total_reward
-                 FROM _CustomerPotentialRewards GROUP BY customerId, cardType, timeWeek ORDER BY timeWeek DESC;
+/*+query_by_all(customerId, cardType) */
+PotentialRewardsByWeek := SELECT customerId, rewardCardType AS cardType, window_time as timeWeek, SUM(reward) as total_reward
+                      FROM TABLE(TUMBLE(TABLE _CustomerPotentialRewards, DESCRIPTOR(`time`), INTERVAL '7' DAY))
+                      GROUP BY customerId, window_start, window_end, window_time, rewardCardType
+                      ORDER BY window_time DESC, rewardCardType ASC;
 
 
 
 /* Part 3: Integrate Chat Agent */
-IMPORT creditcard-rewards.InternalSaveChatMessage;
+CREATE TABLE InternalSaveChatMessage (
+    uuid STRING NOT NULL METADATA FROM 'uuid',
+    role STRING NOT NULL,
+    content STRING NOT NULL,
+    name STRING,
+    functionCall STRING,
+    customerId INT,
+    event_time TIMESTAMP_LTZ(3) METADATA FROM 'timestamp'
+);
 
-InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
-                        c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
+/*+query_by_all(customerId) */
+InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerId,
+                                  c.event_time AS `timestamp`, uuid
+                           FROM InternalSaveChatMessage c ORDER BY event_time DESC;
 
 
 /* =======TEST CASES======== */
 
 /*+test */
-CardAssignmentTest := SELECT * FROM CardAssignment ORDER BY cardNo DESC, timestamp DESC LIMIT 5;
-
-/*+test */
-CustomerRewardsTest := SELECT * FROM CustomerRewards ORDER BY cardType DESC, time DESC LIMIT 5;
+CustomerRewardsTest := SELECT * FROM CustomerRewards ORDER BY cardType DESC, `time` DESC LIMIT 5;
 
 /*+test */
 RewardsByWeekTest := SELECT * FROM RewardsByWeek ORDER BY customerId DESC, timeWeek DESC LIMIT 5;

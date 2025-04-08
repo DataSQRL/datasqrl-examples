@@ -2,8 +2,6 @@
 IMPORT creditcard-data.Merchant AS _MerchantStream;
 IMPORT creditcard-data.CardAssignment AS _CardAssignmentStream;
 IMPORT creditcard-data.Transaction AS _Transaction;
-/* Import Functions */
-IMPORT time.*;
 
 /* Deduplicate CDC Streams */
 _Merchant :=       DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
