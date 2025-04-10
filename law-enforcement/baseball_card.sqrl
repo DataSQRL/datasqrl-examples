@@ -1,51 +1,72 @@
-IMPORT data.Driver;
-IMPORT data.Vehicle;
+IMPORT data.Driver AS _DriverUpdates;
+IMPORT data.Vehicle AS _VehicleUpdates;
+/*+no_query */
 IMPORT data.Warrant;
+/*+no_query */
 IMPORT data.Bolo;
 
-Driver := DISTINCT Driver ON driver_id ORDER BY last_updated DESC;
-Vehicle := DISTINCT Vehicle ON vehicle_id ORDER BY last_updated DESC;
+/**
+ Retrieves driver information using their license number.
+ */
+/*+query_by_all(license_number) */
+Driver := DISTINCT _DriverUpdates ON driver_id ORDER BY last_updated DESC;
+/**
+  Retrieves vehicle details using the registration number.
+ */
+/*+query_by_all(registration_number) */
+Vehicle := DISTINCT _VehicleUpdates ON vehicle_id ORDER BY last_updated DESC;
 
-Driver.warrants := JOIN Warrant w ON w.person_id = @.driver_id ORDER BY issue_date DESC;
-Driver.vehicles := JOIN Vehicle v ON v.owner_driver_id = @.driver_id;
-Vehicle.driver := JOIN Driver d ON @.owner_driver_id = d.driver_id;
+Driver.warrants := SELECT * FROM Warrant w WHERE w.person_id = this.driver_id ORDER BY issue_date DESC;
+Driver.vehicles := SELECT * FROM Vehicle v WHERE v.owner_driver_id = this.driver_id;
+Vehicle.driver := SELECT * FROM Driver d WHERE this.owner_driver_id = d.driver_id LIMIT 1;
 
 _EnrichedBolo := SELECT b.bolo_id, b.vehicle_id, b.issue_date, b.status, b.last_updated,
-                       v.make, v.model, v.year, v.registration_state, v.registration_number,
+                       v.make, v.model, v.`year`, v.registration_state, v.registration_number,
                        d.license_state, d.driver_id
                        FROM Bolo b
-                TEMPORAL JOIN Vehicle v ON b.vehicle_id = v.vehicle_id
-                TEMPORAL JOIN Driver d ON d.driver_id = v.owner_driver_id;
+                JOIN Vehicle FOR SYSTEM_TIME AS OF b.last_updated v ON b.vehicle_id = v.vehicle_id
+                JOIN Driver  FOR SYSTEM_TIME AS OF b.last_updated d ON d.driver_id = v.owner_driver_id;
 
 --EXPORT _EnrichedBolo TO logger.Bolo;
-
+/**
+  Fetches Bolo details for all vehicles that match the given make and (optional) model.
+ */
+/*+query_by_any(make, model) */
 BoloDetails := DISTINCT _EnrichedBolo ON bolo_id ORDER BY last_updated DESC;
-BoloDetails.vehicle := JOIN Vehicle v ON v.vehicle_id = @.vehicle_id;
-BoloDetails.driver := JOIN Driver d ON d.driver_id = @.driver_id;
+BoloDetails.vehicle := SELECT * FROM Vehicle v WHERE v.vehicle_id = this.vehicle_id LIMIT 1;
+BoloDetails.driver := SELECT * FROM Driver d WHERE d.driver_id = this.driver_id LIMIT 1;
 
-Driver.bolos := JOIN BoloDetails b ON b.driver_id = @.driver_id ORDER BY issue_date DESC;
-Vehicle.bolos := JOIN BoloDetails b ON b.vehicle_id = @.vehicle_id ORDER BY issue_date DESC;
-
-
-
-
-
-
+Driver.bolos := SELECT * FROM BoloDetails b WHERE b.driver_id = this.driver_id ORDER BY issue_date DESC;
+Vehicle.bolos := SELECT * FROM BoloDetails b WHERE b.vehicle_id = this.vehicle_id ORDER BY issue_date DESC;
 
 /* Analytics */
+/**
+Fetches statistics on warrants issued by state filtered by their status.
+The status of the warrant must be one of: active, urgent, closed, suspended.
+ */
+/*+query_by_any(status) */
 WarrantsByState := SELECT state_of_issuance AS state, warrant_status AS status, COUNT(1) as num_warrants
-                   FROM Warrant GROUP BY state, status ORDER BY state ASC, status ASC;
+                   FROM Warrant GROUP BY state_of_issuance, warrant_status ORDER BY state ASC, status ASC;
 
+/**
+  Fetches statistics on warrants by crime
+ */
 WarrantsByCrime := SELECT crime_description AS crime, COUNT(1) as num_warrants
                    FROM Warrant
                    WHERE warrant_status = 'active' OR warrant_status = 'urgent'
-                   GROUP BY crime ORDER BY crime ASC;
+                   GROUP BY crime_description ORDER BY crime ASC;
 
-IMPORT time.endOfWeek;
-
-BolosByWeekState := SELECT endOfWeek(last_updated) AS week,
+/**
+  Fetches Bolo (be on the lookout) statistics by week filtered by state. It returns the data ordered
+  by week starting from the most recent and going backwards from there.
+  The state argument must be a valid two-letter abbreviation of a US state (e.g. CA, WA)
+ */
+/*+query_by_any(state) */
+BolosByWeekState := SELECT window_time AS week,
                            registration_state AS state, COUNT(1) as num_bolos
-                FROM _EnrichedBolo GROUP BY week, state ORDER BY week DESC, state ASC;
+                FROM TABLE(TUMBLE(TABLE _EnrichedBolo, DESCRIPTOR(`last_updated`), INTERVAL '7' DAY))
+                      GROUP BY registration_state, window_start, window_end, window_time
+                      ORDER BY window_time DESC, state ASC;
 
 
 /*+ test */
@@ -57,15 +78,19 @@ WarrantsTest := SELECT warrant_status, COUNT(1) AS num_warrants
 
 
 
-
-
 /* License plate tracking and alerting */
 
-IMPORT baseball_card.Tracking;
+/*+no_query*/
+CREATE TABLE Tracking (
+   plate STRING NOT NULL,
+   latitude decimal(8,3) NOT NULL,
+   longitude decimal(8,3) NOT NULL,
+   event_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp'
+);
 
-Vehicle.tracking := JOIN Tracking t ON t.plate = @.registration_number ORDER BY t.event_time DESC;
+Vehicle.tracking := SELECT * FROM Tracking t WHERE t.plate = this.registration_number ORDER BY t.event_time DESC;
 
-TrackingAlert := SELECT b.*, t.latitude, t.longitude FROM Tracking t
+TrackingAlert := SUBSCRIBE SELECT b.*, t.latitude, t.longitude FROM Tracking t
                  INNER JOIN _EnrichedBolo b ON b.registration_number = t.plate
                  WHERE b.status = 'active'
                    AND b.last_updated < t.event_time AND b.last_updated + INTERVAL 60 DAYS >= t.event_time;
