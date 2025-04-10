@@ -1,6 +1,0 @@
-query {
-    ReadingsAboveTemp(temp: 101) {
-        sensorid
-        temperature
-    }
-}

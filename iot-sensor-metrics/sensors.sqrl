@@ -1,19 +1,33 @@
-/* IMPORT sensors.AddReading AS SensorReading; */
-IMPORT sensor-local.AddReadings AS SensorReading;
+/**
+  Comment out the first line and uncomment the second to ingest sensor readings from the API
+ */
+/*+no_query*/
+IMPORT sensor-testing.AddReadings AS SensorReading;
+--IMPORT sensor-api.AddReadings AS SensorReading;
 
-/* Provide query endpoint for readings by temperature */
-ReadingsAboveTemp(@temp: Int) := SELECT * FROM SensorReading WHERE temperature > @temp ORDER BY event_time DESC;
+/**
+ Returns all sensor temperature readings above the given temperature
+*/
+ReadingsAboveTemp(temp INT NOT NULL) := SELECT * FROM SensorReading WHERE temperature > :temp ORDER BY event_time DESC;
 
 /* Produce an alert stream for high temperatures */
-HighTemp := SELECT * FROM SensorReading  WHERE temperature > 100;
+HighTemp := SUBSCRIBE SELECT * FROM SensorReading  WHERE temperature > 100;
 
-/* Get max temperature in last minute per sensor */
-SensorMaxTempLastMinute := SELECT sensorid, max(temperature) as maxTemp, max(event_time) as last_updated
-                 FROM SensorReading
-                 WHERE event_time >= now() - INTERVAL 1 MINUTE
-                 GROUP BY sensorid;
+/* A sliding time window for the max temperature */
+_SensorSlidingMaxTemp := SELECT sensorid, window_time, MAX(temperature) AS maxTemp, MAX(event_time) AS lastUpdated
+                         FROM TABLE(HOP(TABLE SensorReading, DESCRIPTOR(event_time),
+                                         INTERVAL '10' SECOND,   -- slide interval
+                                         INTERVAL '5' MINUTE    -- window size
+                                 ))
+                         GROUP BY sensorid, window_start, window_end, window_time;
 
-/* Get the max temperature overall per sensor */
+/**
+  Returns the maximum temperature recorded by each sensor in the last 5 minutes
+*/
+/*+query_by_all(sensorid) */
+SensorMaxTempLastMinute := DISTINCT _SensorSlidingMaxTemp ON sensorid ORDER BY window_time DESC;
+
+/** Returns the maximum temperature recorded by each sensor */
 SensorMaxTemp := SELECT sensorid, max(temperature) as maxTemp, max(event_time) as last_updated
                  FROM SensorReading
                  GROUP BY sensorid;
@@ -26,13 +40,3 @@ SensorHighTempTest := SELECT COUNT(*) as num, AVG(temperature) as avg_temp FROM 
 /*+test */
 SensorMaxTempTest := SELECT sensorid, maxTemp FROM SensorMaxTemp ORDER BY sensorid DESC;
 
-/* ======= CHAT AGENT HISTORY ==== */
-
-/* Part 3: Integrate Chat Agent */
-/*
-FIXME commented out as there is no InternalSaveChatMessage inside sensor-local
-IMPORT sensors.InternalSaveChatMessage;
-
-InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerid, c.event_time AS timestamp,
-                        c._uuid AS uuid FROM InternalSaveChatMessage c ORDER BY timestamp DESC;
-*/
