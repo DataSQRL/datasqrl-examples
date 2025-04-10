@@ -1,9 +1,5 @@
-/**
-  Comment out the first line and uncomment the second to ingest sensor readings from the API
- */
 /*+no_query*/
-IMPORT sensor-testing.AddReadings AS SensorReading;
---IMPORT sensor-api.AddReadings AS SensorReading;
+IMPORT sensor-data.AddReadings AS SensorReading;
 
 /**
  Returns all sensor temperature readings above the given temperature

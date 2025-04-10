@@ -2,16 +2,16 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "baseball_card.sqrl"
+    "main": "sensors.sqrl"
   },
   "values" : {
     "flink-config": {
-      "table.exec.source.idle-timeout": "10000 ms"
+      "table.exec.source.idle-timeout": "1000 ms"
     }
   },
   "dependencies": [{
-    "data": {
-      "name": "data-dev",
+    "sensor-data": {
+      "name": "sensor-api",
       "version": "1",
       "variant": "dev"
     }

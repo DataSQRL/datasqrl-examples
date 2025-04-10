@@ -1,0 +1,6 @@
+subscription {
+    HighTemp {
+        sensorid
+        temperature
+    }
+}

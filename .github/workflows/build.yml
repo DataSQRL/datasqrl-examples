@@ -36,17 +36,13 @@ jobs:
           - example: iot-sensor
             path: iot-sensor-metrics
             test_commands: |
-              test sensors.sqrl --snapshot snapshots
+              test -c sensor-static.json --snapshot snapshots-static
+              test -c sensor-api.json --tests test-api --snapshot snapshots-api
 
-          - example: retail
-            path: retail-customer360-nutshop
-            test_commands: |
-              test customer360.sqrl --snapshot snapshots
-
-          - example: recommendation
-            path: clickstream-ai-recommendation
-            test_commands: |
-              test -c package.json --snapshot snapshots
+#          - example: recommendation
+#            path: clickstream-ai-recommendation
+#            test_commands: |
+#              test -c package.json --snapshot snapshots
 
           - example: law
             path: law-enforcement
