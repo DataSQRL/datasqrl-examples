@@ -47,7 +47,7 @@ CREATE TABLE InternalSaveChatMessage (
     name STRING,
     functionCall STRING,
     customerId INT,
-    event_time TIMESTAMP_LTZ(3) METADATA FROM 'timestamp'
+    event_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp'
 );
 
 /*+query_by_all(customerId) */

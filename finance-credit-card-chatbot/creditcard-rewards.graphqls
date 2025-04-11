@@ -73,9 +73,9 @@ type Subscription {
 }
 
 type CustomerRewards {
-    transactionId: Float!
+    transactionId: GraphQLBigInteger!
     customerId: GraphQLBigInteger!
-    cardNo: Float!
+    cardNo: GraphQLBigInteger!
     cardType: String!
     time: DateTime!
     amount: Float!
@@ -96,7 +96,7 @@ type TotalReward {
 }
 
 type PotentialRewards {
-    transactionId: Float!
+    transactionId: GraphQLBigInteger!
     customerId: GraphQLBigInteger!
     rewardCardType: String!
     time: DateTime!
