@@ -1,14 +1,17 @@
-IMPORT metrics-local.ClinicalIndicator;
-IMPORT masterdata-local.*;
+/*+no_query */
+IMPORT metrics.ClinicalIndicator AS AddClinicalData;
+IMPORT masterdata-local.* AS _CDC_;
 
-SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
-Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
+_ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM AddClinicalData;
 
-EnrichedIndicators := SELECT * FROM ClinicalIndicator m
-    TEMPORAL JOIN SensorPlacements p ON m.sensorId = p.sensorid
-    TEMPORAL JOIN Metadata d ON d.metadataId = p.metadataId;
+_SensorPlacements := DISTINCT _CDC_sensorplacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata := DISTINCT _CDC_metadata ON metadataId ORDER BY lastUpdated DESC;
 
-IndicatorAlerts := SELECT * FROM EnrichedIndicators
+_EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
+          JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
+          JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
+
+IndicatorAlerts := SUBSCRIBE SELECT * FROM _EnrichedIndicators
     WHERE metric < lowRange OR metric > highRange;
 
 /*+test */
@@ -17,16 +20,18 @@ IndicatorAlertsTest := SELECT sensorId, COUNT(metric) AS numAlerts FROM Indicato
 
 EXPORT IndicatorAlerts TO logger.Alert;
 
-IMPORT time.endOfHour;
-
-PatientMetricsHourly := SELECT patientId, endOfHour(timestamp) AS timeHour, metadataId, name,
+/*+no_query */
+PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, name,
                          avg(metric) as avgMetric
-                  FROM EnrichedIndicators
-                  GROUP BY patientId, timeHour, metadataId, name;
+            FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
+            GROUP BY patientId, metadataId, name, window_start, window_end, window_time;
 
 /*+test */
 PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetricsHourly
-                                                             WHERE patientId = 5 ORDER BY timeHour DESC, name ASC;
+                            WHERE patientId = 5 ORDER BY timeHour DESC, name ASC;
 
-Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
-Patients.metrics := JOIN PatientMetricsHourly m ON m.patientId = @.patientId ORDER BY m.timeHour DESC, m.name ASC;
+/*+query_by_any(patientId) */
+Patients := DISTINCT _CDC_patients ON patientId ORDER BY lastUpdated DESC;
+Patients.metrics := SELECT * FROM PatientMetricsHourly m WHERE m.patientId = this.patientId ORDER BY m.timeHour DESC, m.name ASC;
+
+PatientsByName(name STRING NOT NULL) := SELECT * FROM Patients WHERE name = :name;

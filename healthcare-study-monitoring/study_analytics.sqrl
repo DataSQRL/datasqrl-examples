@@ -1,32 +1,30 @@
-IMPORT metrics-local.ClinicalIndicator;
-IMPORT masterdata-local.*;
+IMPORT metrics-local.ClinicalIndicator AS _ClinicalIndicator;
+IMPORT masterdata-local.* AS _CDC_;
 
-_SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
-_Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
-_Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
+_SensorPlacements := DISTINCT _CDC_sensorplacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata := DISTINCT _CDC_metadata ON metadataId ORDER BY lastUpdated DESC;
+_Patients := DISTINCT _CDC_patients ON patientId ORDER BY lastUpdated DESC;
 
-_EnrichedIndicators := SELECT * FROM ClinicalIndicator m
-    TEMPORAL JOIN _SensorPlacements p ON m.sensorId = p.sensorid
-    TEMPORAL JOIN _Metadata d ON d.metadataId = p.metadataId
-    TEMPORAL JOIN _Patients pt ON p.patientId = pt.patientId;
-
-IMPORT time.endOfHour;
+_EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
+    JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
+    JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId
+    JOIN _Patients  FOR SYSTEM_TIME AS OF m.`timestamp` pt ON p.patientId = pt.patientId;
 
 /*+partition_key(studyId) */
-_PatientMetricsHourly := SELECT studyId, patientId, endOfHour(timestamp) AS timeHour, metadataId, name,
+_PatientMetricsHourly := SELECT studyId, patientId, window_time AS timeHour, metadataId, name,
                          avg(metric) as avgMetric
-                  FROM _EnrichedIndicators
-                  GROUP BY studyId, patientId, timeHour, metadataId, name;
+            FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
+            GROUP BY studyId, patientId, metadataId, name, window_start, window_end, window_time;
 
-_ObservationGroup := DISTINCT ObservationGroup ON groupId ORDER BY createdDate DESC;
+_ObservationGroup := DISTINCT _CDC_observationgroup ON groupId ORDER BY createdDate DESC;
 
-/*+partition_key */
-_ObservationGroupMembership := SELECT groupID, groupName, studyId, p.patientId FROM _ObservationGroup g JOIN g.patients p;
+/*+primary_key(groupId, patientId), partition_key */
+_ObservationGroupMembership := SELECT groupId, groupName, studyId, p.patientId FROM _ObservationGroup g CROSS JOIN UNNEST(g.patients) p(patientId);
 
-ObservationAggregate := SELECT groupID, timeHour, metadataId, name, MIN(avgMetric) AS minMetric, MAX(avgMetric) AS maxMetric
+ObservationAggregate := SELECT groupId, timeHour, metadataId, name, MIN(avgMetric) AS minMetric, MAX(avgMetric) AS maxMetric
                         FROM _PatientMetricsHourly p JOIN _ObservationGroupMembership o ON p.studyId = o.studyId AND p.patientId = o.patientId
-                        GROUP BY groupID, timeHour, metadataId, name;
+                        GROUP BY groupId, timeHour, metadataId, name;
 
 /*+test */
-ObservationAggregateTest := SELECT groupID, timeHour, metadataId, COUNT(1) AS num FROM ObservationAggregate
-                       GROUP BY groupID, timeHour, metadataId ORDER BY groupID ASC, timeHour DESC, metadataId ASC;
+ObservationAggregateTest := SELECT groupId, timeHour, metadataId, COUNT(1) AS num FROM ObservationAggregate
+                       GROUP BY groupId, timeHour, metadataId ORDER BY groupId ASC, timeHour DESC, metadataId ASC;

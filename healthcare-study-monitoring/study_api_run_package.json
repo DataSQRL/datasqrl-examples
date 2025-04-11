@@ -8,15 +8,12 @@
       "table.exec.source.idle-timeout": "1000 ms"
     }
   },
-  "test-runner": {
-    "delay-sec": 200
-  },
   "dependencies": [
-  {
-    "metrics": {
-      "name": "metrics-local",
-      "version": "1",
-      "variant": "dev"
-    }
-  }]
+    {
+      "metrics": {
+        "name": "metrics-api",
+        "version": "1",
+        "variant": "dev"
+      }
+    }]
 }

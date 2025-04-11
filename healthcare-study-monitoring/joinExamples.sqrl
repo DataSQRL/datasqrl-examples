@@ -3,9 +3,10 @@ IMPORT masterdata-local.SensorPlacements;
 
 SensorsDedup := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 
+/*+primary_key(sensorId, timestamp) */
 -- MyJoin := SELECT * FROM ClinicalIndicator i JOIN SensorPlacements s ON i.sensorId = s.sensorId;
 MyJoin := SELECT * FROM ClinicalIndicator i INNER JOIN SensorsDedup s ON i.sensorId = s.sensorId;
--- MyJoin := SELECT * FROM ClinicalIndicator i TEMPORAL JOIN SensorsDedup s ON i.sensorId = s.sensorId;
+-- MyJoin := SELECT * FROM ClinicalIndicator i JOIN SensorsDedup FOR SYSTEM_TIME AS OF i.`timestamp` s ON ON i.sensorId = s.sensorId;
 
 MyJoinSubset := SELECT * FROM MyJoin WHERE sensorId = 10;
 

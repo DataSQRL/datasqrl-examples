@@ -1,13 +1,13 @@
 IMPORT metrics.ClinicalIndicator;
-IMPORT masterdata.SensorPlacements;
-IMPORT masterdata.Metadata;
+IMPORT masterdata.SensorPlacements AS _CDC_SensorPlacements;
+IMPORT masterdata.Metadata AS _CDC_Metadata;
 
-SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
-Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
+SensorPlacements := DISTINCT _CDC_SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+Metadata := DISTINCT _CDC_Metadata ON metadataId ORDER BY lastUpdated DESC;
 
 EnrichedIndicators := SELECT * FROM ClinicalIndicator m
-    TEMPORAL JOIN SensorPlacements p ON m.sensorId = p.sensorid
-    TEMPORAL JOIN Metadata d ON d.metadataId = p.metadataId;
+   JOIN SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
+   JOIN Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
 
 EXPORT EnrichedIndicators TO sink.EnrichedIndicator;
 
@@ -18,4 +18,4 @@ TotalTest := SELECT COUNT(1) AS total_num FROM EnrichedIndicators;
 Above70Test := SELECT COUNT(1) AS above70metric FROM EnrichedIndicators WHERE metric > 70;
 
 /*+test */
-InvalidMetricTest := SELECT * FROM EnrichedIndicators WHERE metric < 0 ORDER BY timestamp ASC;
+InvalidMetricTest := SELECT * FROM EnrichedIndicators WHERE metric < 0 ORDER BY `timestamp` ASC;

@@ -24,9 +24,10 @@ jobs:
             path: healthcare-study-monitoring
             test_commands: |
               test -c study_analytics_package.json study_analytics.sqrl --snapshot snapshots-study-analytics
-              test -c study_api_test_package.json --tests tests-api --snapshot snapshots-study-api
+              test -c study_api_test_package.json --tests tests-study-api --snapshot snapshots-study-api
               test -c study_stream_local_package.json study_stream.sqrl --snapshot snapshots-study-stream
-              compile study_create_api.sqrl
+              compile -c study_stream_kafka_package.json
+              compile -c study_analytics_snowflake_package.json
 
           - example: logistics
             path: logistics-shipping-geodata
