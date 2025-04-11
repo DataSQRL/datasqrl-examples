@@ -10,7 +10,7 @@ _EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
     JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId
     JOIN _Patients  FOR SYSTEM_TIME AS OF m.`timestamp` pt ON p.patientId = pt.patientId;
 
-/*+partition_key(studyId) */
+/*+primary_key(studyId, patientId, metadataId, name, timeHour), partition_key(studyId) */
 _PatientMetricsHourly := SELECT studyId, patientId, window_time AS timeHour, metadataId, name,
                          avg(metric) as avgMetric
             FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))

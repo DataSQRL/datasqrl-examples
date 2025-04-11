@@ -40,11 +40,6 @@ jobs:
               test -c sensor-static.json --snapshot snapshots-static
               test -c sensor-api.json --tests test-api --snapshot snapshots-api
 
-#          - example: recommendation
-#            path: clickstream-ai-recommendation
-#            test_commands: |
-#              test -c package.json --snapshot snapshots
-
           - example: law
             path: law-enforcement
             test_commands: |
