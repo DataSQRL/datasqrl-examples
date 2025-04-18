@@ -10,7 +10,7 @@
     },
     "create-topics" : ["indicators", "enrichedindicators"]
   },
-  "dependencies": [{
+  "dependencies": {
     "metrics" : {
       "name": "metrics-kafka",
       "version": "1",
@@ -26,5 +26,5 @@
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }
