@@ -1,0 +1,106 @@
+config:
+  target: "http://localhost:8888/graphql"
+  phases:
+    - duration: 60
+      arrivalRate: 1
+      rampTo: 10
+      name: "Warm up phase"
+    - duration: 300
+      arrivalRate: 10
+      name: "Sustained load"
+  processor: "./helpers.js"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json"
+
+scenarios:
+  - name: "Query Rewards"
+    weight: 5
+    flow:
+      - function: "getDateRange"
+      - post:
+          url: "/"
+          json:
+            query: |
+              query GetRewards($customerid: Int!, $fromTime: DateTime!, $toTime: DateTime!) {
+                Rewards(customerid: $customerid, fromTime: $fromTime, toTime: $toTime) {
+                  transactionId
+                  cardNo
+                  cardType
+                  time
+                  amount
+                  reward
+                  merchantName
+                }
+              }
+            variables:
+              customerid: "{{ $randomNumber(1, 9) }}"
+              fromTime: "{{ fromTime }}"
+              toTime: "{{ toTime }}"
+          capture:
+            - json: "$.data.Rewards"
+              as: "rewards"
+      - log: "Retrieved {{ rewards.length }} rewards"
+
+  - name: "Query Rewards By Week"
+    weight: 3
+    flow:
+      - post:
+          url: "/"
+          json:
+            query: |
+              query GetRewardsByWeek($customerid: Int!, $limit: Int!) {
+                RewardsByWeek(customerid: $customerid, limit: $limit) {
+                  timeWeek
+                  total_reward
+                }
+              }
+            variables:
+              customerid: "{{ $randomNumber(1, 9) }}"
+              limit: 12
+          capture:
+            - json: "$.data.RewardsByWeek"
+              as: "weeklyRewards"
+      - log: "Retrieved {{ weeklyRewards.length }} weekly rewards"
+
+  - name: "Query Total Reward"
+    weight: 2
+    flow:
+      - post:
+          url: "/"
+          json:
+            query: |
+              query GetTotalReward($customerid: Int!) {
+                TotalReward(customerid: $customerid) {
+                  total_reward
+                  since_time
+                }
+              }
+            variables:
+              customerid: "{{ $randomNumber(1, 9) }}"
+
+  - name: "Query Potential Rewards" 
+    weight: 3
+    flow:
+      - function: "getDateRange"
+      - function: "getCardType"
+      - post:
+          url: "/"
+          json:
+            query: |
+              query GetPotentialRewards($customerid: Int!, $cardType: String!, $fromTime: DateTime!, $toTime: DateTime!) {
+                PotentialRewards(customerid: $customerid, cardType: $cardType, fromTime: $fromTime, toTime: $toTime) {
+                  transactionId
+                  rewardCardType
+                  time
+                  amount
+                  reward
+                  merchantName
+                }
+              }
+            variables:
+              customerid: "{{ $randomNumber(1, 9) }}"
+              cardType: "{{ cardType }}"
+              fromTime: "{{ fromTime }}"
+              toTime: "{{ toTime }}"
