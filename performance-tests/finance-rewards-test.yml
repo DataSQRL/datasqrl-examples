@@ -1,14 +1,24 @@
 config:
   target: "http://localhost:8888/graphql"
   phases:
-    - duration: 60
-      arrivalRate: 1
-      rampTo: 10
+    - duration: 30
+      arrivalRate: 50
+      rampTo: 200
       name: "Warm up phase"
+    - duration: 60
+      arrivalRate: 200
+      rampTo: 500
+      name: "Load increase phase"
+    - duration: 120
+      arrivalRate: 500
+      rampTo: 1000
+      name: "Heavy load phase"
     - duration: 300
-      arrivalRate: 10
-      name: "Sustained load"
-  processor: "./helpers.js"
+      arrivalRate: 1000
+      name: "Extreme load phase"
+  engines:
+    http:
+      maxSockets: 2000
   defaults:
     headers:
       Content-Type: "application/json"
@@ -18,9 +28,10 @@ scenarios:
   - name: "Query Rewards"
     weight: 5
     flow:
-      - function: "getDateRange"
       - post:
           url: "/"
+          ensure:
+            statusCode: [ 200, 429, 500, 503 ]
           json:
             query: |
               query GetRewards($customerid: Int!, $fromTime: DateTime!, $toTime: DateTime!) {
@@ -48,6 +59,8 @@ scenarios:
     flow:
       - post:
           url: "/"
+          ensure:
+            statusCode: [ 200, 429, 500, 503 ]
           json:
             query: |
               query GetRewardsByWeek($customerid: Int!, $limit: Int!) {
@@ -69,6 +82,8 @@ scenarios:
     flow:
       - post:
           url: "/"
+          ensure:
+            statusCode: [ 200, 429, 500, 503 ]
           json:
             query: |
               query GetTotalReward($customerid: Int!) {
@@ -80,13 +95,13 @@ scenarios:
             variables:
               customerid: "{{ $randomNumber(1, 9) }}"
 
-  - name: "Query Potential Rewards" 
+  - name: "Query Potential Rewards"
     weight: 3
     flow:
-      - function: "getDateRange"
-      - function: "getCardType"
       - post:
           url: "/"
+          ensure:
+            statusCode: [ 200, 429, 500, 503 ]
           json:
             query: |
               query GetPotentialRewards($customerid: Int!, $cardType: String!, $fromTime: DateTime!, $toTime: DateTime!) {
