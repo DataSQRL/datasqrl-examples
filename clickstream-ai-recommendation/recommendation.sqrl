@@ -1,32 +1,35 @@
+/*+no_query */
 IMPORT clickstream.Clickstream;
+/*+no_query */
 IMPORT content.Content;
-IMPORT vector.*;
 
 /* Find next page visits within 10 minutes */
-CoVisits := SELECT b.url AS beforeURL, a.url AS afterURL,
-                   a.event_time AS timestamp
+_CoVisits := SELECT b.url AS beforeURL, a.url AS afterURL,
+                   a.event_time AS `timestamp`
             FROM Clickstream b INNER JOIN Clickstream a ON b.userid=a.userid
                    AND b.event_time < a.event_time AND
                        b.event_time >= a.event_time - INTERVAL 10 MINUTE;
 /* Recommend pages that are visited shortly after */
+/*+query_by_all(url) */
 Recommendation := SELECT beforeURL AS url, afterURL AS recommendation,
-                         count(1) AS frequency FROM CoVisits
-                  GROUP BY url, recommendation
+                         count(1) AS frequency FROM _CoVisits
+                  GROUP BY beforeURL, afterURL
                   ORDER BY url ASC, frequency DESC;
 
-Content.embedding := onnxEmbed(text, '/embedding/model_quantized.onnx');
-Content := DISTINCT Content ON url ORDER BY _source_time DESC;
+IMPORT stdlib.openai.vector_embedd;
 
-UserInterest := SELECT userid, CENTER(embedding) AS interest FROM Clickstream click
-                TEMPORAL JOIN Content ON content.url = click.url
+_ContentEmbedding := SELECT *, double_to_vector(vector_embedd(text, 'text-embedding-3-small')) AS embedding FROM Content;
+
+EXPORT _ContentEmbedding TO logger.content;
+
+/*+vector_dim(embedding, 1536), index(VECTOR_COSINE, embedding) */
+_DistinctContent := DISTINCT _ContentEmbedding ON url ORDER BY update_time DESC;
+
+_UserInterest := SELECT userid, CENTER(embedding) AS interest FROM Clickstream click
+                JOIN _DistinctContent FOR SYSTEM_TIME AS OF click.event_time content ON content.url = click.url
                 GROUP BY userid;
 
-SimilarContent(@userid: String) :=
-SELECT c.*, coalesce(cosineSimilarity(i.interest, c.embedding),0.0) as similarity
-FROM Content c LEFT JOIN UserInterest i ON i.userid = @userid
-ORDER BY similarity DESC LIMIT 10;
-
-/*+test */
-ContentTest := SELECT * FROM Content 
-                      ORDER BY _source_time DESC 
-                      LIMIT 5;
+SimilarContent(userid STRING NOT NULL) :=
+    SELECT c.*, coalesce(cosine_similarity(c.embedding, u.interest), 0.0) as similarity
+    FROM _DistinctContent c JOIN (SELECT * FROM _UserInterest WHERE userid = :userid) u ON true
+    ORDER BY similarity DESC LIMIT 10;

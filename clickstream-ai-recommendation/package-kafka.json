@@ -1,0 +1,24 @@
+{
+  "script": {
+    "main": "recommendation.sqrl"
+  },
+  "compiler" : {
+    "logger": "none"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "5000 ms"
+    },
+    "create-topics": ["content", "clickstream"]
+  },
+  "dependencies": [{
+    "content" : {
+      "name": "content-kafka",
+      "version": "1"
+    },
+    "clickstream" : {
+      "name": "clickstream-kafka",
+      "version": "1"
+    }
+  }]
+}
