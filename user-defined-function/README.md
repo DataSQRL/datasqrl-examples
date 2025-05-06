@@ -19,13 +19,13 @@ User-defined functions (UDFs) in Flink are powerful tools that allow for the ext
 1. **SQRL Compilation:** Compile the SQRL using DataSQRL's command interface, which prepares your script for deployment in the Flink environment.
 
 ```shell
-docker run --rm -v $PWD:/build datasqrl/cmd compile myudf.sqrl
+docker run --rm -v $PWD:/build datasqrl/cmd:latest compile myudf.sqrl
 ```
 
 ## Deployment and Testing
 ### Run Example
 ```shell
-docker run -it -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:dev run myudf.sqrl
+docker run -it -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run myudf.sqrl
 ```
 ### Creating and Testing Records
 1. Creating a Record: Test the function by creating a record via a GraphQL query.

@@ -6,6 +6,11 @@ manage shipments as they move through the city and answer queries like the numbe
 customer and their current locations. Amazingly, all of this is achieved in just 33 lines of code,
 imports included. How cool is that?
 
+Run the example with:
+```bash
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run logistics.sqrl logistics.graphqls
+```
+
 ## Regenerate test data
 
 Normally, there is no need to regenerate the test data if you are using pre-configured sets.

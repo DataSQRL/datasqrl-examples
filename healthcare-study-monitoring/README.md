@@ -2,31 +2,24 @@
 
 This examples demonstrates DataSQRLs capabilities creating a pipeline for healthcare study data. 
 
-## Architecture
+We are ingesting metadata, patient data, sensor placement, and observation group assignments from master data systems.
 
-The data pipeline ingests raw data from a local fine and piles it into a postgres database which is connected to vertx graphql console. 
+We are ingesting metrics data from kafka.
 
-The entire pipeline can run locally.
+This example produces multiple types of data products from that source data:
 
-## How to run the project
+## Study Data API
 
-Navigate to the `healthcare-study-monitoring` directory and run the following command to compile the pipeline, this takes the given script and option and creates a pipeline. 
+Run the study API with:
 
 ```
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest compile study_api.sqrl
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_api_run_package.json
 ```
 
-The generated pipeline can be found in the new `/build` directory. 
+This example demonstrates how to use the package.json configuration files to map import packages to different folders for testing vs production:
 
-To run the pipeline use the following command. 
 ```
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run study_api.sqrl
-```
-If the pipeline hasn't been compiled, it will be compiled. 
-
-Lastly, the compiled pipeline includes unit and integration tests, you can run these using the test command:
-```
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest test study_api.sqrl
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest test -c study_api_test_package.json
 ```
 
 While the pipeline runs can check if the data has been ingested in the flink console. 
@@ -52,15 +45,7 @@ query {
 }
 ```
 
-## The examples
-
-### Study API
-This script creates a simple graphql api for the masterdata-local and metrics-kafka data.
-
-### Join Examples
-This script demonstrates the different types of join offered by flink. 
-
-### Study Analytics
+## Study Analytics
 This script produces study analytics for observations groups in iceberg tables that are queried by DuckDB.
 
 Run the study_analytics script using iceberg and duckdb locally as follows:
@@ -70,14 +55,14 @@ docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build  -e LOCAL_WAREHOUSE
 
 We are setting the environment variable `LOCAL_WAREHOUSE_DIR` to instruct where to store the iceberg files. In this case, we are putting the locally in the `warehouse` folder.
 
-### Study Stream Kafka
-This script shows how to ingest data from a kafka stream. 
+There is also a package configuration for running this example using Snowflake as the query engine. 
 
-To run this example you need to expose the kafka port, this is done in the run command by adding the port with `-p xyz:123`. 
+## Study Stream Kafka
+This script shows how to ingest data from a kafka stream. 
 
 For this example the command will look like this:
 ```
-docker run -it -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest -c study_stream_kafka_package.json
+docker run -it -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_stream_kafka_package.json
 ```
 
 You'll need the kafka-python. We recommend using a new venv:
