@@ -17,33 +17,33 @@ jobs:
           - example: finance
             path: finance-credit-card-chatbot
             test_commands: |
-              test -c package-analytics-local.json --snapshot snapshots-analytics
-              test -c package-rewards-local.json --snapshot snapshots-rewards
+              test -c package-analytics-local.json --snapshots snapshots-analytics
+              test -c package-rewards-local.json --snapshots snapshots-rewards
 
           - example: healthcare
             path: healthcare-study-monitoring
             test_commands: |
-              test -c study_analytics_package.json study_analytics.sqrl --snapshot snapshots-study-analytics
-              test -c study_api_test_package.json --tests tests-study-api --snapshot snapshots-study-api
-              test -c study_stream_local_package.json study_stream.sqrl --snapshot snapshots-study-stream
+              test -c study_analytics_package.json study_analytics.sqrl --snapshots snapshots-study-analytics
+              test -c study_api_test_package.json --tests tests-study-api --snapshots snapshots-study-api
+              test -c study_stream_local_package.json study_stream.sqrl --snapshots snapshots-study-stream
               compile -c study_stream_kafka_package.json
               compile -c study_analytics_snowflake_package.json
 
           - example: logistics
             path: logistics-shipping-geodata
             test_commands: |
-              test logistics.sqrl --snapshot snapshots
+              test logistics.sqrl --snapshots snapshots
 
           - example: iot-sensor
             path: iot-sensor-metrics
             test_commands: |
-              test -c sensor-static.json --snapshot snapshots-static
-              test -c sensor-api.json --tests test-api --snapshot snapshots-api
+              test -c sensor-static.json --snapshots snapshots-static
+              test -c sensor-api.json --tests test-api --snapshots snapshots-api
 
           - example: law
             path: law-enforcement
             test_commands: |
-              test -c baseball-card-local.json --snapshot snapshots
+              test -c baseball-card-local.json --snapshots snapshots
 
           - example: oil-gas
             path: oil-gas-agent-automation
