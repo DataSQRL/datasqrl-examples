@@ -15,22 +15,13 @@ See below for detailed instructions on how to run each data pipeline. Note, that
 
 To run this example, invoke the following command in this directory on Unix based systems to compile the project
 ```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c package-analytics-local.json
 ```
-
-If you are on windows using Powershell, you need to reference the local directory with a slightly different syntax:
-```bash
-docker run -it --rm -v ${PWD}:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-local.json
-```
-
-Next, you run the data pipeline with docker compose:
-`(cd build/deploy; docker compose up --build)`
 
 This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
 for data pipelines. To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/graphiql/) to access the API.
 
-When you are done, you can stop the pipeline by hitting CTRL-C and remove the containers with:
-`(cd build/deploy; docker compose down -v)`
+When you are done, you can stop the pipeline by hitting CTRL-C.
 
 ## 2. Run the API with Kafka data source
 
@@ -40,11 +31,8 @@ To use Kafka as the data source, follow these steps:
 
 Invoke the following command in this directory:
 ```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-analytics-kafka.json
+docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest -c package-analytics-kafka.json
 ```
-
-Next, you run the data pipeline with docker compose:
-`(cd build/deploy; docker compose up --build)`
 
 This command stands up the entire data pipeline and all data services, including Kafka.
 
@@ -54,17 +42,16 @@ The easiest way to do so is to use a little helper python script
 that reads the data from a file and writes it to the kafka topic. This requires you have Python3 installed on your machine.
 
 In this directory, invoke the script twice in the following order to populate Kafka:
-    1. `python3 ../util/load_data.py creditcard-local/cardAssignment.jsonl localhost:9094 cardassignment --msg 500`
-    2. `python3 ../util/load_data.py creditcard-local/transaction.jsonl localhost:9094 transaction --msg 50`
+    1. `python3 ../util/load_data.py creditcard-local/cardAssignment.jsonl localhost:9092 cardassignment --msg 500`
+    2. `python3 ../util/load_data.py creditcard-local/transaction.jsonl localhost:9092 transaction --msg 50`
 
 The first load should be pretty quick. The transactions are then loaded at a rate of 50 per second (You can adjust the rate via the `--msg` option).
 
-You can open [Kafka UI](http://localhost:8087/) to see how the data enters the topics and the [Flink UI](http://localhost:8081/) to see the processing status.
+To see how the data enters the topics and the [Flink UI](http://localhost:8081/) to see the processing status.
 
 As above, you can [open GraphiQL](http://localhost:8888/graphiql/) to access the API and query for data.
 
-When you are done, you can stop the pipeline by hitting CTRL-C and remove the containers with:
-`(cd build/deploy; docker compose down -v)`
+When you are done, you can stop the pipeline by hitting CTRL-C.
 
 ## 3. Run the AI Data Agent
 

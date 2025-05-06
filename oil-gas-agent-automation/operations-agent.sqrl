@@ -1,32 +1,56 @@
-IMPORT test-data.Assets;
-IMPORT test-data.Maintenance AS MaintenanceUpdates;
-IMPORT test-data.Measurement;
-IMPORT operations-agent.AddFlowRate AS Flowrate;
-IMPORT time.endOfSecond;
+IMPORT test-data.Assets AS _AssetUpdates;
+IMPORT test-data.Maintenance AS _MaintenanceUpdates;
+IMPORT test-data.Measurement AS _Measurement;
 
-Assets := DISTINCT Assets ON asset_id ORDER BY lastUpdated DESC;
-Maintenance := DISTINCT MaintenanceUpdates ON work_order_id ORDER BY lastUpdated DESC;
-Assets.maintenance := JOIN Maintenance m ON @.asset_id = m.asset_id ORDER BY m.lastUpdated DESC;
+/*+no_query */
+CREATE TABLE FlowRate (
+    event_id STRING NOT NULL METADATA FROM 'uuid',
+    assetId BIGINT NOT NULL,
+    flowrate FLOAT NOT NULL,
+    event_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp'
+);
 
-EXPORT Flowrate TO print.Flowrate;
+/**
+  Returns information about the well/asset including it's maintenance records, manual,
+  description, and other important information.
+ */
+/*+query_by_all(asset_id) */
+Assets := DISTINCT _AssetUpdates ON asset_id ORDER BY lastUpdated DESC;
+/*+no_query */
+Maintenance := DISTINCT _MaintenanceUpdates ON work_order_id ORDER BY lastUpdated DESC;
+Assets.maintenance := SELECT * FROM Maintenance m WHERE this.asset_id = m.asset_id ORDER BY m.lastUpdated DESC;
 
+EXPORT FlowRate TO print.Flowrate;
+
+/*+no_query */
 EnrichedFlowRate := SELECT f.*, a.asset_number, a.asset_name, a.description
-                    FROM Flowrate f
-                    TEMPORAL JOIN Assets a ON f.assetId = a.asset_id;
+                    FROM FlowRate f
+                    JOIN Assets FOR SYSTEM_TIME AS OF f.event_time a ON f.assetId = a.asset_id;
 
 EXPORT EnrichedFlowRate TO print.EnrichedFlowRate;
 
-LowFlowRate := SELECT * FROM EnrichedFlowRate WHERE flowrate < 200;
+LowFlowRate := SUBSCRIBE SELECT * FROM EnrichedFlowRate WHERE flowrate < 200;
 
-FlowRateByRange(@assetId: BIGINT, @minRate: DOUBLE, @maxRate: DOUBLE) := SELECT * FROM EnrichedFlowRate
-        WHERE assetId = @assetId AND flowrate >= @minRate AND flowrate <= @maxRate ORDER BY event_time DESC LIMIT 100;
+/**
+Returns the flowrate readings for a given well/asset within the specified range order by timestamp decreasing.
+ */
+FlowRateByRange(assetId BIGINT NOT NULL, minRate DOUBLE NOT NULL, maxRate DOUBLE NOT NULL) :=
+               SELECT * FROM EnrichedFlowRate
+                WHERE assetId = :assetId AND flowrate >= :minRate AND flowrate <= :maxRate
+                ORDER BY event_time DESC LIMIT 100;
 
-RecentPressure := SELECT assetId, endOfSecond(timestamp, 10) AS timestamp_normalized,
+/**
+Returns recent pressure and temperature readings for a given well/asset by id.
+ */
+/*+query_by_all(assetId) */
+RecentPressure := SELECT assetId, window_time AS timestamp_normalized,
                              AVG(pressure_psi) AS pressure_psi,
                              AVG(temperature_f) AS temperature_f
-                  FROM Measurement
-                  GROUP BY assetId, timestamp_normalized ORDER BY timestamp_normalized DESC;
+                  FROM TABLE(TUMBLE(TABLE _Measurement, DESCRIPTOR(`timestamp`), INTERVAL '10' SECOND))
+                      GROUP BY assetId, window_start, window_end, window_time
+                      ORDER BY window_time DESC;
+
 
 /*+ test */
-RecentPressureTest := SELECT * FROM RecentPressure ORDER BY timestamp_normalized DESC;
+RecentPressureTest := SELECT * FROM RecentPressure ORDER BY timestamp_normalized DESC, assetId ASC;
 

@@ -1,0 +1,26 @@
+mutation {
+    AddReading1: SensorReading(event: {sensorid: 1, temperature: 13.5}) {
+        temperature
+    }
+    AddReading2: SensorReading(event: {sensorid: 2, temperature: 110.1}) {
+        temperature
+    }
+    AddReading3: SensorReading(event: {sensorid: 3, temperature: 88.5}) {
+        temperature
+    }
+    AddReading4: SensorReading(event: {sensorid: 2, temperature: 14.7}) {
+        temperature
+    }
+    AddReading5: SensorReading(event: {sensorid: 1, temperature: 100.4}) {
+        temperature
+    }
+    AddReading6: SensorReading(event: {sensorid: 3, temperature: 112.3}) {
+        temperature
+    }
+    AddReading7: SensorReading(event: {sensorid: 2, temperature: 12.7}) {
+        temperature
+    }
+    AddReading8: SensorReading(event: {sensorid: 1, temperature: 43.2}) {
+        temperature
+    }
+}

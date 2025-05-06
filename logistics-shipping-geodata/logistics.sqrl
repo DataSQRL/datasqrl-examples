@@ -1,26 +1,36 @@
-IMPORT tables.Customer;
-IMPORT tables.Shipment;
-IMPORT tables.Vehicle;
+IMPORT tables.Customer AS _CustomerUpdates;
+IMPORT tables.Shipment  AS _ShipmentUpdates;
+IMPORT tables.Vehicle AS _VehicleUpdates;
+/*+no_query */
 IMPORT tables.Shipment_Location;
+/*+no_query */
 IMPORT tables.Vehicle_Status;
 
-
 -- Turn the Customer and Shipment CDC change streams to a state tables.
-Customer := DISTINCT Customer ON id ORDER BY lastUpdated DESC;
-Shipment := DISTINCT Shipment ON id ORDER BY lastUpdated DESC;
+/*+query_by_any(id, email) */
+Customer := DISTINCT _CustomerUpdates ON id ORDER BY lastUpdated DESC;
+/*+query_by_all(id) */
+Shipment := DISTINCT _ShipmentUpdates ON id ORDER BY lastUpdated DESC;
+/*+query_by_all(id) */
+Vehicle := DISTINCT _VehicleUpdates ON id ORDER BY lastUpdated DESC;
 
 -- Create a relationship between the two.
-Customer.shipments := JOIN Shipment s ON s.customerId = @.id;
+Customer.shipments := SELECT * FROM Shipment s WHERE s.customerId = this.id;
 
+/*+no_query */
+CustomerStatistics := SELECT customerId, count(*) AS shipment_count FROM Shipment GROUP BY customerId;
 -- Add a statistics field to the customer to indicate how many shipments they have.
-Customer.statistics := SELECT count(*) shipment_count FROM @ JOIN @.shipments;
+Customer.statistics := SELECT * FROM CustomerStatistics WHERE customerId = this.id LIMIT 1;
 
 -- Create relationship to shipment locations.
-Shipment.locations := JOIN Shipment_Location l ON l.shipmentId = @.id ORDER BY l.timestamp DESC;
+Shipment.locations := SELECT * FROM Shipment_Location l WHERE l.shipmentId = this.id ORDER BY l.`timestamp` DESC;
 
 -- Create relationship to vehicle statuses.
-Shipment_Location.vehicle_statuses := JOIN Vehicle_Status s ON s.vehicleId = @.vehicleId ORDER BY s.timestamp DESC;
+Shipment_Location.vehicle_statuses := SELECT * FROM Vehicle_Status s WHERE s.vehicleId = this.vehicleId ORDER BY s.`timestamp` DESC;
 
+Vehicle_Status.vehicle := SELECT * FROM Vehicle v WHERE v.id = this.vehicleId LIMIT 1;
+
+Vehicle.status := SELECT * FROM Vehicle_Status s WHERE s.vehicleId = this.id ORDER BY s.`timestamp`;
 
 /* =======TEST CASES======== */
 

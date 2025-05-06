@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "sensors.sqrl"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms"
+    }
+  },
+  "dependencies": [{
+    "sensor-data": {
+      "name": "sensor-api",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

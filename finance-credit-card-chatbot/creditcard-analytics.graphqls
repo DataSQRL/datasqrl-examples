@@ -1,4 +1,5 @@
 scalar DateTime
+scalar GraphQLBigInteger
 
 type Query {
     """
@@ -6,9 +7,9 @@ type Query {
     """
     Transactions(
         """
-        customerid: The ID of the customer whose transactions to query.
+        customerId: The ID of the customer whose transactions to query.
         """
-        customerid: Int!,
+        customerId: GraphQLBigInteger!,
         """
         fromTime: RFC-3339 compliant date time scalar. Returns transactions after this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
         """
@@ -24,9 +25,9 @@ type Query {
     """
     SpendingByDay(
         """
-        customerid: The ID of the customer whose spending to query.
+        customerId: The ID of the customer whose spending to query.
         """
-        customerid: Int!,
+        customerId: GraphQLBigInteger!,
         """
         fromTime: RFC-3339 compliant date time scalar. Returns spending from this time. Use the start of the day only, e.g. `2024-01-19T00:00:00-00:00`.
         """
@@ -42,9 +43,9 @@ type Query {
     """
     SpendingByCategory(
         """
-        customerid: The ID of the customer whose spending to query.
+        customerId: The ID of the customer whose spending to query.
         """
-        customerid: Int!,
+        customerId: GraphQLBigInteger!,
         """
         limit: The number of spending records to return. Each week has 12 records - one for each spending category. To return the spending records for multiple weeks, multiple the number of weeks by 12. For example, to return spending records for 5 week, set the limit to 60.
         """
@@ -56,14 +57,14 @@ type Query {
     Retrieves User Chat Messages
     """
     InternalGetChatMessages(
-        customerid: Int!,
+        customerId: Int!,
         limit: Int = 10,
         offset: Int = 0
     ): [CustomerChatMessage!]
 }
 
 type CustomerTransaction {
-    transactionId: Int!
+    transactionId: GraphQLBigInteger!
     cardNo: String!
     time: String!
     amount: Float!
@@ -87,18 +88,17 @@ type CustomerChatMessage {
     content: String!
     name: String
     functionCall: String
-    customerid: Int!
+    customerId: Int!
     timestamp: String!
     uuid: String!
 }
 
 type Subscription {
-    CustomerTransaction(customerid: Int!): CustomerTransaction
+    NewCustomerTransaction(customerId: GraphQLBigInteger!): CustomerTransaction
 }
 
 type Mutation {
     InternalSaveChatMessage(message: ChatMessageInput!): CreatedChatMessage
-    AddTransaction(tx: TransactionInput!): CreatedTransaction
 }
 
 input ChatMessageInput {
@@ -106,21 +106,9 @@ input ChatMessageInput {
     content: String!
     name: String
     functionCall: String
-    customerid: Int
+    customerId: Int
 }
 
 type CreatedChatMessage {
-    event_time: String!
-}
-
-input TransactionInput {
-    transactionId: Int!
-    cardNo: String!
-    amount: Float!
-    merchantId: Int!
-}
-
-type CreatedTransaction {
-    transactionId: Int!
     event_time: String!
 }

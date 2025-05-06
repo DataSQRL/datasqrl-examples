@@ -1,9 +1,8 @@
 # Clickstream Recommendation
 
-This example demonstrates DataSQRL's capabilities by creating personalized content recommendations
+We are building personalized content recommendations
 based on clickstream data and content vector embeddings. The pipeline ingests data, processes it,
-and serves recommendations in real time, highlighting the power of DataSQRL in handling streaming
-data efficiently.
+and serves recommendations in real time.
 
 ## Architecture
 
@@ -20,31 +19,77 @@ components in AWS as shown in the diagram above.
 
 There are two ways to run this example depending on how you want to ingest the clickstream data.
 
+## Ingest Data from API
+
+This version allows you to add content and clickstream data manually through a GraphQL API giving you more control over how the data is ingested and what is happening.
+
+Run the API version with this command:
+```bash
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c package-api.json
+```
+
+Next, open [GraphQL Explorer](http://localhost:8888/graphiql/) and add some content:
+```graphql
+mutation {
+  Content(event: {url: "https://en.wikipedia.org/wiki/Zoop", title: "Zoop", text: "Zoop is a puzzle video game originally developed by Hookstone Productions and published by Viacom New Media for many platforms in 1995. It has similarities to Taito's 1989 arcade game Plotting (known as Flipull in other territories and on other systems) but Zoop runs in real-time instead. Players are tasked with eliminating pieces that spawn from one of the sides of the screen, before they reach the center of the playfield, by pointing at a specific piece and shooting it to either swap it with t"}) {
+    title
+  }
+}
+```
+You can find more content samples to add in the [sample_content.jsonl](content-api/sample_content.jsonl) file.
+
+Once you have added multiple pieces of content, we can register clicks with this mutation:
+```graphql
+mutation {
+  Clickstream(event:{url:"https://en.wikipedia.org/wiki/Zoop", userid: "1"}) {
+    userid
+  }
+}
+```
+
+Run this mutation a few times with different urls for the same userid (to create Covisits) and different userids.
+
+To retrieve similar content to what a user has viewed before, run this query:
+```graphql
+{
+  SimilarContent(userid: "1") {
+    similarity
+    title
+  }
+}
+```
+
+To retrieve recommendations by URL:
+```graphql
+{
+Recommendation(url: "https://en.wikipedia.org/wiki/Zoop") {
+  recommendation
+  frequency
+}
+}
+```
+
+
 ### Ingest from Stream
 
-This method reads data from the stream directly and requires that you add the data to the stream
-specifically.
+This method reads data from the stream directly and requires that you add the data to the stream specifically.
 
-In the project, we have two packages for the same data. The `content-kafka` package specifies reading
-data through a Kafka connector. The `content-file`, uses a connector that reads from the
-filesystem. Initially, we will use the `content-kafka` package, which is already
-imported (`IMPORT content.Content`, which has a dependency aliased in the package.json).
+The `content-kafka` package specifies reading
+data through a Kafka connector.
 
-Then, execute the following steps:
+To run the pipeline:
+```bash
+docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c package-kafka.json
+```
 
-1. Run the following command in the root directory to compile: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile`
-1. Add the current directory as an env variable: `export SQRL_DIR=${PWD}`
-1. Start the pipeline: `(cd build/deploy; docker compose up --build)`. This sets up the entire data pipeline with
-   Redpanda, Flink, Postgres, and API server. It takes a few minutes for all the components to boot
-   up.
 1. Once everything is started, open another terminal window to add data to Kafka using the
    load_data.py script in the `yourdata-files` directory. This requires **kafka-python-ng** installed
    via `pip3 install kafka-python-ng`.
-1. Load the content data: `python3 load_data.py content.json.gz localhost:9094 content --msg 50`.
+1. Load the content data: `python3 load_data.py content.json.gz localhost:9092 content --msg 50`.
    Wait until it finishes, which takes about two minutes. Check the Flink Dashboard running
    at http://localhost:8081/ to see the progress. Wait until the task turns blue again.
 1. Load the clickstream
-   data: `python3 load_data.py clickstream.json.gz localhost:9094 clickstream --msg 100`. This loads
+   data: `python3 load_data.py clickstream.json.gz localhost:9092 clickstream --msg 100`. This loads
    100 clicks per second. Wait a few seconds for some data to load. Let this run in the background
    until it finishes (about 4 minutes).
 
@@ -77,85 +122,4 @@ You can find all the page URLs in the file `datawiki/wikipedia_urls.txt` and use
 file `yourdata-files/clickstream.json.gz` (read it with `gzcat`) if you want to experiment with
 different queries.
 
-Once you are done, hit `CTRL-C` and take down the pipeline containers with `docker compose down -v`.
-
-### From Local Files and API
-
-This method reads the content data from local files and ingests the clickstream data through the
-API. Please look at the `package-mutation.json` and compare it with the `package.json` we used before.
-Notice that we are using different graphql files and different dependencies.
-
-Execute the following steps:
-
-1. Run the following command in the root directory to compile: `docker run -it --rm -v $PWD:/build datasqrl/cmd:v0.5.2 compile -c package-mutation.json`
-2. Navigate to the build/deploy directory: `(cd build/deploy; docker compose up --build)`
-
-Open GraphiQL to add and query data.
-
-First, add some clickstream data for the user with ID f5e9c688-408d-b54f-94aa-493df43dac8c by
-running the following mutations one after the other. Each mutation simulates a user clicking on a
-specific URL. We expect the system to record these clicks and use them to generate personalized
-recommendations.
-
-Open GraphiQL to execute the following graphql commands:
-`http://localhost:8888/graphiql/`
-
-This mutation records a click event for the user on the page "Generosity: An Enhancement":
-
-```graphql
-mutation {
-    Clickstream(click: {userid: "f5e9c688-408d-b54f-94aa-493df43dac8c",
-        url: "https://en.wikipedia.org/wiki/Generosity%3A%20An%20Enhancement"}) {
-        event_time
-    }
-}
-```
-
-This mutation records another click event for the user on the page "Lock's Quest":
-
-```graphql
-mutation {
-    Clickstream(click: {userid: "f5e9c688-408d-b54f-94aa-493df43dac8c",
-        url: "https://en.wikipedia.org/wiki/Lock%27s%20Quest"}) {
-        event_time
-    }
-}
-```
-
-his mutation records a final click event for the user on the page "SystemC":
-
-```graphql
-mutation {
-    Clickstream(click: {userid: "f5e9c688-408d-b54f-94aa-493df43dac8c",
-        url: "https://en.wikipedia.org/wiki/SystemC"}) {
-        event_time
-    }
-}
-```
-
-Now, query for recommendations. Either by page:
-
-This query provides recommendations based on the specified page URL:
-
-```graphql
-query {
-    Recommendation(url: "https://en.wikipedia.org/wiki/Generosity%3A%20An%20Enhancement") {
-        recommendation
-        frequency
-    }
-}
-```
-
-This query provides recommendations based on the user's clickstream data, showing similar content to
-what the user has interacted with:
-
-```graphql
-query {
-    SimilarContent(userid: "f5e9c688-408d-b54f-94aa-493df43dac8c") {
-        url
-        similarity
-    }
-}
-```
-
-Once you are done, hit CTRL-C and take down the pipeline containers with docker compose down -v.
+Once you are done, hit `CTRL-C` and take down the pipeline.

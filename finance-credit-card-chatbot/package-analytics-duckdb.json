@@ -1,7 +1,6 @@
 {
   "version": "1",
   "enabled-engines": ["vertx", "iceberg", "duckdb", "kafka", "flink"],
-  "profiles": ["datasqrl.profile.default"],
   "script": {
     "main": "creditcard-analytics.sqrl",
     "graphql": "creditcard-analytics.graphqls"
