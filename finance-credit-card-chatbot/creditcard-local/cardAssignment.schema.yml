@@ -8,7 +8,7 @@ columns:
   tests:
   - "not_null"
 - name: "cardNo"
-  type: "DOUBLE"
+  type: "STRING"
   tests:
   - "not_null"
 - name: "timestamp"

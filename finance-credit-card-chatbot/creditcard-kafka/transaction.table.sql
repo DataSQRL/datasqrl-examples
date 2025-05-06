@@ -1,5 +1,4 @@
 CREATE TABLE Transaction (
-     PRIMARY KEY (`transactionId`, `time`) NOT ENFORCED,
      WATERMARK FOR `time` AS `time` - INTERVAL '1' SECOND
 ) WITH (
       'connector' = 'kafka',
