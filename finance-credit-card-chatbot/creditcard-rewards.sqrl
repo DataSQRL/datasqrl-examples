@@ -98,4 +98,23 @@ RewardsByDayTest := SELECT * FROM RewardsByDay ORDER BY customerId DESC, timeDay
 PotentialRewardsByDayTest := SELECT customerId, cardType, timeDay, total_reward
                                    FROM PotentialRewardsByDay ORDER BY total_reward DESC LIMIT 5;
 
+-- Returns the rewards for a given customer immediately
+NewCustomerRewards(customerId BIGINT) := SUBSCRIBE SELECT * FROM CustomerRewards WHERE customerId = :customerId;
 
+
+/* ==== Agent message history === */
+
+CREATE TABLE InternalSaveChatMessage (
+    uuid STRING NOT NULL METADATA FROM 'uuid',
+    role STRING NOT NULL,
+    content STRING NOT NULL,
+    name STRING,
+    functionCall STRING,
+    customerId INT,
+    event_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp'
+);
+
+/*+query_by_all(customerId) */
+InternalGetChatMessages := SELECT c.role, c.content, c.name, c.functionCall, c.customerId,
+                                  c.event_time AS `timestamp`, uuid
+                           FROM InternalSaveChatMessage c ORDER BY event_time DESC;

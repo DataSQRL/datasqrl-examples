@@ -19,20 +19,38 @@ jobs:
             test_commands: |
               compile -c package-api.json
               compile -c package-kafka.json
-          - example: finance
+
+          - example: finance-rewards
+            path: finance-credit-card-chatbot
+            test_commands: |
+              compile -c package-rewards-local.json
+              compile -c package-rewards-kafka.json
+              test -c package-rewards-local.json --snapshots snapshots-rewards
+          - example: finance-analytics
             path: finance-credit-card-chatbot
             test_commands: |
               test -c package-analytics-local.json --snapshots snapshots-analytics
-              test -c package-rewards-local.json --snapshots snapshots-rewards
 
-          - example: healthcare
+          - example: healthcare-compile
+            path: healthcare-study-monitoring
+            test_commands: |
+              compile -c study_stream_kafka_package.json
+            # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_snowflake_package.json
+
+          - example: healthcare-analytics
             path: healthcare-study-monitoring
             test_commands: |
               test -c study_analytics_package.json study_analytics.sqrl --snapshots snapshots-study-analytics
+
+          - example: healthcare-api
+            path: healthcare-study-monitoring
+            test_commands: |
               test -c study_api_test_package.json --tests tests-study-api --snapshots snapshots-study-api
+
+          - example: healthcare-stream
+            path: healthcare-study-monitoring
+            test_commands: |
               test -c study_stream_local_package.json study_stream.sqrl --snapshots snapshots-study-stream
-              compile -c study_stream_kafka_package.json
-              compile -c study_analytics_snowflake_package.json
 
           - example: logistics
             path: logistics-shipping-geodata
@@ -67,8 +85,50 @@ jobs:
       with:
         timezoneLinux: "America/Los_Angeles"
 
+    - name: Cache Docker images
+      uses: ScribeMD/docker-cache@0.5.0
+      with:
+        # one cache entry per SQRL version & OS
+        key: sqrl-${{ runner.os }}-${{ env.SQRL_VERSION }}
+
     - name: Pull SQRL Docker image
       run: docker pull datasqrl/cmd:${{ env.SQRL_VERSION }}
+
+    - name: Run ${{ matrix.example }} Tests
+      working-directory: ${{ matrix.path }}
+      run: |
+        # Read raw lines from the matrix value
+        mapfile -t raw_cmds <<< "${{ matrix.test_commands }}"
+       
+        # Keep only non‑empty lines
+        cmds=()
+        for c in "${raw_cmds[@]}"; do
+          [[ -z "${c//[[:space:]]/}" ]] && continue   # skip blanks
+          cmds+=("$c")
+        done
+
+        if (( ${#cmds[@]} == 0 )); then
+          echo "ERROR: No test commands specified for ${{ matrix.example }}"
+          exit 1
+        fi
+
+        for cmd in "${cmds[@]}"; do
+          echo "::group::Running: $cmd"
+          docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 \
+            --rm -v "$PWD":/build "datasqrl/cmd:${SQRL_VERSION}" $cmd
+          echo "::endgroup::"
+        done
+
+    - name: Write Dockerfile
+      run: |
+        cat <<EOF > ${{ matrix.path }}/Dockerfile
+        FROM datasqrl/cmd:${SQRL_VERSION}
+
+        ENV TZ="UTC"
+
+        COPY . /build
+        WORKDIR /build
+        EOF
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -82,35 +142,25 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Run ${{ matrix.example }} Tests
-      working-directory: ${{ matrix.path }}
-      run: |
-        if [ -z "${{ matrix.test_commands }}" ]; then
-          echo "No test commands specified for ${{ matrix.example }}"
-          exit 1
-        fi
-
-        while IFS= read -r cmd; do
-          echo "Running: $cmd"
-          docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:${SQRL_VERSION} $cmd
-        done <<< "${{ matrix.test_commands }}"
-
-    - name: Write Dockerfile
-      run: |
-        cat <<EOF > ${{ matrix.path }}/Dockerfile
-        FROM datasqrl/cmd:${SQRL_VERSION}
-
-        ENV TZ="UTC"
-
-        COPY . /build
-        WORKDIR /build
-        EOF
-
     - name: Publish ${{ matrix.example }}
       uses: docker/build-push-action@v3
       with:
         context: ./${{ matrix.path }}
         file: ./${{ matrix.path }}/Dockerfile
         push: true
-        tags: datasqrl/examples:${{ matrix.example }}
+        tags: datasqrl/examples:${{ matrix.path }}
         platforms: linux/amd64,linux/arm64
+
+  ci-summary:
+    name: build ✅ summary
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Fail if any build job failed
+        run: |
+          failed=$(jq -r '.[] | select(.result=="failure")' <<< '${{ toJson(needs) }}' | wc -l)
+          if [[ "$failed" -gt 0 ]]; then
+            echo "::error ::${failed} matrix job(s) failed"
+            exit 1
+          fi
