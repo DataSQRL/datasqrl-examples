@@ -35,7 +35,7 @@ jobs:
             path: healthcare-study-monitoring
             test_commands: |
               compile -c study_stream_kafka_package.json
-              compile -c study_analytics_snowflake_package.json
+              # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_snowflake_package.json
 
           - example: healthcare-analytics
             path: healthcare-study-monitoring
@@ -84,6 +84,12 @@ jobs:
       uses: szenius/set-timezone@v1.1
       with:
         timezoneLinux: "America/Los_Angeles"
+
+    - name: Cache Docker images
+      uses: ScribeMD/docker-cache@0.5.0
+      with:
+        # one cache entry per SQRL version & OS
+        key: sqrl-${{ runner.os }}-${{ env.SQRL_VERSION }}
 
     - name: Pull SQRL Docker image
       run: docker pull datasqrl/cmd:${{ env.SQRL_VERSION }}
