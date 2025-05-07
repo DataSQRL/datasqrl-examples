@@ -23,6 +23,7 @@ jobs:
             path: finance-credit-card-chatbot
             test_commands: |
               test -c package-analytics-local.json --snapshots snapshots-analytics
+              compile -c package-rewards-local.json
               test -c package-rewards-local.json --snapshots snapshots-rewards
 
           - example: healthcare

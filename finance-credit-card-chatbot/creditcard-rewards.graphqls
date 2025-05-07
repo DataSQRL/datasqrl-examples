@@ -13,15 +13,15 @@ type Query {
         toTime: DateTime!
     ): [CustomerRewards!]
 
-    """Returns the total awards a customer earned by week starting from the most recent week."""
-    RewardsByWeek(
+    """Returns the total awards a customer earned by day starting from the most recent day."""
+    RewardsByDay(
         """customerId: Customer identifier"""
         customerId: GraphQLBigInteger!,
-        """limit: The number of weeks to return starting from most recent to less recent weeks. For example, if limit is 12 it will return the last 12 weeks of total rewards earned."""
+        """limit: The number of days to return starting from most recent to less recent days. For example, if limit is 12 it will return the last 12 days of total rewards earned."""
         limit: Int = 12,
-        """offset: The number of weeks to offset. For example, if offset is 4, it will skip the last 4 weeks of rewards earned and return the weeks before that."""
+        """offset: The number of days to offset. For example, if offset is 4, it will skip the last 4 days of rewards earned and return the days before that."""
         offset: Int = 0
-    ): [RewardsByWeek!]
+    ): [RewardsByDay!]
 
     """Returns the total amount of rewards the customer has earned to date and the time since when they eared rewards"""
     TotalReward(
@@ -41,17 +41,17 @@ type Query {
         toTime: DateTime!
     ): [PotentialRewards!]
 
-    """Returns the total awards a customer could have earned for a given card type by week starting from the most recent week. Use this function to show the customer what their reward earnings would have looked like, if they had a given card."""
-    PotentialRewardsByWeek(
+    """Returns the total awards a customer could have earned for a given card type by day starting from the most recent day. Use this function to show the customer what their reward earnings would have looked like, if they had a given card."""
+    PotentialRewardsByDay(
         """customerId: Customer identifier"""
         customerId: GraphQLBigInteger!,
         """cardType: The type of card to calculate potential rewards for (e.g., travel, sports, business, family)"""
         cardType: String!,
-        """limit: The number of weeks to return starting from most recent to less recent weeks. For example, if limit is 12 it will return the last 12 weeks of total rewards earned."""
+        """limit: The number of days to return starting from most recent to less recent days. For example, if limit is 12 it will return the last 12 days of total rewards earned."""
         limit: Int = 12,
-        """offset: The number of weeks to offset. For example, if offset is 4, it will skip the last 4 weeks of rewards earned and return the weeks before that."""
+        """offset: The number of days to offset. For example, if offset is 4, it will skip the last 4 days of rewards earned and return the days before that."""
         offset: Int = 0
-    ): [PotentialRewardsByWeek!]
+    ): [PotentialRewardsByDay!]
 
     """Returns the total amount of rewards the customer could have earned for each type of credit card the customer does not yet have. Use this function to determine which credit card type to recommend to a customer."""
     TotalPotentialReward(
@@ -83,9 +83,9 @@ type CustomerRewards {
     merchantName: String!
 }
 
-type RewardsByWeek {
+type RewardsByDay {
     customerId: GraphQLBigInteger!
-    timeWeek: DateTime!
+    timeDay: DateTime!
     total_reward: Float!
 }
 
@@ -105,10 +105,10 @@ type PotentialRewards {
     merchantName: String!
 }
 
-type PotentialRewardsByWeek {
+type PotentialRewardsByDay {
     customerId: GraphQLBigInteger!
     cardType: String!
-    timeWeek: DateTime!
+    timeDay: DateTime!
     total_reward: Float!
 }
 
