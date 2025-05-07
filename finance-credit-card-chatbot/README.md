@@ -31,7 +31,7 @@ To use Kafka as the data source, follow these steps:
 
 Invoke the following command in this directory:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest -c package-analytics-kafka.json
+docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c package-analytics-kafka.json
 ```
 
 This command stands up the entire data pipeline and all data services, including Kafka.

@@ -31,13 +31,5 @@ However, if you wish to modify or experiment with the data, here's how you can g
 
 ### Using Virtual Python Environment
 
-It is recommended to use virtualenv to manage your python environment. Some IDEs require to place requirements.txt
-and venv folder in the project root. That's why it is in the root, even though not all "modules" are utilizing it.
-
-Here's how to use venv in this project:
-
-- Create a virtual env in the project root folder: `python3 -m venv venv`
-- Activate the environment: `source venv/bin/activate`
-    - *you can later deactivate it with this command:* `deactivate`
-- Install dependencies: `pip install -r requirements.txt`
+See [Python Utilities](../util/README.md) for details.
 
