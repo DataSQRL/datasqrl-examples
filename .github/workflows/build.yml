@@ -148,7 +148,7 @@ jobs:
         context: ./${{ matrix.path }}
         file: ./${{ matrix.path }}/Dockerfile
         push: true
-        tags: datasqrl/examples:${{ matrix.example }}
+        tags: datasqrl/examples:${{ matrix.path }}
         platforms: linux/amd64,linux/arm64
 
   ci-summary:
