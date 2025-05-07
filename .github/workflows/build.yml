@@ -22,8 +22,9 @@ jobs:
           - example: finance
             path: finance-credit-card-chatbot
             test_commands: |
-              test -c package-analytics-local.json --snapshots snapshots-analytics
               compile -c package-rewards-local.json
+              compile -c package-rewards-kafka.json
+              test -c package-analytics-local.json --snapshots snapshots-analytics
               test -c package-rewards-local.json --snapshots snapshots-rewards
 
           - example: healthcare
@@ -87,13 +88,14 @@ jobs:
       working-directory: ${{ matrix.path }}
       run: |
         if [ -z "${{ matrix.test_commands }}" ]; then
-          echo "No test commands specified for ${{ matrix.example }}"
+          echo "ERROR: No test commands specified for ${{ matrix.example }}"
           exit 1
         fi
 
         while IFS= read -r cmd; do
-          echo "Running: $cmd"
+          echo "::group::Running: $cmd"
           docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:${SQRL_VERSION} $cmd
+          echo "::endgroup::"
         done <<< "${{ matrix.test_commands }}"
 
     - name: Write Dockerfile
