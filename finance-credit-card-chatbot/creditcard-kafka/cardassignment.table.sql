@@ -1,5 +1,4 @@
 CREATE TABLE CardAssignment (
-     PRIMARY KEY (`customerId`, `cardNo`, `timestamp`) NOT ENFORCED,
      WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '1' SECOND
 ) WITH (
       'connector' = 'kafka',
