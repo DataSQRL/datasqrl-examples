@@ -35,7 +35,7 @@ jobs:
             path: healthcare-study-monitoring
             test_commands: |
               compile -c study_stream_kafka_package.json
-              # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_snowflake_package.json
+            # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_snowflake_package.json
 
           - example: healthcare-analytics
             path: healthcare-study-monitoring
@@ -164,4 +164,3 @@ jobs:
             echo "::error ::${failed} matrix job(s) failed"
             exit 1
           fi
- 
