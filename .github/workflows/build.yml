@@ -78,6 +78,7 @@ jobs:
           - example: oil-gas
             path: oil-gas-agent-automation
             test_commands: |
+              compile -c package-local.json
               test -c package-local.json
 
     env:
