@@ -10,16 +10,17 @@ type Customer {
 "An RFC-3339 compliant DateTime Scalar"
 scalar DateTime
 
+"An arbitrary precision signed integer"
+scalar GraphQLBigInteger
+
 type Query {
-  Shipment(id: Float, limit: Int = 10, offset: Int = 0): [Shipment!]
-  Shipment_Location(limit: Int = 10, offset: Int = 0): [Shipment_Location!]
+  Shipment(id: GraphQLBigInteger!, limit: Int = 10, offset: Int = 0): [Shipment!]
   Vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
-  Vehicle_Status(limit: Int = 10, offset: Int = 0): [Vehicle_Status!]
-  Customer(email: String, id: Float, limit: Int = 10, offset: Int = 0): [Customer!]
+  Customer(email: String, id: GraphQLBigInteger, limit: Int = 10, offset: Int = 0): [Customer!]
 }
 
 type Shipment {
-  id: Float!
+  id: GraphQLBigInteger!
   lastUpdated: DateTime!
   origin: String!
   lat: Float!
@@ -52,5 +53,4 @@ type Vehicle_Status {
 
 type statistics {
   shipment_count: Float!
-  parent: Customer!
 }

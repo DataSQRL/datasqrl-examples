@@ -29,24 +29,27 @@ jobs:
           - example: finance-analytics
             path: finance-credit-card-chatbot
             test_commands: |
+              compile -c package-analytics-local.json
+              compile -c package-analytics-kafka.json
               test -c package-analytics-local.json --snapshots snapshots-analytics
 
           - example: healthcare-compile
             path: healthcare-study-monitoring
             test_commands: |
+              compile -c study_stream_local_package.json
               compile -c study_stream_kafka_package.json
+              compile -c study_api_run_package.json
+              compile -c study_api_test_package.json
+              compile -c study_analytics_package.json
             # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_snowflake_package.json
-
           - example: healthcare-analytics
             path: healthcare-study-monitoring
             test_commands: |
               test -c study_analytics_package.json study_analytics.sqrl --snapshots snapshots-study-analytics
-
           - example: healthcare-api
             path: healthcare-study-monitoring
             test_commands: |
               test -c study_api_test_package.json --tests tests-study-api --snapshots snapshots-study-api
-
           - example: healthcare-stream
             path: healthcare-study-monitoring
             test_commands: |
@@ -55,22 +58,27 @@ jobs:
           - example: logistics
             path: logistics-shipping-geodata
             test_commands: |
+              compile logistics.sqrl logistics.graphqls
               test logistics.sqrl --snapshots snapshots
 
           - example: iot-sensor
             path: iot-sensor-metrics
             test_commands: |
+              compile -c sensor-api.json
+              compile -c sensor-static.json
               test -c sensor-static.json --snapshots snapshots-static
               test -c sensor-api.json --tests test-api --snapshots snapshots-api
 
           - example: law
             path: law-enforcement
             test_commands: |
+              compile -c baseball-card-local.json
               test -c baseball-card-local.json --snapshots snapshots
 
           - example: oil-gas
             path: oil-gas-agent-automation
             test_commands: |
+              compile -c package-local.json
               test -c package-local.json
 
     env:
