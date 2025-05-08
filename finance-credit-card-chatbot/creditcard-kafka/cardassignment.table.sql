@@ -1,5 +1,9 @@
 CREATE TABLE CardAssignment (
-     WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '1' SECOND
+    customerId BIGINT NOT NULL,
+    cardNo STRING NOT NULL,
+    cardType STRING NOT NULL,
+    `timestamp` TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp',
+    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '1' SECOND
 ) WITH (
       'connector' = 'kafka',
       'properties.bootstrap.servers' = '${PROPERTIES_BOOTSTRAP_SERVERS}',
