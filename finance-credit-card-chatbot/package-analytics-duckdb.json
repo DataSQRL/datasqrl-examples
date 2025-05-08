@@ -7,7 +7,7 @@
   },
   "values" : {
     "flink-config": {
-      "table.exec.source.idle-timeout": "100 ms"
+      "table.exec.source.idle-timeout": "10 sec"
     }
   },
   "engines": {

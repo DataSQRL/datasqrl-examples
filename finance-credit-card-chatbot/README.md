@@ -42,14 +42,16 @@ The easiest way to do so is to use a little helper python script
 that reads the data from a file and writes it to the kafka topic. This requires you have Python3 installed on your machine.
 
 In this directory, invoke the script twice in the following order to populate Kafka:
-    1. `python3 ../util/load_data.py creditcard-local/cardAssignment.jsonl localhost:9092 cardassignment --msg 500`
-    2. `python3 ../util/load_data.py creditcard-local/transaction.jsonl localhost:9092 transaction --msg 50`
+1. `python3 ../util/load_data.py creditcard-local/merchant.jsonl localhost:9092 merchant --msg 500`
+2. `python3 ../util/load_data.py creditcard-local/merchantReward.jsonl localhost:9092 merchantreward --msg 500`
+3. `python3 ../util/load_data.py creditcard-local/cardAssignment.jsonl localhost:9092 cardassignment --msg 500`
+4. `python3 ../util/load_data.py creditcard-local/transaction.jsonl localhost:9092 transaction --msg 50`
 
 The first load should be pretty quick. The transactions are then loaded at a rate of 50 per second (You can adjust the rate via the `--msg` option).
 
 To see how the data enters the topics and the [Flink UI](http://localhost:8081/) to see the processing status.
 
-As above, you can [open GraphiQL](http://localhost:8888/graphiql/) to access the API and query for data.
+As above, you can [open GraphiQL](http://localhost:8888/graphiql/) to access the API and query for data. Note, that the time windows are very long, so you won't be seeing any output there for the short period of time we are inserting data. You can adjust the time windows or keep loading data for a long time ;-).
 
 When you are done, you can stop the pipeline by hitting CTRL-C.
 
