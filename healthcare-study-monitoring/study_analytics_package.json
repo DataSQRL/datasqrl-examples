@@ -13,7 +13,7 @@
     "flink": {
       "connectors" : {
         "iceberg" : {
-          "warehouse":"${LOCAL_WAREHOUSE_DIR}",
+          "warehouse":"warehouse",
           "catalog-type":"hadoop",
           "catalog-name": "mydatabase"
         }

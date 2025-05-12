@@ -50,10 +50,10 @@ This script produces study analytics for observations groups in iceberg tables t
 
 Run the study_analytics script using iceberg and duckdb locally as follows:
 ```
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build  -e LOCAL_WAREHOUSE_DIR=warehouse datasqrl/cmd:latest run -c study_analytics_package.json
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_analytics_package.json
 ```
 
-We are setting the environment variable `LOCAL_WAREHOUSE_DIR` to instruct where to store the iceberg files. In this case, we are putting the locally in the `warehouse` folder.
+This writes the data to the local directory `warehouse` which is configured in `study_analytics_package.json` under the `warehouse` configuration option. Delete that directory if you re-run the example or make changes to it, otherwise you might run into errors of catalog mismatch.
 
 There is also a package configuration for running this example using Snowflake as the query engine. 
 
