@@ -13,7 +13,7 @@
     "flink": {
       "connectors" : {
         "iceberg" : {
-          "warehouse":"${LOCAL_WAREHOUSE_DIR}",
+          "warehouse":"warehouse",
           "catalog-type":"hadoop",
           "catalog-name": "mydatabase"
         }
@@ -21,6 +21,7 @@
     }
   },
   "test-runner": {
-    "delay-sec": 120
+    "delay-sec": -1,
+    "required-checkpoints": 1
   }
 }

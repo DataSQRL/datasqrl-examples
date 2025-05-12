@@ -9,22 +9,21 @@ _CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp`
 
 /* Enrich credit card transactions with customer and merchant information */
 /*+partition_key(customerId) */
-_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount, t.merchantId,
-                              m.category, c.customerId
+_CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount,
+                              m.category, c.customerId, m.merchantId
                        FROM _Transaction t
-                       JOIN _CardAssignment FOR SYSTEM_TIME AS OF t.`time` c ON t.cardNo = c.cardNo
-                       JOIN Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId
-                       ORDER BY t.`time` DESC;
+                                JOIN _CardAssignment FOR SYSTEM_TIME AS OF t.`time` c ON t.cardNo = c.cardNo
+                                JOIN Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId;
 
 SpendingByCategory := SELECT customerId, window_time as timeWeek, category, SUM(amount) as spending
-                      FROM TABLE(TUMBLE(TABLE _CustomerTransaction, DESCRIPTOR(`time`), INTERVAL 7 DAY))
+                      FROM TABLE(TUMBLE(TABLE _CustomerTransaction, DESCRIPTOR(`time`), INTERVAL '7' DAY))
                       GROUP BY customerId, window_start, window_end, window_time, category
                       ORDER BY window_time DESC, category ASC;
 
 SpendingByDay := SELECT customerId, window_time as timeDay, SUM(amount) as spending
-                 FROM TABLE(TUMBLE(TABLE _CustomerTransaction, DESCRIPTOR(`time`), INTERVAL 1 DAY))
-                 GROUP BY customerId, window_start, window_end, window_time
-                 ORDER BY window_time DESC;
+                  FROM TABLE(TUMBLE(TABLE _CustomerTransaction, DESCRIPTOR(`time`), INTERVAL '1' DAY))
+                  GROUP BY customerId, window_start, window_end, window_time
+                  ORDER BY window_time DESC;
 
 CustomerTransactionWithMerchant :=
                 SELECT * FROM _CustomerTransaction t
