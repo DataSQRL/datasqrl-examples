@@ -32,6 +32,12 @@ jobs:
               compile -c package-analytics-local.json
               compile -c package-analytics-kafka.json
               test -c package-analytics-local.json --snapshots snapshots-analytics
+          - example: finance-views
+            path: finance-credit-card-chatbot
+            test_commands: |
+              compile -c package-view-local.json
+              compile -c package-view-snowflake.json
+              test -c package-view-local.json --snapshots snapshots-views
 
           - example: healthcare-compile
             path: healthcare-study-monitoring
@@ -41,7 +47,7 @@ jobs:
               compile -c study_api_run_package.json
               compile -c study_api_test_package.json
               compile -c study_analytics_package.json
-            # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_snowflake_package.json
+              compile -c study_analytics_snowflake_package.json
           - example: healthcare-analytics
             path: healthcare-study-monitoring
             test_commands: |
