@@ -28,3 +28,7 @@ ObservationAggregate := SELECT groupId, timeHour, metadataId, name, MIN(avgMetri
 /*+test */
 ObservationAggregateTest := SELECT groupId, timeHour, metadataId, COUNT(1) AS num FROM ObservationAggregate
                        GROUP BY groupId, timeHour, metadataId ORDER BY groupId ASC, timeHour DESC, metadataId ASC;
+
+/*+test */
+ObservationAggregateSummaryTest := SELECT groupId, metadataId, COUNT(1) AS num FROM ObservationAggregate
+                            GROUP BY groupId, metadataId ORDER BY groupId ASC, metadataId ASC;
