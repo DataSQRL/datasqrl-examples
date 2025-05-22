@@ -2,5 +2,6 @@ query {
     ReadingsAboveTemp(temp: 101) {
         sensorid
         temperature
+        event_time
     }
 }
