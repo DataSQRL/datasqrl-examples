@@ -2,9 +2,11 @@
   "script": {
     "main": "recommendation.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "5000 ms"
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "5 s"
+      }
     }
   },
   "compiler" : {

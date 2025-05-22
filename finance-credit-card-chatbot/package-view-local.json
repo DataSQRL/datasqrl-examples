@@ -4,11 +4,6 @@
   "script": {
     "main": "creditcard-views.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "10 sec"
-    }
-  },
   "engines": {
     "flink": {
       "connectors" : {
@@ -17,6 +12,9 @@
           "catalog-type":"hadoop",
           "catalog-name": "mydatabase"
         }
+      },
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
       }
     }
   },

@@ -4,11 +4,6 @@
   "script": {
     "main": "study_analytics.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "1000 ms"
-    }
-  },
   "engines": {
     "flink": {
       "connectors" : {
@@ -17,6 +12,9 @@
           "catalog-type":"hadoop",
           "catalog-name": "mydatabase"
         }
+      },
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
       }
     }
   },

@@ -4,9 +4,11 @@
   "script": {
     "main": "baseball_card.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "10000 ms"
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
+      }
     }
   },
   "dependencies": [{

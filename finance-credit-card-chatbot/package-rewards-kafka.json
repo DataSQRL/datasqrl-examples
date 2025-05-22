@@ -5,10 +5,14 @@
     "main": "creditcard-rewards.sqrl",
     "graphql": "creditcard-rewards.graphqls"
   },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
+      }
+    }
+  },
   "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "10 sec"
-    },
     "create-topics": ["transaction", "cardassignment","merchant","merchantreward","customerreward"]
   },
   "dependencies": [{

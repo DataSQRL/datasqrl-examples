@@ -4,11 +4,6 @@
   "script": {
     "main": "creditcard-views.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "10 sec"
-    }
-  },
   "engines": {
     "flink": {
       "connectors" : {
@@ -19,6 +14,9 @@
           "catalog-name": "mydatabase",
           "catalog-database": "mydatabase"
         }
+      },
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
       }
     },
     "snowflake" : {

@@ -3,9 +3,11 @@
   "script": {
     "main": "study_api.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "1000 ms"
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
+      }
     }
   },
   "test-runner": {
