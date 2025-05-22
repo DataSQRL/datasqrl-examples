@@ -4,10 +4,14 @@
   "script": {
     "main": "study_stream.sqrl"
   },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  },
   "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "1000 ms"
-    },
     "create-topics" : ["indicators", "enrichedindicators"]
   },
   "dependencies": {

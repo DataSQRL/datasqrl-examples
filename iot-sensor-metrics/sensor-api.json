@@ -7,8 +7,7 @@
   "engines": {
     "flink" : {
       "config" : {
-        "table.exec.source.idle-timeout": "10 s",
-        "table.optimizer.agg-phase-strategy": "ONE_PHASE"
+        "table.exec.source.idle-timeout": "1 s"
       }
     }
   },

@@ -18,6 +18,9 @@
           "catalog-name": "mydatabase",
           "catalog-database": "mydatabase"
         }
+      },
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
       }
     },
     "snowflake" : {

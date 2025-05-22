@@ -4,11 +4,6 @@
   "script": {
     "main": "study_analytics.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "1000 ms"
-    }
-  },
   "engines": {
     "flink": {
       "connectors" : {
@@ -19,6 +14,9 @@
           "catalog-name": "mydatabase",
           "catalog-database": "mydatabase"
         }
+      },
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
       }
     },
     "snowflake" : {

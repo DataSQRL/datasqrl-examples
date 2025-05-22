@@ -17,6 +17,9 @@
           "catalog-type":"hadoop",
           "catalog-name": "mydatabase"
         }
+      },
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
       }
     }
   },
