@@ -33,5 +33,6 @@ CustomerTransactionWithMerchant :=
 /* =======TEST CASES======== */
 
 /*+test */
-SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerId DESC, timeWeek DESC limit 5;
+SpendingByCategoryTest := SELECT * FROM SpendingByCategory
+                                   ORDER BY customerId DESC, timeWeek DESC, category ASC LIMIT 10;
 
