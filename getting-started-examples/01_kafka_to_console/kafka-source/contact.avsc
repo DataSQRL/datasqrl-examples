@@ -1,0 +1,9 @@
+{
+  "type": "record",
+  "name": "Contact",
+  "namespace": "com.example",
+  "fields": [
+    { "name": "firstname", "type": "string" },
+    { "name": "lastname",  "type": "string" }
+  ]
+}

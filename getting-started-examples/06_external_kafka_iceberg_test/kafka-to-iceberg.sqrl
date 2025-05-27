@@ -1,0 +1,9 @@
+IMPORT kafka-source.Contact AS Contacts;
+
+EnrichedContacts := SELECT
+  id,
+  firstname,
+  lastname,
+  last_updated
+FROM Contacts;
+

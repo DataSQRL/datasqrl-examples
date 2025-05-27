@@ -1,0 +1,32 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "iceberg", "duckdb"],
+  "script": {
+    "main": "file-to-iceberg.sqrl"
+  },
+  "values": {
+    "LOCAL_WAREHOUSE_DIR": "/data/iceberg",
+    "flink-config": {
+      "table.exec.source.idle-timeout": "1000 ms",
+      "execution.checkpointing.interval": "250 s"
+    }
+  },
+  "engines": {
+    "flink": {
+      "connectors": {
+        "iceberg": {
+          "warehouse": "${LOCAL_WAREHOUSE_DIR}",
+          "catalog-type": "hadoop",
+          "catalog-name": "mycatalog"
+        }
+      }
+    }
+  },
+  "dependencies": [{
+    "file-data": {
+      "name": "file-data",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}
