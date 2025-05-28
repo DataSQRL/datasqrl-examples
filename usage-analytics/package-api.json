@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "dependencies": {
+    "source-connector": {
+      "name": "api-connector",
+      "version": "1"
+    }
+  }
+}
