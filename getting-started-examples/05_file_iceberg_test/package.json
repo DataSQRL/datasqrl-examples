@@ -7,7 +7,7 @@
   "values": {
     "LOCAL_WAREHOUSE_DIR": "/data/iceberg",
     "flink-config": {
-      "table.exec.source.idle-timeout": "1000 ms",
+      "table.exec.source.idle-timeout": "60 s",
       "execution.checkpointing.interval": "250 s"
     }
   },

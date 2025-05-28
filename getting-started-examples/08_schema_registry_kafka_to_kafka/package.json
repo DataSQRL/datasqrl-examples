@@ -7,7 +7,7 @@
   "values": {
     "flink-config": {
       "execution.checkpointing.interval": "1 min",
-      "table.exec.source.idle-timeout": "1000 ms"
+      "table.exec.source.idle-timeout": "60 s"
     }
   },
   "dependencies": [

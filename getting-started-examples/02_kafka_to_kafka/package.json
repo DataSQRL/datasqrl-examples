@@ -6,9 +6,9 @@
   },
   "values" : {
     "flink-config": {
-      "table.exec.source.idle-timeout": "1000 ms"
+      "table.exec.source.idle-timeout": "60 s"
     },
-    "create-topics" : ["contact","contact","contactupdated"]
+    "create-topics" : ["contact","contactupdated"]
   },
   "dependencies": [{
     "kafkasource": {

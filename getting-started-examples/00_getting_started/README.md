@@ -78,6 +78,6 @@ These examples are designed to:
 
 * 📘 [DataSQRL Docs](https://datasqrl.github.io/sqrl)
 * 💻 [GitHub Repository](https://github.com/DataSQRL/sqrl)
-* 💬 [Community Discord](https://discord.gg/KeFDsKMPfv)
+* 💬 [Community Discord](https://docs.datasqrl.com/community/)
 
 Feel free to fork and build on top of these examples!
