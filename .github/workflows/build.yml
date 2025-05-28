@@ -81,6 +81,12 @@ jobs:
               compile -c package-local.json
               test -c package-local.json
 
+          - example: usage-analytics
+            path: usage-analytics
+            test_commands: |
+              compile -c package-test.json
+              test -c package-test.json --snapshots snapshots
+
     env:
       TZ: 'America/Los_Angeles'
       SQRL_VERSION: '0.6.1'

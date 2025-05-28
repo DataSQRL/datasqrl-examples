@@ -1,5 +1,8 @@
 {
   "version": "1",
+  "script": {
+    "main": "usertokens.sqrl"
+  },
   "dependencies": {
     "source-connector": {
       "name": "api-connector",
