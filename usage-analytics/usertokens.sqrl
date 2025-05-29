@@ -1,0 +1,18 @@
+/*+no_query */
+IMPORT source-connector.UserTokens;
+
+_TokenUsageHourWindow := SELECT userid, window_start, window_end, window_time,
+                                SUM(tokens) AS total_tokens
+            FROM TABLE(CUMULATE(TABLE UserTokens, DESCRIPTOR(request_time),
+                    INTERVAL '10' SECOND, INTERVAL '1' HOUR))
+            GROUP BY userid, window_start, window_end, window_time;
+
+UsageAlert := SUBSCRIBE SELECT userid, total_tokens, window_start, window_time
+                        FROM _TokenUsageHourWindow WHERE total_tokens > 1000000;
+
+/*+query_by_all(userid) */
+UserTokenUsageHourly := DISTINCT _TokenUsageHourWindow ON userid, window_start ORDER BY window_time DESC;
+
+/*+test */
+UserTokenTest := SELECT userid, window_time, total_tokens FROM UserTokenUsageHourly
+                 ORDER BY userid ASC, window_time DESC;

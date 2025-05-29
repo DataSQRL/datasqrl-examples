@@ -1,0 +1,10 @@
+{"userid": 1, "tokens": 5, "request_time": "2025-05-22T16:00:00.000Z"}
+{"userid": 2, "tokens": 3, "request_time": "2025-05-22T16:00:10.000Z"}
+{"userid": 3, "tokens": 7, "request_time": "2025-05-22T16:00:20.000Z"}
+{"userid": 1, "tokens": 2, "request_time": "2025-05-22T16:00:30.000Z"}
+{"userid": 3, "tokens": 4, "request_time": "2025-05-22T16:00:40.000Z"}
+{"userid": 2, "tokens": 6, "request_time": "2025-05-22T16:00:50.000Z"}
+{"userid": 1, "tokens": 1, "request_time": "2025-05-22T16:01:00.000Z"}
+{"userid": 2, "tokens": 2, "request_time": "2025-05-22T16:01:10.000Z"}
+{"userid": 3, "tokens": 8, "request_time": "2025-05-22T16:01:20.000Z"}
+{"userid": 1, "tokens": 3, "request_time": "2025-05-22T16:01:30.000Z"}
