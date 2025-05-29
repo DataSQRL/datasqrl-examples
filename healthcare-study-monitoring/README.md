@@ -13,13 +13,13 @@ This example produces multiple types of data products from that source data:
 Run the study API with:
 
 ```
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_api_run_package.json
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_api_package_api.json
 ```
 
 This example demonstrates how to use the package.json configuration files to map import packages to different folders for testing vs production:
 
 ```
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest test -c study_api_test_package.json
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest test -c study_api_package_test.json
 ```
 
 While the pipeline runs can check if the data has been ingested in the flink console. 
@@ -50,10 +50,10 @@ This script produces study analytics for observations groups in iceberg tables t
 
 Run the study_analytics script using iceberg and duckdb locally as follows:
 ```
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_analytics_package.json
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_analytics_package_test.json
 ```
 
-This writes the data to the local directory `warehouse` which is configured in `study_analytics_package.json` under the `warehouse` configuration option. Delete that directory if you re-run the example or make changes to it, otherwise you might run into errors of catalog mismatch.
+This writes the data to the local directory `warehouse` which is configured in `study_analytics_package_test.json` under the `warehouse` configuration option. Delete that directory if you re-run the example or make changes to it, otherwise you might run into errors of catalog mismatch.
 
 There is also a package configuration for running this example using Snowflake as the query engine. 
 
@@ -62,7 +62,7 @@ This script shows how to ingest data from a kafka stream.
 
 For this example the command will look like this:
 ```
-docker run -it -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_stream_kafka_package.json
+docker run -it -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_stream_package_kafka.json
 ```
 
 You'll need the kafka-python. We recommend using a new venv:

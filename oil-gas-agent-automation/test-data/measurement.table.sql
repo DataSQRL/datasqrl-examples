@@ -1,4 +1,8 @@
 CREATE TABLE Measurement (
+    `assetId` BIGINT NOT NULL,
+    `pressure_psi` DOUBLE NOT NULL,
+    `temperature_f` DOUBLE NOT NULL,
+    `timestamp` TIMESTAMP_LTZ(3) NOT NULL,
      PRIMARY KEY (`assetId`, `timestamp`) NOT ENFORCED,
      WATERMARK FOR `timestamp` AS `timestamp`
 ) WITH (

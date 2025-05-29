@@ -16,7 +16,7 @@ Furthermore, it provides a mutation for capturing traffic stop and producing ale
 Invoke the following command to run this example.
 
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c baseball-card-local.json
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c baseball_card_package_test.json
 ```
 
 ## Queries
@@ -159,16 +159,3 @@ Query to retrieve tracking information:
   }
 }
 ```
-
-## AI Agent
-
-To access the information with the help of an AI assistant, run the following command to launch the agent:
-
-```bash
-docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={YOUR-OPEN-AI-API-KEY} datasqrl/acorn /config/agent/openai.config.json /config/baseball_card.graphqls
-```
-
-Then open the agent in the [browser](http://localhost:8080/?login=false) and ask questions such as:
-
-* "Pull up information on driver's license ZK035266"
-* "Show me bolo statistics for the state of washington over the last 11 weeks"

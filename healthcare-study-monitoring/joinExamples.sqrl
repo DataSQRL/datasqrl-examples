@@ -1,4 +1,5 @@
-IMPORT metrics-local.ClinicalIndicator;
+/* TODO: Move to getting-started */
+IMPORT metrics-testdata.ClinicalIndicator;
 IMPORT masterdata-local.SensorPlacements;
 
 SensorsDedup := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;

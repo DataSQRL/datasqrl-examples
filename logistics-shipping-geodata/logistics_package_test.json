@@ -1,0 +1,14 @@
+{
+  "version": "1",
+  "script": {
+    "main": "logistics.sqrl",
+    "graphql": "logistics.graphqls"
+  },
+  "dependencies": [{
+    "tables": {
+      "name": "testdata",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

@@ -8,7 +8,7 @@ imports included. How cool is that?
 
 Run the example with:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run logistics.sqrl logistics.graphqls
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c logistics_package_test.json
 ```
 
 ## Regenerate test data

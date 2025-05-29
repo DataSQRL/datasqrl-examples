@@ -1,0 +1,25 @@
+{
+  "script": {
+    "main": "recommendation.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "5 s"
+      }
+    }
+  },
+  "compiler" : {
+    "logger": "print"
+  },
+  "dependencies": [{
+    "content" : {
+      "name": "content-api",
+      "version": "1"
+    },
+    "clickstream" : {
+      "name": "clickstream-api",
+      "version": "1"
+    }
+  }]
+}
