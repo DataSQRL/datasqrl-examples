@@ -7,12 +7,12 @@
   },
   "dependencies": [{
     "creditcard-data": {
-      "name": "creditcard-local",
+      "name": "creditcard-testdata",
       "version": "1",
       "variant": "dev"
     },
     "creditcard-sink": {
-      "name": "sink-local",
+      "name": "sink-test",
       "version": "1",
       "variant": "dev"
     }
