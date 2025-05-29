@@ -3,11 +3,11 @@
 This project contains two example use cases that process credit card transaction, customer, and merchant data:
 
 1. **Transaction Analytics**: A data pipeline which enriches the credit card transactions with customer and merchant information to give customers an overview of their transactions as well as some analytics on their spending.
-   1. To run this data pipeline with file data, use the `package-analytics-local.json` manifest file.
-   2. To run this data pipeline with Kafka as the data source, use the `package-analytics-kafka.json` manifest file.
+   1. To run this data pipeline with file data, use the `creditcard_analytics_package_test.json` manifest file.
+   2. To run this data pipeline with Kafka as the data source, use the `creditcard_analytics_package_kafka.json` manifest file.
 2. **Credit Card Rewards**: A data pipeline that implements a credit card rewards program. Merchants sign up for cash-back rewards on certain credit card types during certain periods and customer get a cash reward when they make a purchase at the merchant during that time. The data pipeline processes the rewards and give the customer insight into the reward they earned.
-    1. To run this data pipeline with file data, use the `package-rewards-local.json` manifest file.
-    2. To run this data pipeline with Kafka as the data source, use the `package-rewards-kafka.json` manifest file.
+    1. To run this data pipeline with file data, use the `creditcard_rewards_package_test.json` manifest file.
+    2. To run this data pipeline with Kafka as the data source, use the `creditcard_rewards_package_kafka.json` manifest file.
 
 See below for detailed instructions on how to run each data pipeline. Note, that the instructions are for the *Transaction Analytics* use case. Replace the manifest files to run the *Credit Card Rewards* use case (i.e. `rewards` instead of `analytics` in the package JSON filename) - the instructions are otherwise identical.
 
@@ -15,7 +15,7 @@ See below for detailed instructions on how to run each data pipeline. Note, that
 
 To run this example, invoke the following command in this directory on Unix based systems to compile the project
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c package-analytics-local.json
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_test.json
 ```
 
 This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
@@ -31,7 +31,7 @@ To use Kafka as the data source, follow these steps:
 
 Invoke the following command in this directory:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c package-analytics-kafka.json
+docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_kafka.json
 ```
 
 This command stands up the entire data pipeline and all data services, including Kafka.
@@ -42,10 +42,10 @@ The easiest way to do so is to use a little helper python script
 that reads the data from a file and writes it to the kafka topic. This requires you have Python3 installed on your machine.
 
 In this directory, invoke the script twice in the following order to populate Kafka:
-1. `python3 ../util/load_data.py creditcard-local/merchant.jsonl localhost:9092 merchant --msg 500`
-2. `python3 ../util/load_data.py creditcard-local/merchantReward.jsonl localhost:9092 merchantreward --msg 500`
-3. `python3 ../util/load_data.py creditcard-local/cardAssignment.jsonl localhost:9092 cardassignment --msg 500`
-4. `python3 ../util/load_data.py creditcard-local/transaction.jsonl localhost:9092 transaction --msg 50`
+1. `python3 ../util/load_data.py creditcard-testdata/merchant.jsonl localhost:9092 merchant --msg 500`
+2. `python3 ../util/load_data.py creditcard-testdata/merchantReward.jsonl localhost:9092 merchantreward --msg 500`
+3. `python3 ../util/load_data.py creditcard-testdata/cardAssignment.jsonl localhost:9092 cardassignment --msg 500`
+4. `python3 ../util/load_data.py creditcard-testdata/transaction.jsonl localhost:9092 transaction --msg 50`
 
 The first load should be pretty quick. The transactions are then loaded at a rate of 50 per second (You can adjust the rate via the `--msg` option).
 
@@ -65,10 +65,10 @@ To run the data agent as a chatbot, you follow these steps:
 
 1. Run the agent in docker:
 ```bash
-docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} datasqrl/acorn /config/analytics-agent/creditcard.openai.config.json /config/creditcard-analytics.graphqls
+docker run -it --rm -p 8080:8080 -v $PWD:/config/ -e OPENAI_API_KEY={ADD_YOUR_KEY} datasqrl/acorn /config/analytics-agent/creditcard.openai.config.json /config/creditcard_analytics.graphqls
 ```
    * Replace `{ADD_YOUR_KEY}` with your OpenAI API key.
-   * To run the agent for the credit card rewards use case, replace the folder `analytics-agent` with `rewards-agent` and the GraphQL file `creditcard-analytics.graphqls` with `creditcard-rewards.graphqls`.
+   * To run the agent for the credit card rewards use case, replace the folder `analytics-agent` with `rewards-agent` and the GraphQL file `creditcard_analytics.graphqls` with `creditcard_rewards.graphqls`.
 2. Open the [data agent chat](http://localhost:8080/) and enter a customer id (1-9) to "log in" as that customer. Then ask away. Questions like "what credit card would you recommend for me?" or "How many rewards did I earn?" or "How many rewards could I have earned?"
 
 The example above uses OpenAI as the LLM model provider. To use a different LLM model provider, you can change the configuration file (i.e. the first argument that ends with `config.json`):

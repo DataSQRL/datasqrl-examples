@@ -1,0 +1,15 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "creditcard_analytics.sqrl",
+    "graphql": "creditcard_analytics.graphqls"
+  },
+  "dependencies": [{
+    "creditcard-data": {
+      "name": "creditcard-local",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

@@ -1,0 +1,29 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "kafka", "flink"],
+  "script": {
+    "main": "creditcard_analytics.sqrl",
+    "graphql": "creditcard_analytics.graphqls"
+  },
+  "engines": {
+    "flink": {
+      "connectors" : {
+        "iceberg" : {
+          "warehouse":"warehouse",
+          "catalog-type":"hadoop",
+          "catalog-name": "mydatabase"
+        }
+      },
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
+      }
+    }
+  },
+  "dependencies": [{
+    "creditcard-data": {
+      "name": "creditcard-local",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

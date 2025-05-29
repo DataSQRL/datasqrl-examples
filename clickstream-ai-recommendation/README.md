@@ -25,7 +25,7 @@ This version allows you to add content and clickstream data manually through a G
 
 Run the API version with this command:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c package-api.json
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c recommendation_package_api.json
 ```
 
 Next, open [GraphQL Explorer](http://localhost:8888/graphiql/) and add some content:
@@ -79,7 +79,7 @@ data through a Kafka connector.
 
 To run the pipeline:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c package-kafka.json
+docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c recommendation_package_kafka.json
 ```
 
 1. Once everything is started, open another terminal window to add data to Kafka using the

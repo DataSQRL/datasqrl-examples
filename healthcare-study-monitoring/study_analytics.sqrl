@@ -1,4 +1,4 @@
-IMPORT metrics-local.ClinicalIndicator AS _ClinicalIndicator;
+IMPORT metrics-testdata.ClinicalIndicator AS _ClinicalIndicator;
 IMPORT masterdata-local.* AS _CDC_;
 
 _SensorPlacements := DISTINCT _CDC_sensorplacements ON sensorId ORDER BY placedTimestamp DESC;

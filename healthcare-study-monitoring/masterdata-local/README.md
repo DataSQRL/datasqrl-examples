@@ -89,23 +89,3 @@ Sample Data:
 {"sensorId":16,"patientId":24,"metadataId":7,"eventId":"782f445d-a610-4cd4-b891-f94341516bf7","placedTimestamp":"2024-09-15T00:00:00Z"}
 {"sensorId":17,"patientId":23,"metadataId":10,"eventId":"35e05544-5a6f-43d7-8e6f-31a50f5851b6","placedTimestamp":"2024-09-15T00:00:00Z"}
 ```
-
-## How to use the data package with an example
-
-For a detailed explanation of how to work with this package, please refer to our comprehensive
-[Healthcare Study Monitoring](https://github.com/DataSQRL/datasqrl-examples/tree/main/healthcare-study-monitoring/README.md) tutorial.
-
-To apply it in your project, update the imports in the following files:
-
-**creditcard-rewards.sqrl:**
-```sql
-IMPORT metrics-local.ClinicalIndicator;
-IMPORT datasqrl.examples.medicalstudy.*;
-```
-
-**study-stream.sqrl:**
-```sql
-IMPORT metrics.ClinicalIndicator;
-IMPORT datasqrl.examples.medicalstudy.SensorPlacements;
-IMPORT datasqrl.examples.medicalstudy.Metadata;
-```
