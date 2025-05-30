@@ -1,0 +1,27 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "kafka-to-kafka.sqrl"
+  },
+  "values": {
+    "flink-config": {
+      "execution.checkpointing.interval": "1 min",
+      "table.exec.source.idle-timeout": "60 s"
+    }
+  },
+  "dependencies": [
+    {
+      "kafkasource": {
+        "name": "kafka-source",
+        "version": "1",
+        "variant": "dev"
+      },
+      "kafkasink": {
+      "name": "kafka-sink",
+      "version": "1",
+      "variant": "dev"
+      }
+    }
+  ]
+}

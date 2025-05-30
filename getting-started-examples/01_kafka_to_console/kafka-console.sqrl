@@ -1,0 +1,4 @@
+IMPORT kafka-source.Contact;
+
+-- Export the results to console (print)
+EXPORT Contact TO print.Contact;

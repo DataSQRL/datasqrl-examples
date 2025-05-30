@@ -1,0 +1,10 @@
+IMPORT kafkasource.Contact AS Contact;
+
+EnrichedContactAvro := SELECT
+  firstname,
+  lastname,
+  CAST(last_updated AS STRING) AS last_updated_str
+FROM Contact;
+
+EXPORT EnrichedContactAvro TO kafkasink.EnrichedContactAvro;
+

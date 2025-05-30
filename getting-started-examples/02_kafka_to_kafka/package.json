@@ -1,0 +1,25 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "kafka-test.sqrl"
+  },
+  "values" : {
+    "flink-config": {
+      "table.exec.source.idle-timeout": "60 s"
+    },
+    "create-topics" : ["contact","contactupdated"]
+  },
+  "dependencies": [{
+    "kafkasource": {
+      "name": "kafka-source",
+      "version": "1",
+      "variant": "dev"
+    },
+    "kafkasink": {
+      "name": "kafka-sink",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

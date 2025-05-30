@@ -1,0 +1,38 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "iceberg"],
+  "script": {
+    "main": "kafka-to-iceberg.sqrl"
+  },
+  "values": {
+    "LOCAL_WAREHOUSE_DIR": "/data/iceberg",
+    "flink-config": {
+      "execution.checkpointing.interval": "1 min",
+      "table.exec.source.idle-timeout": "60 s"
+    }
+  },
+  "engines": {
+    "flink": {
+      "connectors": {
+        "iceberg": {
+          "connector": "iceberg",
+          "warehouse": "${S3_WAREHOUSE_PATH}",
+          "catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
+          "io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+          "catalog-name": "NSCatalog",
+          "catalog-database": "nsdatabase",
+          "write.upsert.enabled": "true"
+        }
+      }
+    }
+  },
+  "dependencies": [
+    {
+      "kafka-source": {
+        "name": "kafka-source",
+        "version": "1",
+        "variant": "dev"
+      }
+    }
+  ]
+}
