@@ -16,9 +16,9 @@ Recommendation := SELECT beforeURL AS url, afterURL AS recommendation,
                   GROUP BY beforeURL, afterURL
                   ORDER BY url ASC, frequency DESC;
 
-IMPORT stdlib.openai.vector_embedd;
+IMPORT stdlib.openai.vector_embed;
 
-_ContentEmbedding := SELECT *, double_to_vector(vector_embedd(text, 'text-embedding-3-small')) AS embedding FROM Content;
+_ContentEmbedding := SELECT *, vector_embed(text, 'text-embedding-3-small') AS embedding FROM Content;
 
 EXPORT _ContentEmbedding TO logger.content;
 
