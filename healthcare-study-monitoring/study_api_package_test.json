@@ -13,12 +13,11 @@
   "test-runner": {
     "delay-sec": 200
   },
-  "dependencies": [
-  {
+  "dependencies": {
     "metrics": {
       "name": "metrics-testdata",
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }

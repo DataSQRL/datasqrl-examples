@@ -5,11 +5,11 @@
     "main": "creditcard_analytics.sqrl",
     "graphql": "creditcard_analytics.graphqls"
   },
-  "dependencies": [{
+  "dependencies": {
     "creditcard-data": {
       "name": "creditcard-testdata",
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }

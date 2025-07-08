@@ -15,11 +15,11 @@
   "values" : {
     "create-topics": ["transaction", "cardassignment","merchant","merchantreward"]
   },
-  "dependencies": [{
+  "dependencies": {
     "creditcard-data": {
       "name": "creditcard-kafka",
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }

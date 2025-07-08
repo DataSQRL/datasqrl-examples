@@ -10,18 +10,16 @@
       "table.exec.source.idle-timeout": "60 s"
     }
   },
-  "dependencies": [
-    {
-      "kafkasource": {
-        "name": "kafka-source",
-        "version": "1",
-        "variant": "dev"
-      },
-      "kafkasink": {
+  "dependencies": {
+    "kafkasource": {
+      "name": "kafka-source",
+      "version": "1",
+      "variant": "dev"
+    },
+    "kafkasink": {
       "name": "kafka-sink",
       "version": "1",
       "variant": "dev"
-      }
     }
-  ]
+  }
 }

@@ -21,11 +21,11 @@
   "test-runner": {
     "delay-sec": 120
   },
-  "dependencies": [{
+  "dependencies": {
     "creditcard-data": {
       "name": "creditcard-testdata",
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }

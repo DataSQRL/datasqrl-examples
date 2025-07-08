@@ -22,20 +22,16 @@
       }
     }
   },
-  "dependencies": [
-    {
-      "kafka-source": {
-        "name": "kafka-source",
-        "version": "1",
-        "variant": "dev"
-      }
+  "dependencies": {
+    "kafka-source": {
+      "name": "kafka-source",
+      "version": "1",
+      "variant": "dev"
     },
-    {
-      "iceberg-sink": {
-        "name": "iceberg-sink",
-        "version": "1",
-        "variant": "dev"
-      }
+    "iceberg-sink": {
+      "name": "iceberg-sink",
+      "version": "1",
+      "variant": "dev"
     }
-  ]
+  }
 }

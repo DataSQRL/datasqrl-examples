@@ -26,13 +26,11 @@
       }
     }
   },
-  "dependencies": [
-    {
-      "kafka-source": {
-        "name": "kafka-source",
-        "version": "1",
-        "variant": "dev"
-      }
+  "dependencies": {
+    "kafka-source": {
+      "name": "kafka-source",
+      "version": "1",
+      "variant": "dev"
     }
-  ]
+  }
 }

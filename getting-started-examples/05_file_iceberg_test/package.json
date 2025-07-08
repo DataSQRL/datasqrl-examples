@@ -22,11 +22,11 @@
       }
     }
   },
-  "dependencies": [{
+  "dependencies": {
     "file-data": {
       "name": "file-data",
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }

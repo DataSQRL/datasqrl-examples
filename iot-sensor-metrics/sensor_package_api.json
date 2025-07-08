@@ -11,11 +11,11 @@
       }
     }
   },
-  "dependencies": [{
+  "dependencies": {
     "sensor-data": {
       "name": "sensor-api",
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }

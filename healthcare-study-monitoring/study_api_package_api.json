@@ -10,12 +10,11 @@
       }
     }
   },
-  "dependencies": [
-    {
-      "metrics": {
-        "name": "metrics-api",
-        "version": "1",
-        "variant": "dev"
-      }
-    }]
+  "dependencies": {
+    "metrics": {
+      "name": "metrics-api",
+      "version": "1",
+      "variant": "dev"
+    }
+  }
 }

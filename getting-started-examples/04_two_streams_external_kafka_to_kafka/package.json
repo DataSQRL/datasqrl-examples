@@ -9,7 +9,7 @@
       "table.exec.source.idle-timeout": "60 s"
     }
   },
-  "dependencies": [{
+  "dependencies": {
     "kafkasource": {
       "name": "kafka-source",
       "version": "1",
@@ -20,5 +20,5 @@
       "version": "1",
       "variant": "dev"
     }
-  }]
+  }
 }
