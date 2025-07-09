@@ -11,13 +11,13 @@
     }
   },
   "test-runner": {
+    "snapshot-dir": "snapshots-study-api",
+    "test-dir": "tests-study-api",
     "delay-sec": 200
   },
   "dependencies": {
     "metrics": {
-      "name": "metrics-testdata",
-      "version": "1",
-      "variant": "dev"
+      "name": "metrics-testdata"
     }
   }
 }

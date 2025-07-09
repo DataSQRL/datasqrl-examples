@@ -14,12 +14,10 @@
   },
   "dependencies": {
     "content" : {
-      "name": "content-api",
-      "version": "1"
+      "name": "content-api"
     },
     "clickstream" : {
-      "name": "clickstream-api",
-      "version": "1"
+      "name": "clickstream-api"
     }
   }
 }

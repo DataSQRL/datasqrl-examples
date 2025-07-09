@@ -1,1 +1,28 @@
-{"data":{"AddReading1":{"temperature":13.5},"AddReading2":{"temperature":110.1},"AddReading3":{"temperature":88.5},"AddReading4":{"temperature":14.7},"AddReading5":{"temperature":100.4},"AddReading6":{"temperature":112.3},"AddReading7":{"temperature":12.7},"AddReading8":{"temperature":43.2}}}
+{
+  "data" : {
+    "AddReading1" : {
+      "temperature" : 13.5
+    },
+    "AddReading2" : {
+      "temperature" : 110.1
+    },
+    "AddReading3" : {
+      "temperature" : 88.5
+    },
+    "AddReading4" : {
+      "temperature" : 14.7
+    },
+    "AddReading5" : {
+      "temperature" : 100.4
+    },
+    "AddReading6" : {
+      "temperature" : 112.3
+    },
+    "AddReading7" : {
+      "temperature" : 12.7
+    },
+    "AddReading8" : {
+      "temperature" : 43.2
+    }
+  }
+}

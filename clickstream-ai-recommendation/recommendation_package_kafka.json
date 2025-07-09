@@ -3,7 +3,7 @@
     "main": "recommendation.sqrl"
   },
   "compiler" : {
-    "logger": "none"
+    "logger": "kafka"
   },
   "engines": {
     "flink" : {
@@ -12,17 +12,15 @@
       }
     }
   },
-  "values" : {
-    "create-topics": ["content", "clickstream"]
-  },
   "dependencies": {
     "content" : {
-      "name": "content-kafka",
-      "version": "1"
+      "name": "content-kafka"
     },
     "clickstream" : {
-      "name": "clickstream-kafka",
-      "version": "1"
+      "name": "clickstream-kafka"
     }
+  },
+  "test-runner": {
+    "create-topics": ["content", "clickstream"]
   }
 }

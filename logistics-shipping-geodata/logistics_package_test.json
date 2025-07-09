@@ -6,9 +6,7 @@
   },
   "dependencies": {
     "tables": {
-      "name": "testdata",
-      "version": "1",
-      "variant": "dev"
+      "name": "testdata"
     }
   }
 }

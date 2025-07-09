@@ -4,22 +4,22 @@
   "script": {
     "main": "kafka-test.sqrl"
   },
-  "values": {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "10000 ms"
-    },
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "10000 ms"
+      }
+    }
+  },
+  "test-runner": {
     "create-topics": ["contact", "organization", "enrichedcontact"]
   },
   "dependencies": {
     "kafkasource": {
-      "name": "kafka-source",
-      "version": "1",
-      "variant": "dev"
+      "name": "kafka-source"
     },
     "kafkasink": {
-      "name": "kafka-sink",
-      "version": "1",
-      "variant": "dev"
+      "name": "kafka-sink"
     }
   }
 }

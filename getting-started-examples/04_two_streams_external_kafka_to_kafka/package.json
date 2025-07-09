@@ -4,21 +4,19 @@
   "script": {
     "main": "kafka-test.sqrl"
   },
-  "values": {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "60 s"
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "60 s"
+      }
     }
   },
   "dependencies": {
     "kafkasource": {
-      "name": "kafka-source",
-      "version": "1",
-      "variant": "dev"
+      "name": "kafka-source"
     },
     "kafkasink": {
-      "name": "kafka-sink",
-      "version": "1",
-      "variant": "dev"
+      "name": "kafka-sink"
     }
   }
 }

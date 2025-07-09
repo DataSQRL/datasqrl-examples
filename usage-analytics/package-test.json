@@ -5,8 +5,7 @@
   },
   "dependencies": {
     "source-connector": {
-      "name": "test-connector",
-      "version": "1"
+      "name": "test-connector"
     }
   }
 }

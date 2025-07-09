@@ -12,9 +12,7 @@
   },
   "dependencies": {
     "metrics": {
-      "name": "metrics-api",
-      "version": "1",
-      "variant": "dev"
+      "name": "metrics-api"
     }
   }
 }

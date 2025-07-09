@@ -1,1 +1,8 @@
-{"data":{"SensorHighTempTest":[{"num":5,"avg_temp":106.0}]}}
+{
+  "data" : {
+    "SensorHighTempTest" : [ {
+      "num" : 5,
+      "avg_temp" : 106.0
+    } ]
+  }
+}

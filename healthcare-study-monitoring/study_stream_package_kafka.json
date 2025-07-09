@@ -11,24 +11,18 @@
       }
     }
   },
-  "values" : {
+  "test-runner" : {
     "create-topics" : ["indicators", "enrichedindicators"]
   },
   "dependencies": {
     "metrics" : {
-      "name": "metrics-kafka",
-      "version": "1",
-      "variant": "dev"
+      "name": "metrics-kafka"
     },
     "masterdata" : {
-      "name": "masterdata-local",
-      "version": "1",
-      "variant": "dev"
+      "name": "masterdata-local"
     },
     "sink" : {
-      "name": "sink-kafka",
-      "version": "1",
-      "variant": "dev"
+      "name": "sink-kafka"
     }
   }
 }

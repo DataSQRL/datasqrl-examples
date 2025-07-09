@@ -11,11 +11,12 @@
       }
     }
   },
+  "test-runner": {
+    "snapshot-dir": "snapshots-testdata"
+  },
   "dependencies": {
     "sensor-data": {
-      "name": "sensor-testdata",
-      "version": "1",
-      "variant": "dev"
+      "name": "sensor-testdata"
     }
   }
 }
