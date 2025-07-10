@@ -41,7 +41,7 @@ jobs:
               compile -c study_api_package_api.json
               compile -c study_api_package_test.json
               compile -c study_analytics_package_test.json
-            # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_package_snowflake.json
+              compile -c study_analytics_package_snowflake.json
           - example: healthcare-analytics
             path: healthcare-study-monitoring
             test_commands: |
