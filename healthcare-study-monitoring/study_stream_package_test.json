@@ -11,24 +11,19 @@
       }
     }
   },
+  "test-runner": {
+    "snapshot-dir": "snapshots-study-stream",
+    "delay-sec": 120
+  },
   "dependencies": {
     "metrics" : {
-      "name": "metrics-testdata",
-      "version": "1",
-      "variant": "dev"
+      "name": "metrics-testdata"
     },
     "masterdata" : {
-      "name": "masterdata-local",
-      "version": "1",
-      "variant": "dev"
+      "name": "masterdata-local"
     },
     "sink" : {
-      "name": "sink-local",
-      "version": "1",
-      "variant": "dev"
+      "name": "sink-local"
     }
-  },
-  "test-runner": {
-    "delay-sec": 120
   }
 }

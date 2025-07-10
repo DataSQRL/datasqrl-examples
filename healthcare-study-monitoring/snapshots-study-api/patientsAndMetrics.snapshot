@@ -1,1 +1,36 @@
-{"data":{"Patients":[{"name":"Taylor Kling","bloodGroup":"A-","dateOfBirth":"1984-10-02","diagnosis":"Down syndrome","metrics":[{"timeHour":"2024-09-16T11:59:59.999Z","metadataId":3,"name":"Arm numbness (paresthesias) Marker","avgMetric":66.10060308},{"timeHour":"2024-09-16T10:59:59.999Z","metadataId":3,"name":"Arm numbness (paresthesias) Marker","avgMetric":67.02037663},{"timeHour":"2024-09-16T09:59:59.999Z","metadataId":3,"name":"Arm numbness (paresthesias) Marker","avgMetric":66.35969065},{"timeHour":"2024-09-16T08:59:59.999Z","metadataId":3,"name":"Arm numbness (paresthesias) Marker","avgMetric":67.69669745},{"timeHour":"2024-09-16T07:59:59.999Z","metadataId":3,"name":"Arm numbness (paresthesias) Marker","avgMetric":65.89280589}]}]}}
+{
+  "data" : {
+    "Patients" : [ {
+      "name" : "Taylor Kling",
+      "bloodGroup" : "A-",
+      "dateOfBirth" : "1984-10-02",
+      "diagnosis" : "Down syndrome",
+      "metrics" : [ {
+        "timeHour" : "2024-09-16T11:59:59.999Z",
+        "metadataId" : 3,
+        "name" : "Arm numbness (paresthesias) Marker",
+        "avgMetric" : 66.10060308
+      }, {
+        "timeHour" : "2024-09-16T10:59:59.999Z",
+        "metadataId" : 3,
+        "name" : "Arm numbness (paresthesias) Marker",
+        "avgMetric" : 67.02037663
+      }, {
+        "timeHour" : "2024-09-16T09:59:59.999Z",
+        "metadataId" : 3,
+        "name" : "Arm numbness (paresthesias) Marker",
+        "avgMetric" : 66.35969065
+      }, {
+        "timeHour" : "2024-09-16T08:59:59.999Z",
+        "metadataId" : 3,
+        "name" : "Arm numbness (paresthesias) Marker",
+        "avgMetric" : 67.69669745
+      }, {
+        "timeHour" : "2024-09-16T07:59:59.999Z",
+        "metadataId" : 3,
+        "name" : "Arm numbness (paresthesias) Marker",
+        "avgMetric" : 65.89280589
+      } ]
+    } ]
+  }
+}

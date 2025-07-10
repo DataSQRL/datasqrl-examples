@@ -25,13 +25,13 @@ jobs:
             test_commands: |
               compile -c creditcard_rewards_package_test.json
               compile -c creditcard_rewards_package_kafka.json
-              test -c creditcard_rewards_package_test.json --snapshots snapshots-rewards
+              test -c creditcard_rewards_package_test.json
           - example: finance-analytics
             path: finance-credit-card-chatbot
             test_commands: |
               compile -c creditcard_analytics_package_test.json
               compile -c creditcard_analytics_package_kafka.json
-              test -c creditcard_analytics_package_test.json --snapshots snapshots-analytics
+              test -c creditcard_analytics_package_test.json
 
           - example: healthcare-compile
             path: healthcare-study-monitoring
@@ -45,35 +45,35 @@ jobs:
           - example: healthcare-analytics
             path: healthcare-study-monitoring
             test_commands: |
-              test -c study_analytics_package_test.json --snapshots snapshots-study-analytics
+              test -c study_analytics_package_test.json
           - example: healthcare-api
             path: healthcare-study-monitoring
             test_commands: |
-              test -c study_api_package_test.json --tests tests-study-api --snapshots snapshots-study-api
+              test -c study_api_package_test.json
           - example: healthcare-stream
             path: healthcare-study-monitoring
             test_commands: |
-              test -c study_stream_package_test.json --snapshots snapshots-study-stream
+              test -c study_stream_package_test.json
 
           - example: logistics
             path: logistics-shipping-geodata
             test_commands: |
               compile -c logistics_package_test.json
-              test -c logistics_package_test.json --snapshots snapshots
+              test -c logistics_package_test.json
 
           - example: iot-sensor
             path: iot-sensor-metrics
             test_commands: |
               compile -c sensor_package_api.json
               compile -c sensor_package_test.json
-              test -c sensor_package_test.json --snapshots snapshots-testdata
-              test -c sensor_package_api.json --tests test-api --snapshots snapshots-api
+              test -c sensor_package_test.json
+              test -c sensor_package_api.json
 
           - example: law
             path: law-enforcement
             test_commands: |
               compile -c baseball_card_package_test.json
-              test -c baseball_card_package_test.json --snapshots snapshots
+              test -c baseball_card_package_test.json
 
           - example: oil-gas
             path: oil-gas-agent-automation
@@ -86,11 +86,11 @@ jobs:
             path: usage-analytics
             test_commands: |
               compile -c package-test.json
-              test -c package-test.json --snapshots snapshots
+              test -c package-test.json
 
     env:
       TZ: 'America/Los_Angeles'
-      SQRL_VERSION: '0.6.1'
+      SQRL_VERSION: 'dev'
 
     steps:
     - uses: actions/checkout@v4

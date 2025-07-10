@@ -4,34 +4,27 @@
   "script": {
     "main": "kafka-to-iceberg.sqrl"
   },
-  "values": {
-    "LOCAL_WAREHOUSE_DIR": "/data/iceberg",
-    "flink-config": {
-      "execution.checkpointing.interval": "1 min",
-      "table.exec.source.idle-timeout": "60 s"
-    }
-  },
   "engines": {
     "flink": {
-      "connectors": {
-        "iceberg": {
-          "warehouse": "${LOCAL_WAREHOUSE_DIR}",
-          "catalog-type": "hadoop",
-          "catalog-name": "mycatalog"
-        }
+      "config": {
+        "execution.checkpointing.interval": "1 min",
+        "table.exec.source.idle-timeout": "60 s"
       }
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "/data/iceberg",
+      "catalog-type": "hadoop",
+      "catalog-name": "mycatalog"
     }
   },
   "dependencies": {
     "kafka-source": {
-      "name": "kafka-source",
-      "version": "1",
-      "variant": "dev"
+      "name": "kafka-source"
     },
     "iceberg-sink": {
-      "name": "iceberg-sink",
-      "version": "1",
-      "variant": "dev"
+      "name": "iceberg-sink"
     }
   }
 }

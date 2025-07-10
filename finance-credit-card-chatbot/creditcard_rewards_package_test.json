@@ -5,16 +5,15 @@
     "main": "creditcard_rewards.sqrl",
     "graphql": "creditcard_rewards.graphqls"
   },
+  "test-runner": {
+    "snapshot-dir": "snapshots-rewards"
+  },
   "dependencies": {
     "creditcard-data": {
-      "name": "creditcard-testdata",
-      "version": "1",
-      "variant": "dev"
+      "name": "creditcard-testdata"
     },
     "creditcard-sink": {
-      "name": "sink-test",
-      "version": "1",
-      "variant": "dev"
+      "name": "sink-test"
     }
   }
 }

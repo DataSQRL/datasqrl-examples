@@ -6,16 +6,16 @@
   },
   "engines": {
     "flink": {
-      "connectors" : {
-        "iceberg" : {
-          "warehouse":"warehouse",
-          "catalog-type":"hadoop",
-          "catalog-name": "mydatabase"
-        }
-      },
       "config" : {
         "table.exec.source.idle-timeout": "10 s"
       }
+    }
+  },
+  "connectors" : {
+    "iceberg" : {
+      "warehouse":"warehouse",
+      "catalog-type":"hadoop",
+      "catalog-name": "mydatabase"
     }
   },
   "test-runner": {
@@ -23,9 +23,7 @@
   },
   "dependencies": {
     "creditcard-data": {
-      "name": "creditcard-testdata",
-      "version": "1",
-      "variant": "dev"
+      "name": "creditcard-testdata"
     }
   }
 }

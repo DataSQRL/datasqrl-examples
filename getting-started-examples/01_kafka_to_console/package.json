@@ -4,17 +4,19 @@
   "script": {
     "main": "kafka-console.sqrl"
   },
-  "values" : {
-    "flink-config": {
-      "table.exec.source.idle-timeout": "60 s"
-    },
-    "create-topics" : ["contact","contact"]
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "60 s"
+      }
+    }
+  },
+  "test-runner": {
+    "create-topics": ["contact", "contact"]
   },
   "dependencies": {
     "metrics": {
-      "name": "kafka-source",
-      "version": "1",
-      "variant": "dev"
+      "name": "kafka-source"
     }
   }
 }

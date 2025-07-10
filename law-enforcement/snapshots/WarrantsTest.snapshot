@@ -1,1 +1,17 @@
-{"data":{"WarrantsTest":[{"warrant_status":"active","num_warrants":361},{"warrant_status":"closed","num_warrants":211},{"warrant_status":"suspended","num_warrants":202},{"warrant_status":"urgent","num_warrants":214}]}}
+{
+  "data" : {
+    "WarrantsTest" : [ {
+      "warrant_status" : "active",
+      "num_warrants" : 361
+    }, {
+      "warrant_status" : "closed",
+      "num_warrants" : 211
+    }, {
+      "warrant_status" : "suspended",
+      "num_warrants" : 202
+    }, {
+      "warrant_status" : "urgent",
+      "num_warrants" : 214
+    } ]
+  }
+}

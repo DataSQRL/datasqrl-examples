@@ -12,14 +12,12 @@
       }
     }
   },
-  "values" : {
+  "test-runner": {
     "create-topics": ["transaction", "cardassignment","merchant","merchantreward"]
   },
   "dependencies": {
     "creditcard-data": {
-      "name": "creditcard-kafka",
-      "version": "1",
-      "variant": "dev"
+      "name": "creditcard-kafka"
     }
   }
 }

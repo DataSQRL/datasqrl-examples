@@ -5,8 +5,7 @@
   },
   "dependencies": {
     "source-connector": {
-      "name": "api-connector",
-      "version": "1"
+      "name": "api-connector"
     }
   }
 }
