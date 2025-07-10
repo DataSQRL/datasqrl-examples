@@ -19,7 +19,7 @@
     }
   },
   "test-runner": {
-    "snapshot-dir": "snapshots-study-analaytics",
+    "snapshot-dir": "snapshots-study-analytics",
     "delay-sec": -1,
     "required-checkpoints": 2
   }
