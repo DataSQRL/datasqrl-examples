@@ -1,8 +1,7 @@
 {
   "version": "1",
-  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "sensors.sqrl"
+    "main": "study_api.sqrl"
   },
   "engines": {
     "flink" : {
@@ -12,12 +11,11 @@
     }
   },
   "test-runner": {
-    "snapshot-folder": "snapshots-api",
-    "test-folder": "tests-api"
+    "delay-sec": 200
   },
   "dependencies": {
-    "sensor-data": {
-      "name": "sensor-api"
+    "metrics": {
+      "folder": "metrics-testdata"
     }
   }
 }

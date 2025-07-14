@@ -21,38 +21,40 @@ jobs:
               compile -c recommendation_package_kafka.json
 
           - example: finance-rewards
-            path: finance-credit-card-chatbot
+            path: finance-credit-card-examples/finance-credit-card-rewards-example
+            tag: finance-credit-card-rewards-example
             test_commands: |
               compile -c creditcard_rewards_package_test.json
               compile -c creditcard_rewards_package_kafka.json
               test -c creditcard_rewards_package_test.json
           - example: finance-analytics
-            path: finance-credit-card-chatbot
+            path: finance-credit-card-examples/finance-credit-card-analytics-example
+            tag: finance-credit-card-analytics-example
             test_commands: |
               compile -c creditcard_analytics_package_test.json
               compile -c creditcard_analytics_package_kafka.json
               test -c creditcard_analytics_package_test.json
 
-          - example: healthcare-compile
-            path: healthcare-study-monitoring
+          - example: healthcare-analytics
+            path: healthcare-study-examples/healthcare-study-analytics-example
+            tag: healthcare-study-analytics-example
             test_commands: |
-              compile -c study_stream_package_test.json
-              compile -c study_stream_package_kafka.json
+              compile -c study_analytics_package_test.json
+              test -c study_analytics_package_test.json
+            # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_package_snowflake.json
+          - example: healthcare-api
+            path: healthcare-study-examples/healthcare-study-api-example
+            tag: healthcare-study-api-example
+            test_commands: |
               compile -c study_api_package_api.json
               compile -c study_api_package_test.json
-              compile -c study_analytics_package_test.json
-            # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_package_snowflake.json
-          - example: healthcare-analytics
-            path: healthcare-study-monitoring
-            test_commands: |
-              test -c study_analytics_package_test.json
-          - example: healthcare-api
-            path: healthcare-study-monitoring
-            test_commands: |
               test -c study_api_package_test.json
           - example: healthcare-stream
-            path: healthcare-study-monitoring
+            path: healthcare-study-examples/healthcare-study-stream-example
+            tag: healthcare-study-stream-example
             test_commands: |
+              compile -c study_stream_package_kafka.json
+              compile -c study_stream_package_test.json
               test -c study_stream_package_test.json
 
           - example: logistics
@@ -75,10 +77,15 @@ jobs:
               compile -c baseball_card_package_test.json
               test -c baseball_card_package_test.json
 
-          - example: oil-gas
-            path: oil-gas-agent-automation
+          - example: oil-gas-monitoring
+            path: oil-gas-agent-automation-examples/oil-gas-agent-monitoring-example
+            tag: oil-gas-agent-monitoring-example
             test_commands: |
               compile -c monitoring_agent_package_test.json
+          - example: oil-gas-operations
+            path: oil-gas-agent-automation-examples/oil-gas-agent-operations-example
+            tag: oil-gas-agent-operations-example
+            test_commands: |
               compile -c operations_agent_package_test.json
               test -c operations_agent_package_test.json
 
@@ -163,7 +170,7 @@ jobs:
         context: ./${{ matrix.path }}
         file: ./${{ matrix.path }}/Dockerfile
         push: true
-        tags: datasqrl/examples:${{ matrix.path }}
+        tags: datasqrl/examples:${{ matrix.tag && matrix.tag != '' && matrix.tag || matrix.path }}
         platforms: linux/amd64,linux/arm64
 
   ci-summary:

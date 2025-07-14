@@ -1,0 +1,80 @@
+{
+  "data" : {
+    "InvalidMetricTest" : [ {
+      "sensorId" : 35,
+      "time" : 1726448580000,
+      "metric" : -18.02896124,
+      "timestamp" : "2024-09-16T08:03:00.000Z",
+      "sensorId0" : 35,
+      "patientId" : 8,
+      "metadataId" : 20,
+      "eventId" : "9937b290-f7f8-495f-b63c-6398d200c3d7",
+      "placedTimestamp" : "2024-09-15T07:00:00.000Z",
+      "metadataId0" : 20,
+      "name" : "Pain in the ear Marker",
+      "lowRange" : 2,
+      "highRange" : 118,
+      "lastUpdated" : "2024-09-15T07:00:00.000Z"
+    }, {
+      "sensorId" : 14,
+      "time" : 1726452960000,
+      "metric" : -0.42880497,
+      "timestamp" : "2024-09-16T09:16:00.000Z",
+      "sensorId0" : 14,
+      "patientId" : 10,
+      "metadataId" : 12,
+      "eventId" : "449e2b9c-d68b-4d9f-afc9-328b7ca142c9",
+      "placedTimestamp" : "2024-09-15T07:00:00.000Z",
+      "metadataId0" : 12,
+      "name" : "Mouth ulcers Marker",
+      "lowRange" : 1,
+      "highRange" : 35,
+      "lastUpdated" : "2024-09-15T07:00:00.000Z"
+    }, {
+      "sensorId" : 27,
+      "time" : 1726456080000,
+      "metric" : -2.10630192,
+      "timestamp" : "2024-09-16T10:08:00.000Z",
+      "sensorId0" : 27,
+      "patientId" : 13,
+      "metadataId" : 6,
+      "eventId" : "33559ac7-1d71-48de-bee2-e77ed1f1e420",
+      "placedTimestamp" : "2024-09-15T07:00:00.000Z",
+      "metadataId0" : 6,
+      "name" : "Vomiting coffee ground material Marker",
+      "lowRange" : 9,
+      "highRange" : 107,
+      "lastUpdated" : "2024-09-15T07:00:00.000Z"
+    }, {
+      "sensorId" : 34,
+      "time" : 1726458540000,
+      "metric" : -0.12347204,
+      "timestamp" : "2024-09-16T10:49:00.000Z",
+      "sensorId0" : 34,
+      "patientId" : 14,
+      "metadataId" : 13,
+      "eventId" : "0b1f82a6-8fab-4db8-a669-20724a61caba",
+      "placedTimestamp" : "2024-09-15T07:00:00.000Z",
+      "metadataId0" : 13,
+      "name" : "Pain in the ear Marker",
+      "lowRange" : 0,
+      "highRange" : 2,
+      "lastUpdated" : "2024-09-15T07:00:00.000Z"
+    }, {
+      "sensorId" : 36,
+      "time" : 1726462860000,
+      "metric" : -0.00271993,
+      "timestamp" : "2024-09-16T12:01:00.000Z",
+      "sensorId0" : 36,
+      "patientId" : 28,
+      "metadataId" : 13,
+      "eventId" : "89c197c0-8fd1-4295-84fa-50ed69c834aa",
+      "placedTimestamp" : "2024-09-15T07:00:00.000Z",
+      "metadataId0" : 13,
+      "name" : "Pain in the ear Marker",
+      "lowRange" : 0,
+      "highRange" : 2,
+      "lastUpdated" : "2024-09-15T07:00:00.000Z"
+    } ]
+  }
+}

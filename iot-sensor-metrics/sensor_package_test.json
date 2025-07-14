@@ -12,7 +12,7 @@
     }
   },
   "test-runner": {
-    "snapshot-dir": "snapshots-testdata"
+    "snapshot-folder": "snapshots-testdata"
   },
   "dependencies": {
     "sensor-data": {

@@ -2,22 +2,13 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "sensors.sqrl"
+    "main": "operations_agent.sqrl"
   },
   "engines": {
     "flink" : {
       "config" : {
         "table.exec.source.idle-timeout": "1 s"
       }
-    }
-  },
-  "test-runner": {
-    "snapshot-folder": "snapshots-api",
-    "test-folder": "tests-api"
-  },
-  "dependencies": {
-    "sensor-data": {
-      "name": "sensor-api"
     }
   }
 }
