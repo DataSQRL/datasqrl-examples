@@ -11,8 +11,6 @@
     }
   },
   "test-runner": {
-    "snapshot-folder": "snapshots-study-api",
-    "test-folder": "tests-study-api",
     "delay-sec": 200
   },
   "dependencies": {

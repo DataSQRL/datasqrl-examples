@@ -19,7 +19,6 @@
     }
   },
   "test-runner": {
-    "snapshot-folder": "snapshots-study-analytics",
     "delay-sec": -1,
     "required-checkpoints": 2
   }
