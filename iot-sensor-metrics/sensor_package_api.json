@@ -12,8 +12,8 @@
     }
   },
   "test-runner": {
-    "snapshot-dir": "snapshots-api",
-    "test-dir": "tests-api"
+    "snapshot-folder": "snapshots-api",
+    "test-folder": "tests-api"
   },
   "dependencies": {
     "sensor-data": {

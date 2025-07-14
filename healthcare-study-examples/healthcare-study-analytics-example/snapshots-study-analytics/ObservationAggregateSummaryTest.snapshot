@@ -1,0 +1,45 @@
+{
+  "data" : {
+    "ObservationAggregateSummaryTest" : [ {
+      "groupId" : 1,
+      "metadataId" : 1,
+      "num" : 5
+    }, {
+      "groupId" : 1,
+      "metadataId" : 2,
+      "num" : 5
+    }, {
+      "groupId" : 1,
+      "metadataId" : 3,
+      "num" : 5
+    }, {
+      "groupId" : 1,
+      "metadataId" : 5,
+      "num" : 5
+    }, {
+      "groupId" : 1,
+      "metadataId" : 9,
+      "num" : 5
+    }, {
+      "groupId" : 1,
+      "metadataId" : 12,
+      "num" : 5
+    }, {
+      "groupId" : 1,
+      "metadataId" : 17,
+      "num" : 5
+    }, {
+      "groupId" : 1,
+      "metadataId" : 20,
+      "num" : 5
+    }, {
+      "groupId" : 2,
+      "metadataId" : 1,
+      "num" : 5
+    }, {
+      "groupId" : 2,
+      "metadataId" : 2,
+      "num" : 5
+    } ]
+  }
+}

@@ -10,8 +10,5 @@
         "table.exec.source.idle-timeout": "1 s"
       }
     }
-  },
-  "test-runner": {
-    "snapshot-dir": "snapshots-operations-agent"
   }
 }

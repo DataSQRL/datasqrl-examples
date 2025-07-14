@@ -1,16 +1,16 @@
 type AddClinicalData {
-  sensorId: GraphQLBigInteger!
+  sensorId: Long!
   metric: Float!
   timestamp: DateTime!
 }
 
 input AddClinicalDataInput {
-  sensorId: GraphQLBigInteger!
+  sensorId: Long!
   metric: Float!
 }
 
 type AddClinicalDataResultOutput {
-  sensorId: GraphQLBigInteger!
+  sensorId: Long!
   metric: Float!
   timestamp: DateTime!
 }
@@ -18,19 +18,19 @@ type AddClinicalDataResultOutput {
 "An RFC-3339 compliant DateTime Scalar"
 scalar DateTime
 
-"An arbitrary precision signed integer"
-scalar GraphQLBigInteger
+"A 64-bit signed integer"
+scalar Long
 
 type IndicatorAlerts {
-  sensorId: GraphQLBigInteger!
+  sensorId: Long!
   metric: Float!
   timestamp: DateTime!
-  sensorId0: GraphQLBigInteger!
-  patientId: GraphQLBigInteger!
-  metadataId: GraphQLBigInteger!
+  sensorId0: Long!
+  patientId: Long!
+  metadataId: Long!
   eventId: String!
   placedTimestamp: DateTime!
-  metadataId0: GraphQLBigInteger!
+  metadataId0: Long!
   name: String!
   lowRange: Float!
   highRange: Float!
@@ -42,16 +42,16 @@ type Mutation {
 }
 
 type PatientMetricsHourly {
-  patientId: GraphQLBigInteger!
+  patientId: Long!
   timeHour: DateTime!
-  metadataId: GraphQLBigInteger!
+  metadataId: Long!
   name: String!
   avgMetric: Float!
 }
 
 type Patients {
-  patientId: GraphQLBigInteger!
-  studyId: GraphQLBigInteger!
+  patientId: Long!
+  studyId: Long!
   name: String!
   bloodGroup: String
   dateOfBirth: String
@@ -62,7 +62,7 @@ type Patients {
 
 type Query {
   AddClinicalData(limit: Int = 10, offset: Int = 0): [AddClinicalData!]
-  Patients(patientId: GraphQLBigInteger!, limit: Int = 10, offset: Int = 0): [Patients!]
+  Patients(patientId: Long!, limit: Int = 10, offset: Int = 0): [Patients!]
   PatientsByName(name: String!, limit: Int = 10, offset: Int = 0): [Patients!]
 }
 

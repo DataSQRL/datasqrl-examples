@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "script": {
+    "main": "study_api.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  },
+  "dependencies": {
+    "metrics": {
+      "name": "metrics-api"
+    }
+  }
+}

@@ -5,6 +5,7 @@ h2.db.mv.db
 cache
 .project
 */myenv
+warehouse
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/python

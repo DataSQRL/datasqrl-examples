@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "name": "measurements",
+  "namespace": "com.datasqrl.examples.healthcare",
+  "fields": [
+    {
+      "name": "sensorId",
+      "type": "long"
+    },
+    {
+      "name": "time",
+      "type": "long"
+    },
+    {
+      "name": "metric",
+      "type": "double"
+    }
+  ]
+}

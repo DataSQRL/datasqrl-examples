@@ -1,0 +1,35 @@
+{
+  "data" : {
+    "IndicatorAlertsTest" : [ {
+      "sensorId" : 1,
+      "numAlerts" : 1
+    }, {
+      "sensorId" : 2,
+      "numAlerts" : 1
+    }, {
+      "sensorId" : 3,
+      "numAlerts" : 2
+    }, {
+      "sensorId" : 6,
+      "numAlerts" : 2
+    }, {
+      "sensorId" : 7,
+      "numAlerts" : 2
+    }, {
+      "sensorId" : 9,
+      "numAlerts" : 1
+    }, {
+      "sensorId" : 10,
+      "numAlerts" : 3
+    }, {
+      "sensorId" : 11,
+      "numAlerts" : 2
+    }, {
+      "sensorId" : 12,
+      "numAlerts" : 2
+    }, {
+      "sensorId" : 13,
+      "numAlerts" : 1
+    } ]
+  }
+}
