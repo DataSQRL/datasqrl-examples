@@ -1,0 +1,26 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "kafka", "flink"],
+  "script": {
+    "main": "creditcard_analytics.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config" : {
+        "table.exec.source.idle-timeout": "10 s"
+      }
+    }
+  },
+  "connectors" : {
+    "iceberg" : {
+      "warehouse":"warehouse",
+      "catalog-type":"hadoop",
+      "catalog-name": "mydatabase"
+    }
+  },
+  "dependencies": {
+    "creditcard-data": {
+      "folder": "creditcard-testdata"
+    }
+  }
+}

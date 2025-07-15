@@ -1,5 +1,5 @@
 /*+no_query */
-IMPORT source-connector.UserTokens;
+IMPORT usertokens.UserTokens;
 
 _TokenUsageHourWindow := SELECT userid, window_start, window_end, window_time,
                                 SUM(tokens) AS total_tokens

@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "file-data": {
-      "name": "file-data"
+      "folder": "file-data"
     }
   }
 }

@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "content" : {
-      "name": "content-kafka"
+      "folder": "content-kafka"
     },
     "clickstream" : {
-      "name": "clickstream-kafka"
+      "folder": "clickstream-kafka"
     }
   },
   "test-runner": {

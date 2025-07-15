@@ -1,0 +1,19 @@
+query {
+  RewardsByDay {
+    customerId
+    timeDay
+    total_reward
+  }
+  PotentialRewardsByDay {
+    customerId
+    cardType
+    timeDay
+    total_reward
+  }
+  TotalPotentialReward {
+    customerId
+    cardType
+    total_reward
+    since_time
+  }
+}

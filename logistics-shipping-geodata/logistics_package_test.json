@@ -5,8 +5,8 @@
     "graphql": "logistics.graphqls"
   },
   "dependencies": {
-    "tables": {
-      "name": "testdata"
+    "shipping-data": {
+      "folder": "shipping-testdata"
     }
   }
 }

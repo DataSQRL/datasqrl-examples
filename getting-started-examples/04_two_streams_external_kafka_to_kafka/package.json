@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "kafkasource": {
-      "name": "kafka-source"
+      "folder": "kafka-source"
     },
     "kafkasink": {
-      "name": "kafka-sink"
+      "folder": "kafka-sink"
     }
   }
 }

@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "sensors.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots-testdata"
+  },
+  "dependencies": {
+    "sensors": {
+      "folder": "sensors-testdata"
+    }
+  }
+}

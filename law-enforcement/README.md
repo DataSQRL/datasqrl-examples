@@ -5,7 +5,8 @@ This example demonstrates how to consume law enforcement data from multiple sour
 * Databases for Driver and Vehicle information
 * Data streams for issued warrants and bolos ("be on the lookout")
 
-The SQRL script consumes and integrates that information to produce a comprehensive overview of all relevant information that an officer might need for a traffic stop or to look up a person of interest.
+The SQRL script consumes and integrates that information to produce a comprehensive overview of all relevant information
+that an officer might need for a traffic stop or to look up a person of interest.
 
 The SQRL script also produces relevant analytics on the issued warrants and bolos.
 

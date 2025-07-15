@@ -1,0 +1,67 @@
+{
+  "data" : {
+    "RewardsByDay" : [ {
+      "customerId" : 2,
+      "timeDay" : "2024-06-04T13:59:59.999Z",
+      "total_reward" : 332.3525
+    }, {
+      "customerId" : 2,
+      "timeDay" : "2024-06-01T13:59:59.999Z",
+      "total_reward" : 56.986
+    }, {
+      "customerId" : 2,
+      "timeDay" : "2024-05-31T13:59:59.999Z",
+      "total_reward" : 21.9055
+    }, {
+      "customerId" : 2,
+      "timeDay" : "2024-05-30T13:59:59.999Z",
+      "total_reward" : 273.6605
+    }, {
+      "customerId" : 2,
+      "timeDay" : "2024-05-27T13:59:59.999Z",
+      "total_reward" : 111.336
+    } ],
+    "PotentialRewardsByDay" : [ {
+      "customerId" : 2,
+      "cardType" : "business",
+      "timeDay" : "2024-06-04T13:59:59.999Z",
+      "total_reward" : 69.9155
+    }, {
+      "customerId" : 2,
+      "cardType" : "sports",
+      "timeDay" : "2024-06-04T13:59:59.999Z",
+      "total_reward" : 345.6275
+    }, {
+      "customerId" : 2,
+      "cardType" : "travel",
+      "timeDay" : "2024-06-04T13:59:59.999Z",
+      "total_reward" : 362.2605
+    }, {
+      "customerId" : 2,
+      "cardType" : "sports",
+      "timeDay" : "2024-06-03T13:59:59.999Z",
+      "total_reward" : 294.743
+    }, {
+      "customerId" : 2,
+      "cardType" : "travel",
+      "timeDay" : "2024-06-03T13:59:59.999Z",
+      "total_reward" : 422.233
+    } ],
+    "TotalPotentialReward" : [ {
+      "customerId" : 2,
+      "cardType" : "travel",
+      "total_reward" : 3917.284,
+      "since_time" : "2024-03-17T07:37:58.986Z"
+    }, {
+      "customerId" : 2,
+      "cardType" : "sports",
+      "total_reward" : 4956.827,
+      "since_time" : "2024-03-17T07:37:58.986Z"
+    }, {
+      "customerId" : 2,
+      "cardType" : "business",
+      "total_reward" : 755.89,
+      "since_time" : "2024-04-16T17:47:43.501Z"
+    } ]
+  }
+}

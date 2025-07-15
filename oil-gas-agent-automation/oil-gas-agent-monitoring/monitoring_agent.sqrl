@@ -1,0 +1,48 @@
+IMPORT oilgas-data.Assets AS _AssetUpdates;
+IMPORT oilgas-data.Maintenance AS _MaintenanceUpdates;
+IMPORT oilgas-data.Measurement AS _Measurement;
+IMPORT oilgas-data.FlowRate;
+
+/**
+  Returns information about the well/asset including it's maintenance records, manual,
+  description, and other important information.
+ */
+/*+query_by_all(asset_id) */
+Assets := DISTINCT _AssetUpdates ON asset_id ORDER BY lastUpdated DESC;
+/*+no_query */
+Maintenance := DISTINCT _MaintenanceUpdates ON work_order_id ORDER BY lastUpdated DESC;
+Assets.maintenance := SELECT * FROM Maintenance m WHERE this.asset_id = m.asset_id ORDER BY m.lastUpdated DESC;
+
+/**
+  Returns all FlowRate readings within the provided [minRate,maxRate] interval across
+  all assets.
+ */
+FlowRateByRange(minRate DOUBLE NOT NULL, maxRate DOUBLE NOT NULL) := SELECT * FROM FlowRate
+        WHERE flowrate >= :minRate AND flowrate <= :maxRate ORDER BY event_time DESC LIMIT 100;
+
+/**
+  Returns the average/maximum pressure and average temperature for a given asset
+  for minute time intervals
+ */
+/*+query_by_all(assetId) */
+PressureByMinute := SELECT assetId, window_time AS timestamp_min,
+                             AVG(pressure_psi) AS avg_pressure_psi,
+                             MAX(pressure_psi) AS max_pressure_psi,
+                             AVG(temperature_f) AS avg_temperature_f
+                    FROM TABLE(TUMBLE(TABLE _Measurement, DESCRIPTOR(`timestamp`), INTERVAL '1' MINUTE))
+                    GROUP BY assetId, window_start, window_end, window_time
+                    ORDER BY window_time DESC;
+
+/**
+  Returns the average/maximum flow rate for a given asset for minute time intervals
+ */
+/*+query_by_all(assetId) */
+FlowrateByMinute := SELECT assetId, window_time AS timestamp_min,
+                           AVG(flowrate) AS avg_flowrate,
+                           MAX(flowrate) AS max_flowrate
+                    FROM TABLE(TUMBLE(TABLE FlowRate, DESCRIPTOR(`event_time`), INTERVAL '1' MINUTE))
+                    GROUP BY assetId, window_start, window_end, window_time
+                    ORDER BY window_time DESC;
+
+Assets.flowrate := SELECT * FROM FlowrateByMinute f WHERE this.asset_id = f.assetId ORDER BY timestamp_min DESC;
+Assets.pressure := SELECT * FROM PressureByMinute p WHERE this.asset_id = p.assetId ORDER BY timestamp_min DESC;

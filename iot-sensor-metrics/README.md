@@ -8,15 +8,15 @@ Specifically, this API collects the temperature readings of sensors.
 To run the API, execute
 
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c sensor_package_api.json
-```
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c sensors_package_api.json
+``s`
 
 To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/graphiql/) to access the API.
 
 ## Run the Tests
 
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest test -c sensor_package_test.json
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest test -c sensors_package_test.json
 ```
 
 ## Add Temperature Readings to Running API

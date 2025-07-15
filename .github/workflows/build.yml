@@ -20,42 +20,62 @@ jobs:
               compile -c recommendation_package_api.json
               compile -c recommendation_package_kafka.json
 
-          - example: finance-rewards
-            path: finance-credit-card-examples/finance-credit-card-rewards-example
-            tag: finance-credit-card-rewards-example
-            test_commands: |
-              compile -c creditcard_rewards_package_test.json
-              compile -c creditcard_rewards_package_kafka.json
-              test -c creditcard_rewards_package_test.json
-          - example: finance-analytics
-            path: finance-credit-card-examples/finance-credit-card-analytics-example
-            tag: finance-credit-card-analytics-example
+          - example: credit-card-analytics
+            path: finance-credit-card-chatbot/credit-card-analytics
+            tag: credit-card-analytics
             test_commands: |
               compile -c creditcard_analytics_package_test.json
               compile -c creditcard_analytics_package_kafka.json
               test -c creditcard_analytics_package_test.json
+          - example: credit-card-rewards
+            path: finance-credit-card-chatbot/credit-card-rewards
+            tag: credit-card-rewards
+            test_commands: |
+              compile -c creditcard_rewards_package_test.json
+              compile -c creditcard_rewards_package_kafka.json
+              test -c creditcard_rewards_package_test.json
+          - example: credit-card-views
+            path: finance-credit-card-chatbot/credit-card-views
+            tag: credit-card-views
+            test_commands: |
+              compile -c creditcard_views_package_test.json
+            # FIXME test -c creditcard_views_package_test.json
 
-          - example: healthcare-analytics
-            path: healthcare-study-examples/healthcare-study-analytics-example
-            tag: healthcare-study-analytics-example
+          - example: healthcare-study-analytics
+            path: healthcare-study/healthcare-study-analytics
+            tag: healthcare-study-analytics
             test_commands: |
               compile -c study_analytics_package_test.json
               test -c study_analytics_package_test.json
             # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_package_snowflake.json
-          - example: healthcare-api
-            path: healthcare-study-examples/healthcare-study-api-example
-            tag: healthcare-study-api-example
+          - example: healthcare-study-api
+            path: healthcare-study/healthcare-study-api
+            tag: healthcare-study-api
             test_commands: |
               compile -c study_api_package_api.json
               compile -c study_api_package_test.json
               test -c study_api_package_test.json
-          - example: healthcare-stream
-            path: healthcare-study-examples/healthcare-study-stream-example
-            tag: healthcare-study-stream-example
+          - example: healthcare-study-stream
+            path: healthcare-study/healthcare-study-stream
+            tag: healthcare-study-stream
             test_commands: |
               compile -c study_stream_package_kafka.json
               compile -c study_stream_package_test.json
               test -c study_stream_package_test.json
+
+          - example: iot-sensor
+            path: iot-sensor-metrics
+            test_commands: |
+              compile -c sensors_package_api.json
+              compile -c sensors_package_test.json
+              test -c sensors_package_test.json
+              test -c sensors_package_api.json
+
+          - example: law-enforcement
+            path: law-enforcement
+            test_commands: |
+              compile -c baseball_card_package_test.json
+              test -c baseball_card_package_test.json
 
           - example: logistics
             path: logistics-shipping-geodata
@@ -63,28 +83,14 @@ jobs:
               compile -c logistics_package_test.json
               test -c logistics_package_test.json
 
-          - example: iot-sensor
-            path: iot-sensor-metrics
-            test_commands: |
-              compile -c sensor_package_api.json
-              compile -c sensor_package_test.json
-              test -c sensor_package_test.json
-              test -c sensor_package_api.json
-
-          - example: law
-            path: law-enforcement
-            test_commands: |
-              compile -c baseball_card_package_test.json
-              test -c baseball_card_package_test.json
-
           - example: oil-gas-monitoring
-            path: oil-gas-agent-automation-examples/oil-gas-agent-monitoring-example
-            tag: oil-gas-agent-monitoring-example
+            path: oil-gas-agent-automation/oil-gas-agent-monitoring
+            tag: oil-gas-agent-monitoring
             test_commands: |
               compile -c monitoring_agent_package_test.json
           - example: oil-gas-operations
-            path: oil-gas-agent-automation-examples/oil-gas-agent-operations-example
-            tag: oil-gas-agent-operations-example
+            path: oil-gas-agent-automation/oil-gas-agent-operations
+            tag: oil-gas-agent-operations
             test_commands: |
               compile -c operations_agent_package_test.json
               test -c operations_agent_package_test.json
@@ -92,8 +98,8 @@ jobs:
           - example: usage-analytics
             path: usage-analytics
             test_commands: |
-              compile -c package-test.json
-              test -c package-test.json
+              compile -c usertokens_package_test.json
+              test -c usertokens_package_test.json
 
     env:
       TZ: 'America/Los_Angeles'

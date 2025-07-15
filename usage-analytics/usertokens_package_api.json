@@ -1,0 +1,11 @@
+{
+  "version": "1",
+  "script": {
+    "main": "usertokens.sqrl"
+  },
+  "dependencies": {
+    "usertokens": {
+      "folder": "usertokens-api"
+    }
+  }
+}

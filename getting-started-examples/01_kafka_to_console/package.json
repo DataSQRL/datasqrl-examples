@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "metrics": {
-      "name": "kafka-source"
+      "folder": "kafka-source"
     }
   }
 }

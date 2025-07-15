@@ -1,0 +1,20 @@
+{
+  "data" : {
+    "TotalPotentialReward" : [ {
+      "customerId" : 9,
+      "cardType" : "travel",
+      "total_reward" : 2478.6675,
+      "since_time" : "2024-03-19T17:51:08.386Z"
+    }, {
+      "customerId" : 9,
+      "cardType" : "sports",
+      "total_reward" : 3837.0825,
+      "since_time" : "2024-03-19T17:51:08.386Z"
+    }, {
+      "customerId" : 9,
+      "cardType" : "business",
+      "total_reward" : 745.593,
+      "since_time" : "2024-04-17T11:51:56.342Z"
+    } ]
+  }
+}

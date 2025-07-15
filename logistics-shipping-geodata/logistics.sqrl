@@ -1,10 +1,10 @@
-IMPORT tables.Customer AS _CustomerUpdates;
-IMPORT tables.Shipment  AS _ShipmentUpdates;
-IMPORT tables.Vehicle AS _VehicleUpdates;
+IMPORT shipping-data.Customer AS _CustomerUpdates;
+IMPORT shipping-data.Shipment  AS _ShipmentUpdates;
+IMPORT shipping-data.Vehicle AS _VehicleUpdates;
 /*+no_query */
-IMPORT tables.Shipment_Location;
+IMPORT shipping-data.Shipment_Location;
 /*+no_query */
-IMPORT tables.Vehicle_Status;
+IMPORT shipping-data.Vehicle_Status;
 
 -- Turn the Customer and Shipment CDC change streams to a state tables.
 /*+query_by_any(id, email) */
