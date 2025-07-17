@@ -26,14 +26,14 @@ jobs:
             test_commands: |
               compile -c creditcard_analytics_package_test.json
               compile -c creditcard_analytics_package_kafka.json
-              test -c creditcard_analytics_package_test.json
+              test -c creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json
           - example: credit-card-rewards
             path: finance-credit-card-chatbot/credit-card-rewards
             tag: credit-card-rewards
             test_commands: |
               compile -c creditcard_rewards_package_test.json
               compile -c creditcard_rewards_package_kafka.json
-              test -c creditcard_rewards_package_test.json
+              test -c creditcard_rewards_package_test.json creditcard_rewards_package_jwt.json
           - example: credit-card-views
             path: finance-credit-card-chatbot/credit-card-views
             tag: credit-card-views

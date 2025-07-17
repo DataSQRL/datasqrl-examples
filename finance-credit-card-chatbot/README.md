@@ -21,8 +21,9 @@ package JSON filename) - the instructions are otherwise identical.
 
 ## 1. Run the API with File data source
 
-To run this example, invoke the following command in this directory on Unix based systems to compile the project
+To run this example, invoke the following command in the example directory on Unix based systems to compile the project:
 ```bash
+cd credit-card-analytics
 docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_test.json
 ```
 
@@ -38,8 +39,9 @@ most production use cases need to ingest data from an external data source like 
 
 To use Kafka as the data source, follow these steps:
 
-Invoke the following command in this directory:
+Invoke the following command in the example directory:
 ```bash
+cd credit-card-analytics
 docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_kafka.json
 ```
 
@@ -66,7 +68,18 @@ You can adjust the time windows or keep loading data for a long time ;-).
 
 When you are done, you can stop the pipeline by hitting CTRL-C.
 
-## 3. Run the MCP Inspector
+## 3. Securing the API endpoints
+
+To secure the public API endpoints, both examples include a JWT-specific package configuration that can be combined with
+any of the main package configurations to secure the endpoints, regardless of other data source–specific configuration files.
+
+For example, to secure the API with the File data source, invoke the following command in the specific example directory:
+```bash
+cd credit-card-analytics
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json 
+```
+
+## 4. Run the MCP Inspector
 
 Both use cases can utilize the MCP inspector. If API is running, open a new terminal and invoke the following command:
 ```bash
