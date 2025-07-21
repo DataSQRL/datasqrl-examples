@@ -1,0 +1,37 @@
+IMPORT study.* AS _CDC_;
+/*+no_query */
+IMPORT metrics.ClinicalIndicator AS AddClinicalData;
+
+_ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM AddClinicalData;
+
+_SensorPlacements := DISTINCT _CDC_sensorplacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata := DISTINCT _CDC_metadata ON metadataId ORDER BY lastUpdated DESC;
+
+_EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
+          JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
+          JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
+
+IndicatorAlerts := SUBSCRIBE SELECT * FROM _EnrichedIndicators
+    WHERE metric < lowRange OR metric > highRange;
+
+/*+test */
+IndicatorAlertsTest := SELECT sensorId, COUNT(metric) AS numAlerts FROM IndicatorAlerts
+                       GROUP BY sensorId ORDER BY sensorId ASC;
+
+EXPORT IndicatorAlerts TO logger.Alert;
+
+/*+no_query */
+PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, name,
+                         avg(metric) as avgMetric
+            FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
+            GROUP BY patientId, metadataId, name, window_start, window_end, window_time;
+
+/*+test */
+PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetricsHourly
+                            WHERE patientId = 5 ORDER BY timeHour DESC, name ASC;
+
+/*+query_by_any(patientId) */
+Patients := DISTINCT _CDC_patients ON patientId ORDER BY lastUpdated DESC;
+Patients.metrics := SELECT * FROM PatientMetricsHourly m WHERE m.patientId = this.patientId ORDER BY m.timeHour DESC, m.name ASC;
+
+PatientsByName(name STRING NOT NULL) := SELECT * FROM Patients WHERE name = :name;

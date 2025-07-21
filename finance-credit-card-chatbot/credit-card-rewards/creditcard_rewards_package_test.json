@@ -1,0 +1,38 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "creditcard_rewards.sqrl"
+  },
+  "engines" : {
+    "vertx" : {
+      "authKind": "JWT",
+      "config": {
+        "jwtAuth": {
+          "pubSecKeys": [
+            {
+              "algorithm": "HS256",
+              "buffer": "ZHVtbXktc3VwZXItc2VjcmV0LWp3dC1zaWduaW5nLXN0cmluZw=="
+            }
+          ],
+          "jwtOptions": {
+            "issuer": "dummy-issuer",
+            "audience": ["dummy-audience"],
+            "expiresInSeconds": "3600",
+            "leeway": "60"
+          }
+        }
+      }
+    }
+  },
+  "test-runner": {
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkdW1teS1pc3N1ZXIiLCJhdWQiOlsiZHVtbXktYXVkaWVuY2UiXSwiZXhwIjo5OTk5OTk5OTk5LCJjdXN0b21lcklkIjo5fQ.EQXSynp-Hdee4TESpfL2sx5QU6uyuniNzA-dYuOqpaY"
+    }
+  },
+  "dependencies": {
+    "creditcard-data": {
+      "folder": "creditcard-testdata"
+    }
+  }
+}

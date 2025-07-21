@@ -1,5 +1,5 @@
 /*+no_query*/
-IMPORT sensor-data.AddReadings AS SensorReading;
+IMPORT sensors.AddReadings AS SensorReading;
 
 /**
  Returns all sensor temperature readings above the given temperature

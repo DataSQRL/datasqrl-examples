@@ -1,0 +1,52 @@
+/* Import Data */
+IMPORT creditcard-data.Merchant AS _MerchantStream;
+IMPORT creditcard-data.CardAssignment AS _CardAssignmentStream;
+IMPORT creditcard-data.Transaction AS _Transaction;
+
+/* Deduplicate CDC Streams */
+_Merchant :=       DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
+_CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp` DESC;
+
+/** Enrich credit card transactions with customer and merchant information */
+CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount, m.name AS merchantName,
+                              m.category, c.customerId
+                       FROM _Transaction t
+                        JOIN _CardAssignment FOR SYSTEM_TIME AS OF t.`time` c ON t.cardNo = c.cardNo
+                        JOIN _Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId;
+
+/** Returns the customer spending by category by week in decreasing order of time,
+    i.e. showing the most recent week first, then the week before that and so forth */
+/*+query_by_all(customerId) */
+SpendingByCategory := SELECT customerId, window_time as timeWeek, category, SUM(amount) as spending
+                      FROM TABLE(TUMBLE(TABLE CustomerTransaction, DESCRIPTOR(`time`), INTERVAL '7' DAY))
+                      GROUP BY customerId, window_start, window_end, window_time, category
+                      ORDER BY window_time DESC, category ASC;
+
+_SpendingByDay := SELECT customerId, window_time as timeDay, SUM(amount) as spending
+                 FROM TABLE(TUMBLE(TABLE CustomerTransaction, DESCRIPTOR(`time`), INTERVAL '1' DAY))
+                 GROUP BY customerId, window_start, window_end, window_time
+                 ORDER BY window_time DESC;
+
+/* ==== QUERY ENDPOINTS ==== */
+
+/** Returns all credit card transactions within a specified time period ordered by time (most recent first) */
+Transactions(customerId BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
+    SELECT * FROM CustomerTransaction WHERE customerId = :customerId AND :fromTime <= `time` AND :toTime > `time`
+    ORDER BY `time` DESC LIMIT 10000;
+
+/* Returns the total customer spending by day for the specified time period ordered by time (most recent first) */
+SpendingByDay(customerId BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
+    SELECT timeDay, spending
+    FROM _SpendingByDay WHERE customerId = :customerId AND :fromTime <= timeDay AND :toTime > timeDay
+    ORDER BY timeDay DESC;
+
+/** Returns the rewards for a given customer immediately */
+NewCustomerTransaction(customerId BIGINT) := SUBSCRIBE SELECT * FROM CustomerTransaction WHERE customerId = :customerId;
+
+/* ==== TEST CASES ==== */
+
+/*+test */
+CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY `time` DESC limit 5;
+
+/*+test */
+SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerId DESC, timeWeek DESC, category ASC limit 5;

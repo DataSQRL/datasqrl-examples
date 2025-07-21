@@ -1,0 +1,25 @@
+{
+  "version": "1",
+  "enabled-engines": ["kafka", "flink"],
+  "script": {
+    "main": "study_stream.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  },
+  "test-runner" : {
+    "create-topics" : ["indicators", "enrichedindicators"]
+  },
+  "dependencies": {
+    "metrics" : {
+      "folder": "metrics-kafka"
+    },
+    "study" : {
+      "folder": "study-testdata"
+    }
+  }
+}

@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "content" : {
-      "name": "content-api"
+      "folder": "content-api"
     },
     "clickstream" : {
-      "name": "clickstream-api"
+      "folder": "clickstream-api"
     }
   }
 }

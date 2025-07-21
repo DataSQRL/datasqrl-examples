@@ -10,17 +10,17 @@ type Customer {
 "An RFC-3339 compliant DateTime Scalar"
 scalar DateTime
 
-"An arbitrary precision signed integer"
-scalar GraphQLBigInteger
+"A 64-bit signed integer"
+scalar Long
 
 type Query {
-  Shipment(id: GraphQLBigInteger!, limit: Int = 10, offset: Int = 0): [Shipment!]
+  Shipment(id: Long!, limit: Int = 10, offset: Int = 0): [Shipment!]
   Vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
-  Customer(email: String, id: GraphQLBigInteger, limit: Int = 10, offset: Int = 0): [Customer!]
+  Customer(email: String, id: Long, limit: Int = 10, offset: Int = 0): [Customer!]
 }
 
 type Shipment {
-  id: GraphQLBigInteger!
+  id: Long!
   lastUpdated: DateTime!
   origin: String!
   lat: Float!

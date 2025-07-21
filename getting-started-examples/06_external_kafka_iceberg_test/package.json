@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "kafka-source": {
-      "name": "kafka-source"
+      "folder": "kafka-source"
     },
     "iceberg-sink": {
-      "name": "iceberg-sink"
+      "folder": "iceberg-sink"
     }
   }
 }
