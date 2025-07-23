@@ -1,0 +1,10 @@
+{"record_id": "REC001", "user_id": 1001, "update_type": "CREATE", "event_time": "2024-01-15T10:00:00Z"}
+{"record_id": "REC001", "user_id": 1001, "update_type": "UPDATE", "event_time": "2024-01-15T10:30:00Z"}
+{"record_id": "REC002", "user_id": 1002, "update_type": "CREATE", "event_time": "2024-01-15T11:00:00Z"}
+{"record_id": "REC003", "user_id": 1001, "update_type": "CREATE", "event_time": "2024-01-15T11:15:00Z"}
+{"record_id": "REC002", "user_id": 1003, "update_type": "UPDATE", "event_time": "2024-01-15T11:30:00Z"}
+{"record_id": "REC001", "user_id": 1002, "update_type": "DELETE", "event_time": "2024-01-15T12:00:00Z"}
+{"record_id": "REC004", "user_id": 1003, "update_type": "CREATE", "event_time": "2024-01-15T12:15:00Z"}
+{"record_id": "REC003", "user_id": 1001, "update_type": "UPDATE", "event_time": "2024-01-15T12:30:00Z"}
+{"record_id": "REC004", "user_id": 1003, "update_type": "UPDATE", "event_time": "2024-01-15T13:00:00Z"}
+{"record_id": "REC005", "user_id": 1002, "update_type": "CREATE", "event_time": "2024-01-15T13:15:00Z"}

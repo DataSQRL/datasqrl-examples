@@ -1,0 +1,21 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "audit_trail.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  },
+  "dependencies": [{
+    "audit": {
+      "name": "audit-api",
+      "version": "1",
+      "variant": "dev"
+    }
+  }]
+}

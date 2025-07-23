@@ -1,0 +1,11 @@
+mutation {
+  AuditEvent(event: {
+    record_id: "REC006"
+    user_id: 1004
+    update_type: "CREATE"
+  }) {
+    record_id
+    user_id
+    update_type
+  }
+}

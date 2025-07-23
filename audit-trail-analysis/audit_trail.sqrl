@@ -1,0 +1,32 @@
+IMPORT audit.AuditTrailEvents AS AuditEvent;
+
+/**
+ Returns audit trail events by record ID
+ */
+EventsByRecordId(recordId STRING NOT NULL) := SELECT * FROM AuditEvent WHERE record_id = :recordId ORDER BY event_time DESC;
+
+/**
+ Audit summary aggregating events by user ID and update type
+ */
+AuditSummary := SELECT user_id, update_type, COUNT(*) as event_count, 
+                       MIN(event_time) as first_event, 
+                       MAX(event_time) as last_event
+                FROM AuditEvent 
+                GROUP BY user_id, update_type;
+
+/**
+ Real-time audit summary with sliding window for recent activity
+ */
+RecentAuditActivity := SELECT user_id, window_time,
+                              COUNT(*) as recent_events,
+                              MAX(event_time) as last_event_time
+                       FROM TABLE(TUMBLE(TABLE AuditEvent, DESCRIPTOR(event_time), INTERVAL '1' HOUR))
+                       GROUP BY user_id, window_start, window_end, window_time;
+
+/* =======TEST CASES======== */
+
+/*+test */
+AuditSummaryTest := SELECT user_id, update_type, event_count FROM AuditSummary ORDER BY user_id, update_type;
+
+/*+test */
+RecentActivityTest := SELECT user_id, recent_events FROM RecentAuditActivity ORDER BY user_id;

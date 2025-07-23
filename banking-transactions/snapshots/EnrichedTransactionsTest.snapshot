@@ -1,0 +1,25 @@
+{
+  "data" : {
+    "EnrichedTransactionsTest" : [ {
+      "debit_holder_name" : "Acme Corporation",
+      "debit_tx_count" : 4,
+      "total_debit_amount" : 35800
+    }, {
+      "debit_holder_name" : "Family Trust Foundation",
+      "debit_tx_count" : 3,
+      "total_debit_amount" : 27000
+    }, {
+      "debit_holder_name" : "Jane Doe",
+      "debit_tx_count" : 5,
+      "total_debit_amount" : 4380
+    }, {
+      "debit_holder_name" : "John Smith",
+      "debit_tx_count" : 5,
+      "total_debit_amount" : 3395
+    }, {
+      "debit_holder_name" : "Smith & Partners LLC",
+      "debit_tx_count" : 3,
+      "total_debit_amount" : 7380
+    } ]
+  }
+}

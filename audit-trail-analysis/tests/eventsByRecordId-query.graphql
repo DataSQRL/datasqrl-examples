@@ -1,0 +1,8 @@
+query {
+  EventsByRecordId(recordId: "REC001") {
+    record_id
+    user_id
+    update_type
+    event_time
+  }
+}

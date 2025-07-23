@@ -1,0 +1,8 @@
+query {
+  EventsByRecordId(recordId: "NONEXISTENT") {
+    record_id
+    user_id
+    update_type
+    event_time
+  }
+}

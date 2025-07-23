@@ -1,0 +1,6 @@
+{"holder_id": "AH001", "name": "John Smith", "type": "individual", "update_time": "2024-01-01T08:00:00Z"}
+{"holder_id": "AH002", "name": "Jane Doe", "type": "individual", "update_time": "2024-01-01T08:15:00Z"}
+{"holder_id": "AH003", "name": "Acme Corporation", "type": "communication", "update_time": "2024-01-01T08:30:00Z"}
+{"holder_id": "AH004", "name": "Smith & Partners LLC", "type": "retail", "update_time": "2024-01-01T08:45:00Z"}
+{"holder_id": "AH005", "name": "Family Trust Foundation", "type": "trust", "update_time": "2024-01-01T09:00:00Z"}
+{"holder_id": "", "name": "flush watermark", "type": "", "update_time": "2024-01-30T09:00:00Z"}

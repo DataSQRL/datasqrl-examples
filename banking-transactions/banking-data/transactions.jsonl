@@ -1,0 +1,20 @@
+{"transaction_id": "TXN001", "debit_account_id": "ACC001", "credit_account_id": "ACC005", "amount": 50.00, "tx_time": "2024-01-02T12:00:00Z", "note": "Monthly Charge for SpeedX Cellphone plan"}
+{"transaction_id": "TXN002", "debit_account_id": "ACC002", "credit_account_id": "ACC001", "amount": 1200.00, "tx_time": "2024-01-03T12:00:00Z", "note": "Transfer from savings to checking"}
+{"transaction_id": "TXN003", "debit_account_id": "ACC003", "credit_account_id": "ACC007", "amount": 85.00, "tx_time": "2024-01-04T12:00:00Z", "note": "Payment for consulting services"}
+{"transaction_id": "TXN004", "debit_account_id": "ACC004", "credit_account_id": "ACC010", "amount": 2500.00, "tx_time": "2024-01-05T12:00:00Z", "note": "Investment portfolio rebalancing"}
+{"transaction_id": "TXN005", "debit_account_id": "ACC005", "credit_account_id": "ACC006", "amount": 15000.00, "tx_time": "2024-01-06T12:00:00Z", "note": "Transfer to business savings"}
+{"transaction_id": "TXN006", "debit_account_id": "ACC001", "credit_account_id": "ACC005", "amount": 125.00, "tx_time": "2024-01-07T12:00:00Z", "note": "Internet service payment"}
+{"transaction_id": "TXN007", "debit_account_id": "ACC007", "credit_account_id": "ACC008", "amount": 5000.00, "tx_time": "2024-01-08T12:00:00Z", "note": "Monthly profit allocation"}
+{"transaction_id": "TXN008", "debit_account_id": "ACC003", "credit_account_id": "ACC005", "amount": 45.00, "tx_time": "2024-01-09T12:00:00Z", "note": "Mobile phone bill payment"}
+{"transaction_id": "TXN009", "debit_account_id": "ACC009", "credit_account_id": "ACC001", "amount": 500.00, "tx_time": "2024-01-10T12:00:00Z", "note": "Trust distribution payment"}
+{"transaction_id": "TXN010", "debit_account_id": "ACC005", "credit_account_id": "ACC003", "amount": 300.00, "tx_time": "2024-01-11T12:00:00Z", "note": "Refund for returned equipment"}
+{"transaction_id": "TXN011", "debit_account_id": "ACC008", "credit_account_id": "ACC007", "amount": 2200.00, "tx_time": "2024-01-12T12:00:00Z", "note": "Operating expense allocation"}
+{"transaction_id": "TXN012", "debit_account_id": "ACC002", "credit_account_id": "ACC004", "amount": 1800.00, "tx_time": "2024-01-13T12:00:00Z", "note": "Monthly investment contribution"}
+{"transaction_id": "TXN013", "debit_account_id": "ACC006", "credit_account_id": "ACC005", "amount": 8500.00, "tx_time": "2024-01-14T12:00:00Z", "note": "Equipment purchase funding"}
+{"transaction_id": "TXN014", "debit_account_id": "ACC001", "credit_account_id": "ACC007", "amount": 220.00, "tx_time": "2024-01-15T12:00:00Z", "note": "Professional services payment"}
+{"transaction_id": "TXN015", "debit_account_id": "ACC010", "credit_account_id": "ACC009", "amount": 25000.00, "tx_time": "2024-01-16T12:00:00Z", "note": "Investment gains distribution"}
+{"transaction_id": "TXN016", "debit_account_id": "ACC004", "credit_account_id": "ACC002", "amount": 950.00, "tx_time": "2024-01-17T12:00:00Z", "note": "Investment redemption"}
+{"transaction_id": "TXN017", "debit_account_id": "ACC007", "credit_account_id": "ACC005", "amount": 180.00, "tx_time": "2024-01-18T12:00:00Z", "note": "Software license payment"}
+{"transaction_id": "TXN018", "debit_account_id": "ACC003", "credit_account_id": "ACC002", "amount": 800.00, "tx_time": "2024-01-19T12:00:00Z", "note": "Transfer to savings account"}
+{"transaction_id": "TXN019", "debit_account_id": "ACC009", "credit_account_id": "ACC003", "amount": 1500.00, "tx_time": "2024-01-20T12:00:00Z", "note": "Educational grant distribution"}
+{"transaction_id": "TXN020", "debit_account_id": "ACC005", "credit_account_id": "ACC006", "amount": 12000.00, "tx_time": "2024-01-21T12:00:00Z", "note": "Monthly revenue transfer"}

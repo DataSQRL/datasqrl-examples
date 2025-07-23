@@ -4,7 +4,7 @@ This repository contains multiple DataSQRL (SQRL) projects demonstrating various
 
 ## Repository Overview
 
-DataSQRL is a SQL extension that adds reactive data processing capabilities. SQRL scripts compile into data pipelines that can run across multiple engines (Flink, Kafka, Postgres, etc.).
+DataSQRL is a SQL extension that adds incremental data processing capabilities. SQRL scripts compile into data pipelines that can run across multiple engines (Flink, Kafka, Postgres, etc.).
 
 ## Project Structure
 
@@ -39,6 +39,8 @@ docker run -it -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasq
 docker run --rm -v $PWD:/build datasqrl/cmd test -c package.json
 ```
 
+As for compile, you can also provide a .sqrl script as argument instead of a package.json file.
+
 ## SQRL Language Features
 
 - **Table definitions**: `TableName := SELECT ...`
@@ -46,6 +48,7 @@ docker run --rm -v $PWD:/build datasqrl/cmd test -c package.json
 - **Relationships**: `Parent.relation := SELECT ... WHERE this.id = child.parent_id`
 - **Subscriptions**: `AlertTable := SUBSCRIBE SELECT ...`
 - **External connectors**: `CREATE TABLE ... WITH ('connector'='kafka', ...)`
+- **API Mutation endpoint**: `CREATE TABLE ... (..., event_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp')`
 - **Hints**: `/*+primary_key(col), index(HASH, col2)*/`
 
 ## Common Patterns
@@ -102,4 +105,7 @@ Each project uses `package.json` files to configure:
 - Reference the full [DataSQRL documentation](datasqrl_documentation.md) for detailed specifications of the SQRL language, configuration, or additional information.
 
 ## Memories
+- Always read the full [DataSQRL documentation](datasqrl_documentation.md) into cache first.
 - The datatype for METADATA FROM 'uuid' columns must always be STRING
+- Don't add `query_by_*` hints on table functions - those already define a query endpoint.
+- Before creating a new project, look at similar projects to mirror their structure.

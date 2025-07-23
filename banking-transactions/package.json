@@ -1,0 +1,18 @@
+{
+  "version" : "1",
+  "enabled-engines" : [ "vertx", "postgres", "kafka", "flink", "iceberg", "duckdb" ],
+  "script" : {
+    "main" : "banking.sqrl"
+  },
+  "connectors" : {
+    "iceberg" : {
+      "warehouse":"warehouse",
+      "catalog-type":"hadoop",
+      "catalog-name": "mydatabase"
+    }
+  },
+  "test-runner": {
+    "delay-sec" : -1,
+    "required-checkpoints" : 1
+  }
+}

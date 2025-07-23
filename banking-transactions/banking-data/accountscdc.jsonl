@@ -1,0 +1,11 @@
+{"account_id": "ACC001", "holder_id": "AH001", "account_type": "checking", "balance": 2500.00, "status": "active", "update_time": "2024-01-01T09:15:00Z"}
+{"account_id": "ACC002", "holder_id": "AH001", "account_type": "savings", "balance": 15000.00, "status": "active", "update_time": "2024-01-01T09:30:00Z"}
+{"account_id": "ACC003", "holder_id": "AH002", "account_type": "checking", "balance": 3200.00, "status": "active", "update_time": "2024-01-01T09:45:00Z"}
+{"account_id": "ACC004", "holder_id": "AH002", "account_type": "investment", "balance": 50000.00, "status": "active", "update_time": "2024-01-01T10:00:00Z"}
+{"account_id": "ACC005", "holder_id": "AH003", "account_type": "business_checking", "balance": 85000.00, "status": "active", "update_time": "2024-01-01T10:15:00Z"}
+{"account_id": "ACC006", "holder_id": "AH003", "account_type": "business_savings", "balance": 250000.00, "status": "active", "update_time": "2024-01-01T10:30:00Z"}
+{"account_id": "ACC007", "holder_id": "AH004", "account_type": "business_checking", "balance": 42000.00, "status": "active", "update_time": "2024-01-01T10:45:00Z"}
+{"account_id": "ACC008", "holder_id": "AH004", "account_type": "business_savings", "balance": 120000.00, "status": "active", "update_time": "2024-01-01T11:00:00Z"}
+{"account_id": "ACC009", "holder_id": "AH005", "account_type": "trust", "balance": 500000.00, "status": "active", "update_time": "2024-01-01T11:15:00Z"}
+{"account_id": "ACC010", "holder_id": "AH005", "account_type": "investment", "balance": 1000000.00, "status": "active", "update_time": "2024-01-01T11:30:00Z"}
+{"account_id": "", "holder_id": "", "account_type": "flush watermark", "balance": 0, "status": "", "update_time": "2024-01-30T11:30:00Z"}

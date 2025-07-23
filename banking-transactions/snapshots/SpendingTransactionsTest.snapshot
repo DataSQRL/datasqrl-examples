@@ -1,0 +1,45 @@
+{
+  "data" : {
+    "SpendingTransactionsTest" : [ {
+      "creditor_name" : "Acme Corporation",
+      "transaction_id" : "TXN020",
+      "debit_account_id" : "ACC005"
+    }, {
+      "creditor_name" : "Jane Doe",
+      "transaction_id" : "TXN019",
+      "debit_account_id" : "ACC009"
+    }, {
+      "creditor_name" : "John Smith",
+      "transaction_id" : "TXN018",
+      "debit_account_id" : "ACC003"
+    }, {
+      "creditor_name" : "Acme Corporation",
+      "transaction_id" : "TXN017",
+      "debit_account_id" : "ACC007"
+    }, {
+      "creditor_name" : "John Smith",
+      "transaction_id" : "TXN016",
+      "debit_account_id" : "ACC004"
+    }, {
+      "creditor_name" : "Family Trust Foundation",
+      "transaction_id" : "TXN015",
+      "debit_account_id" : "ACC010"
+    }, {
+      "creditor_name" : "Smith & Partners LLC",
+      "transaction_id" : "TXN014",
+      "debit_account_id" : "ACC001"
+    }, {
+      "creditor_name" : "Acme Corporation",
+      "transaction_id" : "TXN013",
+      "debit_account_id" : "ACC006"
+    }, {
+      "creditor_name" : "Jane Doe",
+      "transaction_id" : "TXN012",
+      "debit_account_id" : "ACC002"
+    }, {
+      "creditor_name" : "Smith & Partners LLC",
+      "transaction_id" : "TXN011",
+      "debit_account_id" : "ACC008"
+    } ]
+  }
+}

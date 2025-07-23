@@ -1,0 +1,128 @@
+type AccountHolders {
+  holder_id: String!
+  name: String!
+  type: String!
+  update_time: DateTime!
+  accounts(status: String, limit: Int = 10, offset: Int = 0): [Accounts!]
+}
+
+type AccountHoldersCDC {
+  holder_id: String!
+  name: String!
+  type: String!
+  update_time: DateTime!
+}
+
+type Accounts {
+  account_id: String!
+  holder_id: String!
+  account_type: String!
+  balance: Float!
+  status: String!
+  update_time: DateTime!
+  spendingByWeek(limit: Int = 10, offset: Int = 0): [SpendingByAccountTypeWeek!]
+  spendingTransactions(fromTime: DateTime!, toTime: DateTime!, limit: Int = 10, offset: Int = 0): [SpendingTransactions!]
+}
+
+type AccountsCDC {
+  account_id: String!
+  holder_id: String!
+  account_type: String!
+  balance: Float!
+  status: String!
+  update_time: DateTime!
+}
+
+"An RFC-3339 compliant Full Date Scalar"
+scalar Date
+
+"A slightly refined version of RFC-3339 compliant DateTime Scalar"
+scalar DateTime
+
+type EnrichedTransactions {
+  transaction_id: String!
+  debit_account_id: String!
+  credit_account_id: String!
+  amount: Float!
+  tx_time: DateTime!
+  note: String
+  credit_holder_id: String!
+  credit_account_type: String!
+  credit_account_balance: Float!
+  debit_holder_id: String!
+  debit_account_type: String!
+  debit_account_balance: Float!
+  credit_holder_name: String!
+  credit_holder_type: String!
+  debit_holder_name: String!
+  debit_holder_type: String!
+}
+
+"A JSON scalar"
+scalar JSON
+
+"24-hour clock time value string in the format `hh:mm:ss` or `hh:mm:ss.sss`."
+scalar LocalTime
+
+"A 64-bit signed integer"
+scalar Long
+
+type Query {
+  EnrichedTransactions(limit: Int = 10, offset: Int = 0): [EnrichedTransactions!]
+  AccountHolders(limit: Int = 10, offset: Int = 0): [AccountHolders!]
+  AccountHoldersCDC(limit: Int = 10, offset: Int = 0): [AccountHoldersCDC!]
+  Accounts(limit: Int = 10, offset: Int = 0): [Accounts!]
+  AccountsCDC(limit: Int = 10, offset: Int = 0): [AccountsCDC!]
+  ActiveAccounts(holder_id: String!, limit: Int = 10, offset: Int = 0): [Accounts!]
+  SpendingByAccountTypeWeek(account_id: String!, limit: Int = 10, offset: Int = 0): [SpendingByAccountTypeWeek!]
+  SpendingTransactions(limit: Int = 10, offset: Int = 0): [SpendingTransactions!]
+  Transactions(limit: Int = 10, offset: Int = 0): [Transactions!]
+  """
+  Retrieve spending transactions within the given time-range.
+    fromTime (inclusive) and toTime (exclusive) must be RFC-3339 compliant date time.
+  """
+  SpendingTransactionsByTime(fromTime: DateTime!, toTime: DateTime!, limit: Int = 10, offset: Int = 0): [SpendingTransactions!]
+}
+
+type SpendingByAccountTypeWeek {
+  account_id: String!
+  creditor_type: String!
+  week: DateTime!
+  window_time: DateTime!
+  total_spending: Float!
+  transaction_count: Long!
+}
+
+type SpendingTransactions {
+  transaction_id: String!
+  debit_account_id: String!
+  credit_account_id: String!
+  amount: Float!
+  tx_time: DateTime!
+  note: String
+  creditor_name: String!
+  creditor_type: String!
+}
+
+type Transactions {
+  transaction_id: String!
+  debit_account_id: String!
+  credit_account_id: String!
+  amount: Float!
+  tx_time: DateTime!
+  note: String
+}
+
+enum _McpMethodType {
+  NONE
+  TOOL
+  RESOURCE
+}
+
+enum _RestMethodType {
+  NONE
+  GET
+  POST
+}
+
+directive @api(mcp: _McpMethodType, rest: _RestMethodType, uri: String) on QUERY | MUTATION | FIELD_DEFINITION
