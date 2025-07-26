@@ -1,0 +1,29 @@
+{
+    "version": "1",
+    "enabled-engines": [
+        "vertx",
+        "postgres",
+        "kafka",
+        "flink"
+    ],
+    "script": {
+        "main": "creditcard_analytics.sqrl"
+    },
+    "engines": {
+        "flink": {
+            "config": {
+                "table.exec.source.idle-timeout": "10 s"
+            }
+        },
+        "snowflake": {
+            "catalog-name": "MyCatalog",
+            "external-volume": "MyNewVolume",
+            "url": "jdbc:snowflake://${SNOWFLAKE_ID}.snowflakecomputing.com/?user=${SNOWFLAKE_USER}&password=${SNOWFLAKE_PASSWORD}&warehouse=COMPUTE_WH&db=MYSNOWFLAKEDB&schema=public&disableSslHostnameVerification=true"
+        }
+    },
+    "dependencies": {
+        "creditcard-data": {
+            "folder": "creditcard-testdata"
+        }
+    }
+}
