@@ -14,11 +14,13 @@
             "config": {
                 "table.exec.source.idle-timeout": "10 s"
             }
-        },
-        "snowflake": {
-            "catalog-name": "MyCatalog",
-            "external-volume": "MyNewVolume",
-            "url": "jdbc:snowflake://${SNOWFLAKE_ID}.snowflakecomputing.com/?user=${SNOWFLAKE_USER}&password=${SNOWFLAKE_PASSWORD}&warehouse=COMPUTE_WH&db=MYSNOWFLAKEDB&schema=public&disableSslHostnameVerification=true"
+        }
+    },
+    "connectors": {
+        "filesystem": {
+            "warehouse": "warehouse",
+            "catalog-type": "hadoop",
+            "catalog-name": "mydatabase"
         }
     },
     "dependencies": {
