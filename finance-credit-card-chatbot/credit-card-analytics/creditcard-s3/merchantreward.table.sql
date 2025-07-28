@@ -11,6 +11,6 @@ CREATE TABLE MerchantReward (
 ) WITH (
     'connector' = 'filesystem',
     'format' = 'flexible-json',
-    'path' = 's3://${S3_DATA_BUCKET}/merchantReward.jsonl',
+    'path' = 's3://example-data.dev.datasqrl.com/mvp/merchantReward.jsonl',
     'source.monitor-interval' = '1 min'
     );

@@ -7,6 +7,6 @@ CREATE TABLE Merchant (
 ) WITH (
     'connector' = 'filesystem',
     'format' = 'flexible-json',
-    'path' = 's3://${S3_DATA_BUCKET}/merchant.jsonl',
+    'path' = 's3://example-data.dev.datasqrl.com/mvp/merchant.jsonl',
     'source.monitor-interval' = '1 min'
     );

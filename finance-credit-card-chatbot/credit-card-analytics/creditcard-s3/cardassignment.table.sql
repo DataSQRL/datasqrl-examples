@@ -7,6 +7,6 @@ CREATE TABLE CardAssignment (
 ) WITH (
       'connector' = 'filesystem',
       'format' = 'flexible-json',
-      'path' = 's3://${S3_DATA_BUCKET}/cardAssignment.jsonl',
+      'path' = 's3://example-data.dev.datasqrl.com/mvp/cardAssignment.jsonl',
       'source.monitor-interval' = '1 min'
       );

@@ -3,7 +3,6 @@
     "enabled-engines": [
         "vertx",
         "postgres",
-        "kafka",
         "flink"
     ],
     "script": {
@@ -16,16 +15,9 @@
             }
         }
     },
-    "connectors": {
-        "filesystem": {
-            "warehouse": "warehouse",
-            "catalog-type": "hadoop",
-            "catalog-name": "mydatabase"
-        }
-    },
     "dependencies": {
         "creditcard-data": {
-            "folder": "creditcard-testdata"
+            "folder": "creditcard-s3"
         }
     }
 }

@@ -8,6 +8,6 @@ CREATE TABLE Transaction (
 ) WITH (
       'connector' = 'filesystem',
       'format' = 'flexible-json',
-      'path' = 's3://${S3_DATA_BUCKET}/transaction.jsonl',
+      'path' = 's3://example-data.dev.datasqrl.com/mvp/transaction.jsonl',
       'source.monitor-interval' = '1 min'
       );
