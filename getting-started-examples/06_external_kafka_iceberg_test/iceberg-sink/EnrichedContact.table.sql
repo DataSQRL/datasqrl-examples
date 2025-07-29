@@ -4,6 +4,6 @@ CREATE TABLE EnrichedContact (
   'connector' = 'iceberg',
   'catalog-name' = 'mycatalog',
   'catalog-type' = 'hadoop',
-  'warehouse' = '${LOCAL_WAREHOUSE_DIR}',
+  'warehouse' = '/data/iceberg',
   'format-version' = '2'
 );

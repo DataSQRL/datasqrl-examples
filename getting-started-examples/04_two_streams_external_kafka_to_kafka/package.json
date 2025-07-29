@@ -10,13 +10,5 @@
         "table.exec.source.idle-timeout": "60 s"
       }
     }
-  },
-  "dependencies": {
-    "kafkasource": {
-      "folder": "kafka-source"
-    },
-    "kafkasink": {
-      "folder": "kafka-sink"
-    }
   }
 }

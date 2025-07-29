@@ -1,4 +1,4 @@
-IMPORT kafkasource.Contact AS Contact;
+IMPORT kafka-source.Contact AS Contact;
 
 EnrichedContactAvro := SELECT
   firstname,
@@ -6,5 +6,4 @@ EnrichedContactAvro := SELECT
   CAST(last_updated AS STRING) AS last_updated_str
 FROM Contact;
 
-EXPORT EnrichedContactAvro TO kafkasink.EnrichedContactAvro;
-
+EXPORT EnrichedContactAvro TO kafka-sink.EnrichedContactAvro;

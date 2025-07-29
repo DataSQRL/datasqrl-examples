@@ -7,4 +7,4 @@ EnrichedContacts := SELECT c.id, c.firstname, c.lastname, o.orgname, c.last_upda
                         ON c.id = o.userid
                         AND c.last_updated BETWEEN o.last_updated - INTERVAL '30' SECOND AND o.last_updated + INTERVAL '30' SECOND;
 
-EXPORT EnrichedContacts TO kafkasink.EnrichedContact;
+EXPORT EnrichedContacts TO kafka-sink.EnrichedContact;

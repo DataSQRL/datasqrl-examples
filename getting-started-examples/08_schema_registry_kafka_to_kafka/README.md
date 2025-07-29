@@ -30,25 +30,21 @@ Run the following command from the project root where your `package.json` and SQ
 docker run -it --rm \
   -p 8888:8888 \
   -v $PWD:/build \
-  datasqrl/cmd:dev run -c package.json
+  datasqrl/cmd:0.7.0 run -c package.json
 ```
 
 ## Generate Data
 * Go to `data-generator` folder
-
-Usage:
-
-    python send_kafka_avro_records.py <schema.avsc> <data.jsonl> <topic> <broker> <schema-registry-url>
-
-Example:
-
-     python send_kafka_avro_records.py contact.avsc data.jsonl contact localhost:9092 http://localhost:8081
+  * `python3 send_kafka_avro_records.py <schema.avsc> <data.jsonl> <topic> <broker> <schema-registry-url>`
+* Send Contact data
+```bash
+python3 send_kafka_avro_records.py contact.avsc data.jsonl contact localhost:9092 http://localhost:8081
+```
 
 What it does:
-
-- Reads newline-delimited JSON (.jsonl) file.
+- Reads newline-delimited JSON (`.jsonl`) file.
 - Publishes each record as a Kafka message.
 - For example, to load static test files to Kafka topics.
 
 ## Output
-* You should see output topic created called enrichedcontact_avro with data in it
+* You should see output topic created called `enrichedcontact_avro` with data in it

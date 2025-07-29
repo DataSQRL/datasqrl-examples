@@ -18,10 +18,5 @@
       "catalog-type": "hadoop",
       "catalog-name": "mycatalog"
     }
-  },
-  "dependencies": {
-    "file-data": {
-      "folder": "file-data"
-    }
   }
 }

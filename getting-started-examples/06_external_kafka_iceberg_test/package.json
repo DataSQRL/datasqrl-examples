@@ -18,13 +18,5 @@
       "catalog-type": "hadoop",
       "catalog-name": "mycatalog"
     }
-  },
-  "dependencies": {
-    "kafka-source": {
-      "folder": "kafka-source"
-    },
-    "iceberg-sink": {
-      "folder": "iceberg-sink"
-    }
   }
 }
