@@ -13,13 +13,5 @@
   },
   "test-runner": {
     "create-topics": ["contact", "contactupdated"]
-  },
-  "dependencies": {
-    "kafkasource": {
-      "folder": "kafka-source"
-    },
-    "kafkasink": {
-      "folder": "kafka-sink"
-    }
   }
 }

@@ -13,10 +13,5 @@
   },
   "test-runner": {
     "create-topics": ["contact", "contact"]
-  },
-  "dependencies": {
-    "metrics": {
-      "folder": "kafka-source"
-    }
   }
 }

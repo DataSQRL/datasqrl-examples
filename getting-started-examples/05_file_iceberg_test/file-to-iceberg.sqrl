@@ -1,4 +1,3 @@
-IMPORT file-data.MyFile AS InputFile;
+IMPORT testdata.MyFile AS InputFile;
 
 ProcessedData := SELECT id, name, amount, event_time FROM InputFile;
-

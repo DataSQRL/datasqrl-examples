@@ -22,10 +22,5 @@
       "catalog-database": "nsdatabase",
       "write.upsert.enabled": "true"
     }
-  },
-  "dependencies": {
-    "kafka-source": {
-      "folder": "kafka-source"
-    }
   }
 }

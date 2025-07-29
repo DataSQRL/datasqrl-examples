@@ -3,16 +3,14 @@
 This project demonstrates how to use [DataSQRL](https://datasqrl.com) to build a streaming pipeline that:
 
 - Reads data from a kafka topic and writes to another kafka topic
-- Kafka is part of datasqrl package.
-
-
+- Kafka is part of the DataSQRL package.
 
 ## 🐳 Running DataSQRL
 
 Run the following command from the project root where your `package.json` and SQRL scripts reside:
 
 ```bash
-docker run -it --rm   -p 8888:8888 -p 9092:9092  -v $PWD:/build   datasqrl/cmd:dev run -c package.json
+docker run -it --rm -p 8888:8888 -p 9092:9092  -v $PWD:/build datasqrl/cmd:0.7.0 run -c package.json
 ```
 
 ## Generate Data
@@ -25,4 +23,4 @@ docker run -it --rm   -p 8888:8888 -p 9092:9092  -v $PWD:/build   datasqrl/cmd:d
 
 ## Output
 
-* Updated records should be generated in contactupdated topic. 
+* Updated records should be generated in `contactupdated` topic. 

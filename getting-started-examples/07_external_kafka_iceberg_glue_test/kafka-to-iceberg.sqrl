@@ -6,4 +6,3 @@ enrichedcontacts := SELECT
   lastname,
   last_updated
 FROM contacts;
-

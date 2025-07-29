@@ -9,20 +9,13 @@ This project demonstrates how to use [DataSQRL](https://datasqrl.com) to build a
 Run the following command from the project root where your `package.json` and SQRL scripts reside:
 
 ```bash
-docker run -it --rm \
-  -p 8888:8888 -p 8081:8081 \
-  -v $PWD:/build \
-  -e LOCAL_WAREHOUSE_DIR=warehouse \
-  datasqrl/cmd:dev run -c package.json
+docker run -it --rm -p 8888:8888 -p 8081:8081 -v $PWD:/build -v $PWD/data:/data datasqrl/cmd:0.7.0 run -c package.json
 ```
-Note: It will store iceberg files in `warehouse` directory
 
-
-
+> [!NOTE]
+> Iceberg files will be stored in the `warehouse` directory set by `package.json`
 
 ## Output
 
-* There should be iceberg files and folders generated in warehouse directory
-* Data for the output table will reside in ProcessedData (as defined in the sqrl script)
-
-
+* There should be iceberg files and folders generated in `$PWD/data/iceberg` directory 
+* Data for the output table will reside in `ProcessedData` (as defined in the sqrl script)
