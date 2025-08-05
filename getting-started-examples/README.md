@@ -39,7 +39,7 @@ docker run -it --rm \
   -p 8888:8888 \
   -p 8081:8081 \
   -v $PWD:/build \
-  datasqrl/cmd:0.7.0 run -c package.json
+  datasqrl/cmd:0.7.1 run -c package.json
 ```
 #### Persistent Data
 
@@ -51,7 +51,7 @@ docker run -it --rm \
   -p 8081:8081 \
   -v $PWD:/build \
   -v $PWD/data:/data \
-  datasqrl/cmd:0.7.0 run -c package.json
+  datasqrl/cmd:0.7.1 run -c package.json
 ```
 
 #### Mount External Services
@@ -66,7 +66,7 @@ docker run -it --rm \
   -v ~/.aws:/root/.aws \
   -e AWS_REGION=us-east-1 \
   -e S3_WAREHOUSE_PATH=s3://your-bucket/path/ \
-  datasqrl/cmd:0.7.0 run -c package.json
+  datasqrl/cmd:0.7.1 run -c package.json
 ```
 
 ### Compile Without Running
@@ -74,7 +74,7 @@ docker run -it --rm \
 ```bash
 docker run -it --rm \
   -v $PWD:/build \
-  datasqrl/cmd:0.7.0 compile -c package.json
+  datasqrl/cmd:0.7.1 compile -c package.json
 ```
 
 ---

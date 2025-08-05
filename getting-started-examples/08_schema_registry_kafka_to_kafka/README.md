@@ -30,7 +30,7 @@ Run the following command from the project root where your `package.json` and SQ
 docker run -it --rm \
   -p 8888:8888 \
   -v $PWD:/build \
-  datasqrl/cmd:0.7.0 run -c package.json
+  datasqrl/cmd:0.7.1 run -c package.json
 ```
 
 ## Generate Data
