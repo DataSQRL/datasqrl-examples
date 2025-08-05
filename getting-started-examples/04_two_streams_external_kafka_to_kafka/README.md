@@ -18,7 +18,7 @@ This project demonstrates how to use [DataSQRL](https://datasqrl.com) to build a
 
 Run the following command from the project root where your `package.json` and SQRL scripts reside:
 ```bash
-docker run -it --rm -p 8888:8888 -p 8081:8081 -v $PWD:/build -v $PWD/data:/data datasqrl/cmd:0.7.0 run -c package.json
+docker run -it --rm -p 8888:8888 -p 8081:8081 -v $PWD:/build -v $PWD/data:/data datasqrl/cmd:0.7.1 run -c package.json
 ```
 > [!NOTE]
 > We removed `-p 9092:9092` as we are using our own kafka running locally on host machine now
