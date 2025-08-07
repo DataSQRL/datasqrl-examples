@@ -14,7 +14,7 @@
   },
   "connectors": {
     "iceberg": {
-      "warehouse": "/data/iceberg",
+      "warehouse": "warehouse",
       "catalog-type": "hadoop",
       "catalog-name": "mycatalog"
     }

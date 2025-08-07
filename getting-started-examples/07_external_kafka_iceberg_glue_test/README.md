@@ -20,7 +20,7 @@ docker run -it --rm \
   -v ~/.aws:/root/.aws \
   -e AWS_REGION=us-east-1 \
   -e S3_WAREHOUSE_PATH=s3://<bucket>/path/to/warehouse/ \
-  datasqrl/cmd:0.7.1 run -c package.json
+  datasqrl/cmd:latest run -c package.json
 ```
 > [!NOTE]
 > We removed `-p 9092:9092` as we are using our own Kafka running locally on host machine now

@@ -6,15 +6,15 @@
   },
   "engines": {
     "flink": {
-      "config" : {
-        "table.exec.source.idle-timeout": "1 s"
+      "config": {
+        "table.exec.source.idle-timeout": "500 ms"
       }
     }
   },
-  "connectors" : {
-    "iceberg" : {
-      "warehouse":"warehouse",
-      "catalog-type":"hadoop",
+  "connectors": {
+    "iceberg": {
+      "warehouse": "warehouse",
+      "catalog-type": "hadoop",
       "catalog-name": "mydatabase"
     }
   },
