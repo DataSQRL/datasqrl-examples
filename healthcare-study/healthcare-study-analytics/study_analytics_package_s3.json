@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "enabled-engines": ["iceberg", "snowflake", "flink"],
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
   "script": {
     "main": "study_analytics.sqrl"
   },
@@ -9,11 +9,6 @@
       "config": {
         "table.exec.source.idle-timeout": "500 ms"
       }
-    },
-    "snowflake": {
-      "catalog-name": "MyCatalog",
-      "external-volume": "MyNewVolume",
-      "url": "${SNOWFLAKE_JDBC_URL}"
     }
   },
   "connectors": {
