@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "enabled-engines": ["flink", "iceberg"],
+  "enabled-engines": ["flink", "kafka", "iceberg"],
   "script": {
     "main": "kafka-to-iceberg.sqrl"
   },
@@ -14,9 +14,12 @@
   },
   "connectors": {
     "iceberg": {
-      "warehouse": "/data/iceberg",
+      "warehouse": "warehouse",
       "catalog-type": "hadoop",
       "catalog-name": "mycatalog"
     }
+  },
+  "test-runner": {
+    "create-topics": ["contacts"]
   }
 }

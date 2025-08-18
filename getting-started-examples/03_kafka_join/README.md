@@ -1,8 +1,8 @@
-# Kafka-to-Kafka with Avro using DataSQRL
+# Kafka Join using DataSQRL
 
 This project demonstrates how to use [DataSQRL](https://datasqrl.com) to build a streaming pipeline that:
 
-- Reads data from two kafka topics and combines the data from two streams using temporal join
+- Reads data from two Kafka topics and combines the data from two streams using temporal join
 - writes output to another kafka topic
 - Kafka is part of datasqrl package.
 
@@ -13,7 +13,7 @@ This project demonstrates how to use [DataSQRL](https://datasqrl.com) to build a
 Run the following command from the project root where your `package.json` and SQRL scripts reside:
 
 ```bash
-docker run -it --rm -p 8888:8888 -p 9092:9092 -v $PWD:/build datasqrl/cmd:0.7.1 run -c package.json
+docker run -it --rm -p 8888:8888 -p 9092:9092 -v $PWD:/build datasqrl/cmd:latest run -c package.json
 ```
 
 ## Generate Data

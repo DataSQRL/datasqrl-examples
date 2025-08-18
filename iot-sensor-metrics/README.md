@@ -9,7 +9,7 @@ To run the API, execute
 
 ```bash
 docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c sensors_package_api.json
-``s`
+```
 
 To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/graphiql/) to access the API.
 

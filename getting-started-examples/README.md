@@ -5,16 +5,15 @@ Each example demonstrates a real-world data pipeline pattern using technologies 
 
 ## 📁 Example Index
 
-| Folder                                                                                       | Description                                                                                            |
-|----------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| [**01\_kafka\_to\_console**](./01_kafka_to_console)                                          | Reads from Kafka and outputs to console. Simple setup for basic Kafka ingestion testing.               |
-| [**02\_kafka\_to\_kafka**](./02_kafka_to_kafka)                                              | Reads from one Kafka topic and writes to another. Useful for learning basic Kafka transformations.     |
-| [**03\_two\_streams\_kafka\_to\_kafka**](./03_two_streams_kafka_to_kafka)                    | Combines two Kafka topics, performs stream joins/enrichment, and writes to Kafka.                      |
-| [**04\_two\_streams\_external\_kafka\_to\_kafka**](./04_two_streams_external_kafka_to_kafka) | Simulates a more decoupled version of multi-stream joins. Good for external integration scenarios.     |
-| [**05\_file\_iceberg\_test**](./05_file_iceberg_test)                                        | Writes data to local file-based Iceberg tables. Great for learning Iceberg without cloud dependencies. |
-| [**06\_external\_kafka\_iceberg\_test**](./06_external_kafka_iceberg_test)                   | Kafka to Iceberg using a local warehouse directory. Minimal config, good for staging/testing.          |
-| [**07\_external\_kafka\_iceberg\_glue\_test**](./07_external_kafka_iceberg_glue_test)        | Kafka to Iceberg using AWS Glue as catalog and S3 as storage.                                          |
-| [**08\_schema\_registry\_kafka\_to\_kafka**](./08_schema_registry_kafka_to_kafka)            | Kafka-to-Kafka pipeline using Confluent Schema Registry for Avro schema management.                    |
+| Folder                                                                            | Description                                                                                            |
+|-----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| [**01\_kafka\_to\_console**](./01_kafka_to_console)                               | Reads from Kafka and outputs to console. Simple setup for basic Kafka ingestion testing.               |
+| [**02\_kafka\_to\_kafka**](./02_kafka_to_kafka)                                   | Reads from one Kafka topic and writes to another. Useful for learning basic Kafka transformations.     |
+| [**03\_kafka\_join**](./03_kafka_join)                                            | Combines two Kafka topics, performs stream joins/enrichment, and writes to Kafka.                      |
+| [**04\_file\_to\_iceberg\_test**](./04_file_to_iceberg_test)                      | Writes data to local file-based Iceberg tables. Great for learning Iceberg without cloud dependencies. |
+| [**05\_external\_kafka\_iceberg\_test**](./05_kafka_to_iceberg_local_test)        | Kafka to Iceberg using a local warehouse directory. Minimal config, good for staging/testing.          |
+| [**06\_kafka\_iceberg\_glue\_test**](./06_kafka_to_iceberg_glue_test)             | Kafka to Iceberg using AWS Glue as catalog and S3 as storage.                                          |
+| [**07\_schema\_registry\_kafka\_to\_kafka**](./07_schema_registry_kafka_to_kafka) | Kafka-to-Kafka pipeline using Confluent Schema Registry for Avro schema management.                    |
 
 Each folder includes:
 
@@ -30,7 +29,7 @@ Each folder includes:
 
 * [Docker](https://docs.docker.com/get-docker/) installed
 * Optional: Kafka and Schema Registry (locally or in cloud)
-* For Glue/S3 integration: AWS CLI credentials (`~/.aws`) mounted in Docker
+* For Glue/S3 integration: AWS CLI access key
 
 ### Run Any Example
 
@@ -39,11 +38,12 @@ docker run -it --rm \
   -p 8888:8888 \
   -p 8081:8081 \
   -v $PWD:/build \
-  datasqrl/cmd:0.7.1 run -c package.json
+  datasqrl/cmd:latest run -c package.json
 ```
 #### Persistent Data
 
-To preserve the internally persisted data after the Docker container stopped running, extend with `/data` mount:
+To preserve the internally persisted data (for Postgres, Redpanda, and Flink) after the Docker container
+stopped running, extend with `/data` mount:
 
 ```bash
 docker run -it --rm \
@@ -51,22 +51,22 @@ docker run -it --rm \
   -p 8081:8081 \
   -v $PWD:/build \
   -v $PWD/data:/data \
-  datasqrl/cmd:0.7.1 run -c package.json
+  datasqrl/cmd:latest run -c package.json
 ```
 
 #### Mount External Services
 
-If using AWS or external services, extend with environment mounts:
+If using AWS pass the necessary environment variables defined by the AWS SDK::
 
 ```bash
 docker run -it --rm \
   -p 8888:8888 \
   -p 8081:8081 \
   -v $PWD:/build \
-  -v ~/.aws:/root/.aws \
-  -e AWS_REGION=us-east-1 \
-  -e S3_WAREHOUSE_PATH=s3://your-bucket/path/ \
-  datasqrl/cmd:0.7.1 run -c package.json
+  -e AWS_ACCESS_KEY_ID="<my-access-key>" \
+  -e AWS_SECRET_ACCESS_KEY="<my-secret-key" \
+  -e AWS_REGION="<my-region>" \
+  datasqrl/cmd:latest run -c package.json
 ```
 
 ### Compile Without Running
@@ -74,7 +74,7 @@ docker run -it --rm \
 ```bash
 docker run -it --rm \
   -v $PWD:/build \
-  datasqrl/cmd:0.7.1 compile -c package.json
+  datasqrl/cmd:latest compile -c package.json
 ```
 
 ---

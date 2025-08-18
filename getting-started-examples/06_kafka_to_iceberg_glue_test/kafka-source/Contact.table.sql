@@ -6,9 +6,9 @@ CREATE TABLE Contact (
   WATERMARK FOR last_updated AS last_updated - INTERVAL '1' SECOND
 ) WITH (
   'connector' = 'kafka',
-  'topic' = 'contact',
-  'properties.bootstrap.servers' = 'host.docker.internal:9092',
-  'properties.group.id' = 'group1_contacts',
+  'topic' = 'contacts',
+  'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+  'properties.group.id' = '${KAFKA_GROUP_ID}',
   'scan.startup.mode' = 'earliest-offset',
   'format' = 'flexible-json'
 );
