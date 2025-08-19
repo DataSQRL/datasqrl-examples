@@ -4,7 +4,7 @@ This script produces study analytics for observations groups in Iceberg tables t
 
 Run the `study_analytics.sqrl` script using iceberg and duckdb locally as follows:
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:dev run -c study_analytics_package_test.json
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_analytics_package_test.json
 ```
 
 This writes the data to the local directory `warehouse` which is configured in `study_analytics_package_test.json`
@@ -21,7 +21,7 @@ docker run -it -p 8888:8888 -p 8081:8081 --rm \
   -e AWS_SECRET_ACCESS_KEY="<my-secret-key" \
   -e AWS_REGION="<my-region>" \
   -e SNOWFLAKE_JDBC_URL="<my-snowflake-jdbc-url>" \
-  datasqrl/cmd:dev run -c study_analytics_package_snowflake.json
+  datasqrl/cmd:latest run -c study_analytics_package_snowflake.json
 ```
 
 > [!IMPORTANT]
@@ -29,5 +29,5 @@ docker run -it -p 8888:8888 -p 8081:8081 --rm \
 > For example: `jdbc:snowflake://abc12345.eu-central-1.snowflakecomputing.com/?user=MYUSER&password=MYPASSWORDwarehouse=MYWH&db=MYDB&schema=MYSCHEMA&role=MYROLE`
 
 > [!IMPORTANT]
-> Make sure you mount your `.aws` folder to the countaner, and set a valid S3 bucket as `warehouse` in
-> [study_analytics_package_snowflake.json](study_analytics_package_snowflake.json), or create `my-iceberg-warehouse` in the given AWS account.
+> You must set a proper AWS access key, and a valid S3 bucket as `warehouse` in [study_analytics_package_snowflake.json](study_analytics_package_snowflake.json),
+> or create the `my-iceberg-warehouse` bucket in the given AWS account.
