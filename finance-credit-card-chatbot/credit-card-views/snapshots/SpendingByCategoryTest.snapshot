@@ -3,8 +3,18 @@
     "SpendingByCategoryTest" : [ {
       "customerId" : 10,
       "timeWeek" : "2024-05-30T13:59:59.999Z",
-      "category" : "Entertainment",
-      "spending" : 263.24
+      "category" : "Housing & Utilities",
+      "spending" : 4767.13
+    }, {
+      "customerId" : 10,
+      "timeWeek" : "2024-05-30T13:59:59.999Z",
+      "category" : "Miscellaneous",
+      "spending" : 2431.46
+    }, {
+      "customerId" : 10,
+      "timeWeek" : "2024-05-30T13:59:59.999Z",
+      "category" : "Travel & Vacations",
+      "spending" : 2088.6
     }, {
       "customerId" : 10,
       "timeWeek" : "2024-05-30T13:59:59.999Z",
@@ -13,18 +23,8 @@
     }, {
       "customerId" : 10,
       "timeWeek" : "2024-05-30T13:59:59.999Z",
-      "category" : "Communication",
-      "spending" : 198.98
-    }, {
-      "customerId" : 10,
-      "timeWeek" : "2024-05-30T13:59:59.999Z",
-      "category" : "Clothing & Apparel",
-      "spending" : 976.09
-    }, {
-      "customerId" : 10,
-      "timeWeek" : "2024-05-30T13:59:59.999Z",
-      "category" : "Health & Wellness",
-      "spending" : 493.13
+      "category" : "Restaurants & Dining",
+      "spending" : 1478.88
     } ]
   }
 }

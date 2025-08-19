@@ -39,7 +39,7 @@ jobs:
             tag: credit-card-views
             test_commands: |
               compile -c creditcard_views_package_test.json
-            # FIXME test -c creditcard_views_package_test.json
+              test -c creditcard_views_package_test.json
 
           - example: healthcare-study-analytics
             path: healthcare-study/healthcare-study-analytics
@@ -103,7 +103,7 @@ jobs:
 
     env:
       TZ: 'America/Los_Angeles'
-      SQRL_VERSION: 'dev'
+      SQRL_VERSION: 'latest'
 
     steps:
     - uses: actions/checkout@v4
