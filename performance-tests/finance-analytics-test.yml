@@ -1,0 +1,98 @@
+config:
+  target: "http://localhost:8888/graphql"
+  phases:
+    - duration: 30
+      arrivalRate: 50
+      rampTo: 200
+      name: "Warm up phase"
+    - duration: 60
+      arrivalRate: 200
+      rampTo: 500
+      name: "Load increase phase"
+    - duration: 120
+      arrivalRate: 500
+      rampTo: 1000
+      name: "Heavy load phase"
+    - duration: 300
+      arrivalRate: 1000
+      name: "Extreme load phase"
+  engines:
+    http:
+      maxSockets: 2000
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json"
+
+scenarios:
+  - name: "Query Transactions"
+    weight: 5
+    flow:
+      - post:
+          url: "/"
+          json:
+            query: |
+              query GetTransactions($customerid: Int!, $fromTime: DateTime!, $toTime: DateTime!) {
+                Transactions(customerid: $customerid, fromTime: $fromTime, toTime: $toTime) {
+                  transactionId
+                  cardNo
+                  time
+                  amount
+                  merchantName
+                  category
+                }
+              }
+            variables:
+              customerid: "{{ $randomNumber(1, 9) }}"
+              fromTime: "{{ fromTime }}"
+              toTime: "{{ toTime }}"
+          ensure:
+            statusCode: [ 200, 429, 500, 503 ]
+          capture:
+            - json: "$.data.Transactions"
+              as: "transactions"
+      - log: "Retrieved {{ transactions.length }} transactions"
+
+  - name: "Query Spending By Category"
+    weight: 3
+    flow:
+      - post:
+          url: "/"
+          json:
+            query: |
+              query GetSpendingByCategory($customerid: Int!, $limit: Int!) {
+                SpendingByCategory(customerid: $customerid, limit: $limit) {
+                  timeWeek
+                  category
+                  spending
+                }
+              }
+            variables:
+              customerid: "{{ $randomNumber(1, 9) }}"
+              limit: 24
+          ensure:
+            statusCode: [ 200, 429, 500, 503 ]
+          capture:
+            - json: "$.data.SpendingByCategory"
+              as: "spendingCategories"
+      - log: "Retrieved {{ spendingCategories.length }} category spending records"
+
+  - name: "Query Spending By Day"
+    weight: 2
+    flow:
+      - post:
+          url: "/"
+          json:
+            query: |
+              query GetSpendingByDay($customerid: Int!, $fromTime: DateTime!, $toTime: DateTime!) {
+                SpendingByDay(customerid: $customerid, fromTime: $fromTime, toTime: $toTime) {
+                  timeDay
+                  spending
+                }
+              }
+            variables:
+              customerid: "{{ $randomNumber(1, 9) }}"
+              fromTime: "{{ fromTime }}"
+              toTime: "{{ toTime }}"
+          ensure:
+            statusCode: [ 200, 429, 500, 503 ]
