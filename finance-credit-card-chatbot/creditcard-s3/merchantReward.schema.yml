@@ -1,0 +1,33 @@
+---
+name: "merchantReward"
+schema_version: "1"
+partial_schema: false
+columns:
+- name: "merchantId"
+  type: "BIGINT"
+  tests:
+  - "not_null"
+- name: "rewardsByCard"
+  columns:
+  - name: "cardType"
+    type: "STRING"
+    tests:
+    - "not_null"
+  - name: "rewardPercentage"
+    type: "BIGINT"
+    tests:
+    - "not_null"
+  - name: "startTimestamp"
+    type: "BIGINT"
+    tests:
+      - "not_null"
+  - name: "expirationTimestamp"
+    type: "BIGINT"
+    tests:
+    - "not_null"
+  tests:
+  - "not_null"
+- name: "updatedTime"
+  type: "TIMESTAMP"
+  tests:
+  - "not_null"
