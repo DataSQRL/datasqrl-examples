@@ -2,18 +2,16 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "baseball_card.sqrl"
+    "main": "baseball_card.sqrl",
+    "config": {
+      "variant": "testdata"
+    }
   },
   "engines": {
     "flink" : {
       "config" : {
         "table.exec.source.idle-timeout": "10 s"
       }
-    }
-  },
-  "dependencies": {
-    "police-data": {
-      "folder": "police-testdata"
     }
   }
 }

@@ -6,4 +6,4 @@ CREATE TABLE Bolo (
       'path' = '${DATA_PATH}/bolo.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-      );
+) LIKE `bolo.schema.yml`;

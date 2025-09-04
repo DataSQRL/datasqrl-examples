@@ -1,9 +1,9 @@
-IMPORT police-data.Driver AS _DriverUpdates;
-IMPORT police-data.Vehicle AS _VehicleUpdates;
+IMPORT police-{{variant}}.driver AS _DriverUpdates;
+IMPORT police-{{variant}}.vehicle AS _VehicleUpdates;
 /*+no_query */
-IMPORT police-data.Warrant;
+IMPORT police-{{variant}}.warrant;
 /*+no_query */
-IMPORT police-data.Bolo;
+IMPORT police-{{variant}}.bolo;
 
 /**
  Retrieves driver information using their license number.
