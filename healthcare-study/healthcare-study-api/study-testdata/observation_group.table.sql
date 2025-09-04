@@ -8,7 +8,7 @@ CREATE TABLE ObservationGroup (
      WATERMARK FOR `createdDate` AS `createdDate` - INTERVAL '0.001' SECOND
 ) WITH (
       'format' = 'flexible-json',
-      'path' = '${DATA_PATH}/observationgroup.jsonl',
+      'path' = '${DATA_PATH}/observation_group.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-      );
+);

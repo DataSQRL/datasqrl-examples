@@ -2,7 +2,10 @@
   "version": "1",
   "enabled-engines": ["kafka", "flink"],
   "script": {
-    "main": "study_stream.sqrl"
+    "main": "study_stream.sqrl",
+    "config": {
+      "variant": "testdata"
+    }
   },
   "engines": {
     "flink" : {
@@ -13,13 +16,5 @@
   },
   "test-runner": {
     "delay-sec": 120
-  },
-  "dependencies": {
-    "metrics" : {
-      "folder": "metrics-testdata"
-    },
-    "study" : {
-      "folder": "study-testdata"
-    }
   }
 }

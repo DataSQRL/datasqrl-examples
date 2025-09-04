@@ -8,7 +8,7 @@ CREATE TABLE SensorPlacements (
      WATERMARK FOR `placedTimestamp` AS `placedTimestamp` - INTERVAL '0.001' SECOND
 ) WITH (
       'format' = 'flexible-json',
-      'path' = '${DATA_PATH}/sensorplacements.jsonl',
+      'path' = '${DATA_PATH}/sensor_placements.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-      );
+);

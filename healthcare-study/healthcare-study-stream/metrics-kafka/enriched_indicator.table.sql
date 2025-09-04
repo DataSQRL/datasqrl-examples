@@ -9,4 +9,4 @@ CREATE TABLE EnrichedIndicators (
       'value.format' = 'flexible-json',
       'key.format' = 'raw',
       'key.fields' = 'patientId'
-);
+) LIKE `*`;

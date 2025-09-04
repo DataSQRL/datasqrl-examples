@@ -11,4 +11,4 @@ CREATE TABLE Metadata (
       'path' = '${DATA_PATH}/metadata.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-      );
+);
