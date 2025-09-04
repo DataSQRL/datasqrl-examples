@@ -4,8 +4,8 @@ CREATE TABLE Contact (
 ) WITH (
   'connector' = 'kafka',
   'topic' = 'contact',
-  'properties.bootstrap.servers' = '${PROPERTIES_BOOTSTRAP_SERVERS}',
+  'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
   'properties.group.id' = 'user-consumer-group',
   'scan.startup.mode' = 'earliest-offset',
   'format' = 'avro'
-);
+) LIKE `contact.avsc`;

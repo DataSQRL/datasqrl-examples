@@ -1,4 +1,4 @@
-CREATE TABLE EnrichedContactAvro (
+CREATE TABLE EnrichedContact (
   PRIMARY KEY (firstname) NOT ENFORCED
 ) WITH (
   'connector' = 'upsert-kafka',
@@ -8,4 +8,4 @@ CREATE TABLE EnrichedContactAvro (
   'key.avro-confluent.url' = 'http://host.docker.internal:8081',
   'value.format' = 'avro-confluent',
   'value.avro-confluent.url' = 'http://host.docker.internal:8081'
-);
+) LIKE `*`;

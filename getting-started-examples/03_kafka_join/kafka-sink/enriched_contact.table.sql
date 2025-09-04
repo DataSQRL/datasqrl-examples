@@ -3,7 +3,6 @@ CREATE TABLE EnrichedContact (
 ) WITH (
   'connector' = 'kafka',
   'topic' = 'enrichedcontact',
-  'properties.bootstrap.servers' = '${PROPERTIES_BOOTSTRAP_SERVERS}',
+  'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
   'value.format' = 'flexible-json'
-
-);
+) LIKE `*`;

@@ -1,5 +1,5 @@
-IMPORT kafka-source.Contact AS Contacts;
-IMPORT kafka-source.Organization AS Organizations;
+IMPORT kafka-source.contact AS Contacts;
+IMPORT kafka-source.organization AS Organizations;
 
 EnrichedContacts := SELECT c.id, c.firstname, c.lastname, o.orgname, c.last_updated
                         FROM Contacts c
@@ -7,4 +7,4 @@ EnrichedContacts := SELECT c.id, c.firstname, c.lastname, o.orgname, c.last_upda
                         ON c.id = o.userid
                         AND c.last_updated BETWEEN o.last_updated - INTERVAL '30' SECOND AND o.last_updated + INTERVAL '30' SECOND;
 
-EXPORT EnrichedContacts TO kafka-sink.EnrichedContact;
+EXPORT EnrichedContacts TO kafka-sink.enriched_contact;
