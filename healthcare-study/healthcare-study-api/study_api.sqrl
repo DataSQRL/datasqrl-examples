@@ -12,6 +12,7 @@ _EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
           JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
           JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
 
+/** Produces alerts for recorded clinical data that is outside the normal range */
 IndicatorAlerts := SUBSCRIBE SELECT * FROM _EnrichedIndicators
     WHERE metric < lowRange OR metric > highRange;
 
@@ -31,8 +32,14 @@ PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, n
 PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetricsHourly
                             WHERE patientId = 5 ORDER BY timeHour DESC, name ASC;
 
+/** Returns a patient by id with patient information and recently recorded
+  clinical data aggregated hourly.
+ */
 /*+query_by_any(patientId) */
 Patients := DISTINCT _CDC_Patients ON patientId ORDER BY lastUpdated DESC;
 Patients.metrics := SELECT * FROM PatientMetricsHourly m WHERE m.patientId = this.patientId ORDER BY m.timeHour DESC, m.name ASC;
 
+/** Returns a patient by name with patient information and recently recorded
+  clinical data aggregated hourly.
+ */
 PatientsByName(name STRING NOT NULL) := SELECT * FROM Patients WHERE name = :name;
