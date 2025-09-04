@@ -17,4 +17,4 @@ CREATE TABLE Maintenance (
       'path' = '${DATA_PATH}/maintenance.jsonl',
       'source.monitor-interval' = '10000',
       'connector' = 'filesystem'
-      );
+);

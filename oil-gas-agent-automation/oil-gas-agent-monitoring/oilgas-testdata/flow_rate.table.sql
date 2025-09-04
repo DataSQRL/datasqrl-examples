@@ -1,4 +1,4 @@
-CREATE TABLE Flowrate (
+CREATE TABLE FlowRate (
     `assetId` BIGINT NOT NULL,
     `flowrate` DOUBLE NOT NULL,
     `event_time` TIMESTAMP_LTZ(3) NOT NULL,
@@ -9,4 +9,4 @@ CREATE TABLE Flowrate (
       'path' = '${DATA_PATH}/flowrate.jsonl.gz',
       'source.monitor-interval' = '10000',
       'connector' = 'filesystem'
-      );
+);

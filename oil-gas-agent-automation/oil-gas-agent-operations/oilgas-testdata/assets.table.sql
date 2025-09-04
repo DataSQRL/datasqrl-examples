@@ -16,4 +16,4 @@ CREATE TABLE Assets (
       'path' = '${DATA_PATH}/assets.jsonl',
       'source.monitor-interval' = '10000',
       'connector' = 'filesystem'
-      );
+);

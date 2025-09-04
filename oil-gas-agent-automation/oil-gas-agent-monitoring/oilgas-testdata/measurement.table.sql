@@ -10,4 +10,4 @@ CREATE TABLE Measurement (
       'path' = '${DATA_PATH}/measurement.jsonl.gz',
       'source.monitor-interval' = '10000',
       'connector' = 'filesystem'
-      );
+);
