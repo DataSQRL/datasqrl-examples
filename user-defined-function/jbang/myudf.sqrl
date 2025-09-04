@@ -1,0 +1,8 @@
+IMPORT usrlib.MyScalarFunction;
+
+-- Capture some input data
+CREATE TABLE InputData (
+    val BIGINT NOT NULL
+);
+
+MyTable := SELECT val, MyScalarFunction(val, val) AS myUdf FROM InputData;

@@ -8,5 +8,4 @@ CREATE TABLE InputData (
     val BIGINT NOT NULL
 );
 
-MyTable := SELECT val, MyScalarFunction(val, val) AS myFnc
-           FROM InputData;
+MyTable := SELECT val, MyScalarFunction(val, val) AS myUdf FROM InputData;

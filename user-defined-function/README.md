@@ -1,24 +1,27 @@
 
 # Custom User-Defined Functions in Flink
-This guide will lead you through the process of creating, compiling, and deploying a user-defined functions (UDFs) in Apache Flink using DataSQRL. We will specifically focus on a function called MyScalarFunction, which will double the values of input numbers, and then deploy and execute the function in Flink.
+This guide will lead you through the process of creating, compiling, and deploying a user-defined functions (UDFs) in Apache Flink using DataSQRL.
+We will specifically focus on a function called `MyScalarFunction`, which will double the values of input numbers, and then deploy and execute the function in Flink.
 
 ## Introduction
-User-defined functions (UDFs) in Flink are powerful tools that allow for the extension of the system's built-in functionality. UDFs can be used to perform operations on data that are not covered by the built-in functions.
+User-defined functions (UDFs) in Flink are powerful tools that allow for the extension of the system's built-in functionality.
+UDFs can be used to perform operations on data that are not covered by the built-in functions.
 
-## Creating a User-Defined Function
-1. **Project Structure:** The `myjavafunction` folder contains a sample Java project, demonstrating the structure and necessary components of a Flink UDF.
+We support two main ways to ship UDFs for SQRL applications:
+1. [**JBang**](./jbang): For simple, standalone UDFs that has no or only lightweight dependencies, DataSQRL can build and ship UDFs on the fly via [JBang](https://www.jbang.dev/). 
+2. [**Assemble JAR Manually**](./maven-project): For more complex UDF projects with common abstract UDF layers, complex logic, a custom Maven or Gradle project can be crated.
+  Then the manually built JAR(s) can be placed to a project folder, which DataSQRL will recognize and ship.  
 
-2. **Defining the Function:** The main component of this project is the MyScalarFunction class. This is the implementation of a custom flink function. DataSQRL recognizes flink functions that extend UserDefinedFunction.
+To learn more about each option, please see the example project and their specific readme.
 
-3. **ServiceLoader Entry:** The function must be registered with a ServiceLoader entry. This is essential for DataSQRL to recognize and use your UDF.
-- **AutoService Library:** The example includes the AutoService library by Google, simplifying the creation of ServiceLoader META-INF manifest entries.
-
-4. **Jar Compiling:** Compile the sample project and build a jar. This jar is what DataSQRL will use to discover your function. It reads the manifest entries for any UserDefinedFunction classes and load them into DataSQRL for use in queries. It can be placed into any folder relative to the sqrl root folder which will translate to the import path. In the example, we will use the `target` directory that the compilation process creates.
+The next sections contain instructions about how to run and interact with the example projects, and those steps are the same for both variants.
 
 ## SQRL Compilation and Packaging
 1. **SQRL Compilation:** Compile the SQRL using DataSQRL's command interface, which prepares your script for deployment in the Flink environment.
 
 ```shell
+# "cd jbang" OR "cd maven-project"
+
 docker run --rm -v $PWD:/build datasqrl/cmd:latest compile myudf.sqrl
 ```
 
