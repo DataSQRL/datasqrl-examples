@@ -1,4 +1,4 @@
-CREATE TABLE `usertokens` (
+CREATE TABLE UserTokens (
   `userid` BIGINT NOT NULL,
   `tokens` BIGINT NOT NULL,
   `request_time` TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL,
@@ -6,6 +6,6 @@ CREATE TABLE `usertokens` (
 ) WITH (
   'connector' = 'filesystem',
   'format' = 'flexible-json',
-  'path' = '${DATA_PATH}/usertokens.jsonl',
+  'path' = '${DATA_PATH}/user_tokens.jsonl',
   'source.monitor-interval' = '10 sec'
 );
