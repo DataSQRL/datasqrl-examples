@@ -1,23 +1,18 @@
 {
   "script": {
-    "main": "recommendation.sqrl"
+    "main": "recommendation.sqrl",
+    "config": {
+      "variant": "api"
+    }
+  },
+  "compiler" : {
+    "logger": "print"
   },
   "engines": {
     "flink" : {
       "config" : {
         "table.exec.source.idle-timeout": "5 s"
       }
-    }
-  },
-  "compiler" : {
-    "logger": "print"
-  },
-  "dependencies": {
-    "content" : {
-      "folder": "content-api"
-    },
-    "clickstream" : {
-      "folder": "clickstream-api"
     }
   }
 }

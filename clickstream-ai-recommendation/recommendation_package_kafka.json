@@ -1,6 +1,9 @@
 {
   "script": {
-    "main": "recommendation.sqrl"
+    "main": "recommendation.sqrl",
+    "config": {
+      "variant": "kafka"
+    }
   },
   "compiler" : {
     "logger": "kafka"
@@ -10,14 +13,6 @@
       "config" : {
         "table.exec.source.idle-timeout": "5 s"
       }
-    }
-  },
-  "dependencies": {
-    "content" : {
-      "folder": "content-kafka"
-    },
-    "clickstream" : {
-      "folder": "clickstream-kafka"
     }
   },
   "test-runner": {
