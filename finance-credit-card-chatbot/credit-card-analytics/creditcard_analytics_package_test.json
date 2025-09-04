@@ -2,11 +2,9 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "creditcard_analytics.sqrl"
-  },
-  "dependencies": {
-    "creditcard-data": {
-      "folder": "creditcard-testdata"
+    "main": "creditcard_analytics.sqrl",
+    "config": {
+      "variant": "testdata"
     }
   }
 }

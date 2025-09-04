@@ -2,7 +2,10 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "creditcard_analytics.sqrl"
+    "main": "creditcard_analytics.sqrl",
+    "config": {
+      "variant": "kafka"
+    }
   },
   "engines": {
     "flink" : {
@@ -13,10 +16,5 @@
   },
   "test-runner": {
     "create-topics": ["transaction", "cardassignment","merchant","merchantreward"]
-  },
-  "dependencies": {
-    "creditcard-data": {
-      "folder": "creditcard-kafka"
-    }
   }
 }

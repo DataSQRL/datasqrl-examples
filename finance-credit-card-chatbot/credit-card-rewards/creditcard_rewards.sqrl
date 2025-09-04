@@ -1,11 +1,10 @@
-IMPORT creditcard-data.Merchant AS _MerchantStream;
-IMPORT creditcard-data.CardAssignment AS _CardAssignmentStream;
-IMPORT creditcard-data.Transaction AS _Transaction;
-IMPORT creditcard-data.MerchantReward AS _MerchantRewardStream;
-
+IMPORT creditcard-{{variant}}.merchant AS _MerchantStream;
+IMPORT creditcard-{{variant}}.card_assignment AS _CardAssignmentStream;
+IMPORT creditcard-{{variant}}.transaction AS _Transaction;
+IMPORT creditcard-{{variant}}.merchant_reward AS _MerchantRewardStream;
 
 /* Deduplicate CDC Streams */
-_Merchant :=       DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
+_Merchant       := DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
 _CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp` DESC;
 _MerchantReward := DISTINCT _MerchantRewardStream ON merchantId ORDER BY updatedTime DESC;
 

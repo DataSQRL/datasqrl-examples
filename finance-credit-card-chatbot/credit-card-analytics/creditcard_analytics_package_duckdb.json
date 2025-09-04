@@ -2,7 +2,10 @@
   "version": "1",
   "enabled-engines": ["vertx", "iceberg", "duckdb", "kafka", "flink"],
   "script": {
-    "main": "creditcard_analytics.sqrl"
+    "main": "creditcard_analytics.sqrl",
+    "config": {
+      "variant": "testdata"
+    }
   },
   "engines": {
     "flink": {
@@ -16,11 +19,6 @@
       "warehouse":"warehouse",
       "catalog-type":"hadoop",
       "catalog-name": "mydatabase"
-    }
-  },
-  "dependencies": {
-    "creditcard-data": {
-      "folder": "creditcard-testdata"
     }
   }
 }

@@ -6,7 +6,7 @@ CREATE TABLE MerchantReward (
     WATERMARK FOR `updatedTime` AS `updatedTime` - INTERVAL '1' SECOND
 ) WITH (
       'format' = 'flexible-json',
-      'path' = '${DATA_PATH}/merchantReward.jsonl',
+      'path' = '${DATA_PATH}/merchant_reward.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-      );
+);

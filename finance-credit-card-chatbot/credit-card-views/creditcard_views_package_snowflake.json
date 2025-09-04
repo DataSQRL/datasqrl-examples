@@ -2,7 +2,10 @@
   "version": "1",
   "enabled-engines": ["iceberg", "snowflake", "flink"],
   "script": {
-    "main": "creditcard_views.sqrl"
+    "main": "creditcard_views.sqrl",
+    "config": {
+      "variant": "kafka"
+    }
   },
   "engines": {
     "flink": {
@@ -23,11 +26,6 @@
       "io-impl":"org.apache.iceberg.aws.s3.S3FileIO",
       "catalog-name": "mycatalog",
       "catalog-database": "mydatabase"
-    }
-  },
-  "dependencies": {
-    "creditcard-data": {
-      "folder": "creditcard-kafka"
     }
   }
 }
