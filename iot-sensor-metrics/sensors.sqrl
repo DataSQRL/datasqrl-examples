@@ -1,5 +1,5 @@
 /*+no_query*/
-IMPORT sensors.AddReadings AS SensorReading;
+IMPORT sensors-{{variant}}.readings AS SensorReading;
 
 /**
  Returns all sensor temperature readings above the given temperature
@@ -35,4 +35,3 @@ SensorHighTempTest := SELECT COUNT(*) as num, AVG(temperature) as avg_temp FROM 
 
 /*+test */
 SensorMaxTempTest := SELECT sensorid, maxTemp FROM SensorMaxTemp ORDER BY sensorid DESC;
-
