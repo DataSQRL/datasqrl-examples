@@ -9,4 +9,4 @@ CREATE TABLE Customer (
       'format' = 'flexible-json',
       'path' = '${DATA_PATH}/customer.jsonl',
       'connector' = 'filesystem'
-      );
+);

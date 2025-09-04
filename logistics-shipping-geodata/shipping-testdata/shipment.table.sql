@@ -13,4 +13,4 @@ CREATE TABLE Shipment (
       'format' = 'flexible-json',
       'path' = '${DATA_PATH}/shipment.jsonl',
       'connector' = 'filesystem'
-      );
+);

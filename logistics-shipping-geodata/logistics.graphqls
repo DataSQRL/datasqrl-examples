@@ -4,7 +4,7 @@ type Customer {
   email: String!
   phone: String!
   shipments(limit: Int = 10, offset: Int = 0): [Shipment!]
-  statistics(limit: Int = 10, offset: Int = 0): [statistics!]
+  statistics(limit: Int = 10, offset: Int = 0): [Statistics!]
 }
 
 "An RFC-3339 compliant DateTime Scalar"
@@ -28,14 +28,14 @@ type Shipment {
   weight: Float!
   estimatedDelivery: DateTime!
   customerId: Float!
-  locations(limit: Int = 10, offset: Int = 0): [Shipment_Location!]
+  locations(limit: Int = 10, offset: Int = 0): [ShipmentLocation!]
 }
 
-type Shipment_Location {
+type ShipmentLocation {
   timestamp: DateTime!
   shipmentId: Float!
   vehicleId: Float!
-  vehicle_statuses(limit: Int = 10, offset: Int = 0): [Vehicle_Status!]
+  vehicleStatuses(limit: Int = 10, offset: Int = 0): [VehicleStatus!]
 }
 
 type Vehicle {
@@ -44,13 +44,13 @@ type Vehicle {
   capacity: Float!
 }
 
-type Vehicle_Status {
+type VehicleStatus {
   timestamp: DateTime!
   lat: Float!
   lon: Float!
   vehicleId: Float!
 }
 
-type statistics {
-  shipment_count: Float!
+type Statistics {
+  shipmentCount: Float!
 }
