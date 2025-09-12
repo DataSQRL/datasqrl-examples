@@ -6,4 +6,4 @@ CREATE TABLE Driver (
       'path' = '${DATA_PATH}/driver.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-      );
+) LIKE `driver.schema.yml`;

@@ -1,6 +1,6 @@
-# Data Package for the Finance Creditcard Chatbot Example
+# Data Package for the Finance Credit Card Chatbot Example
 
-This data package is used by the Finance Creditcard Chatbot example which demonstrates how DataSQRL enables real-time
+This data package is used by the Finance Credit Card Chatbot example which demonstrates how DataSQRL enables real-time
 analytics and a rewards program based on credit card transactions. It showcases how to aggregate, enrich, and process
 streaming data to provide insights into customer spending and credit card rewards, all within a compact data pipeline.
 

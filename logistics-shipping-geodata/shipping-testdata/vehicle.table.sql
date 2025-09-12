@@ -9,4 +9,4 @@ CREATE TABLE Vehicle (
       'format' = 'flexible-json',
       'path' = '${DATA_PATH}/vehicle.jsonl',
       'connector' = 'filesystem'
-      );
+);

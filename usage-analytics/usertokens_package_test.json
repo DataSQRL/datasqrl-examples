@@ -1,11 +1,9 @@
 {
   "version": "1",
   "script": {
-    "main": "usertokens.sqrl"
-  },
-  "dependencies": {
-    "usertokens": {
-      "folder": "usertokens-testdata"
+    "main": "usertokens.sqrl",
+    "config": {
+      "variant": "testdata"
     }
   }
 }

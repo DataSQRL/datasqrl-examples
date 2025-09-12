@@ -1,5 +1,5 @@
 /*+no_query */
-IMPORT usertokens.UserTokens;
+IMPORT usertokens-{{variant}}.user_tokens;
 
 _TokenUsageHourWindow := SELECT userid, window_start, window_end, window_time,
                                 SUM(tokens) AS total_tokens

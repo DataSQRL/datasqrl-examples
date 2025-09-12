@@ -2,11 +2,9 @@
   "version": "1",
   "script": {
     "main": "logistics.sqrl",
-    "graphql": "logistics.graphqls"
-  },
-  "dependencies": {
-    "shipping-data": {
-      "folder": "shipping-testdata"
+    "graphql": "logistics.graphqls",
+    "config": {
+      "variant": "testdata"
     }
   }
 }

@@ -2,7 +2,10 @@
   "version": "1",
   "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
   "script": {
-    "main": "creditcard_views.sqrl"
+    "main": "creditcard_views.sqrl",
+    "config": {
+      "variant": "testdata"
+    }
   },
   "engines": {
     "flink": {
@@ -20,10 +23,5 @@
   },
   "test-runner": {
     "delay-sec": 120
-  },
-  "dependencies": {
-    "creditcard-data": {
-      "folder": "creditcard-testdata"
-    }
   }
 }

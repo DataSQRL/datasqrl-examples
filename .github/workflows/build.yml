@@ -47,7 +47,6 @@ jobs:
             test_commands: |
               compile -c study_analytics_package_test.json
               test -c study_analytics_package_test.json
-            # FIXME https://github.com/DataSQRL/sqrl/issues/1140 compile -c study_analytics_package_snowflake.json
           - example: healthcare-study-api
             path: healthcare-study/healthcare-study-api
             tag: healthcare-study-api
@@ -151,8 +150,6 @@ jobs:
       run: |
         cat <<EOF > ${{ matrix.path }}/Dockerfile
         FROM datasqrl/cmd:${SQRL_VERSION}
-
-        ENV TZ="UTC"
 
         COPY . /build
         WORKDIR /build

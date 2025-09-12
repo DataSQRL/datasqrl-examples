@@ -1,7 +1,7 @@
-IMPORT oilgas-data.Assets AS _AssetUpdates;
-IMPORT oilgas-data.Maintenance AS _MaintenanceUpdates;
-IMPORT oilgas-data.Measurement AS _Measurement;
-IMPORT oilgas-data.FlowRate;
+IMPORT oilgas-{{variant}}.assets AS _AssetUpdates;
+IMPORT oilgas-{{variant}}.maintenance AS _MaintenanceUpdates;
+IMPORT oilgas-{{variant}}.measurement AS _Measurement;
+IMPORT oilgas-{{variant}}.flow_rate;
 
 /**
   Returns information about the well/asset including it's maintenance records, manual,

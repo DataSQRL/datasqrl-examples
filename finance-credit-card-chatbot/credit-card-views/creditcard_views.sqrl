@@ -1,10 +1,10 @@
 /* Import Data */
-IMPORT creditcard-data.Merchant AS _MerchantStream;
-IMPORT creditcard-data.CardAssignment AS _CardAssignmentStream;
-IMPORT creditcard-data.Transaction AS _Transaction;
+IMPORT creditcard-{{variant}}.merchant AS _MerchantStream;
+IMPORT creditcard-{{variant}}.card_assignment AS _CardAssignmentStream;
+IMPORT creditcard-{{variant}}.transaction AS _Transaction;
 
 /* Deduplicate CDC Streams */
-Merchant :=       DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
+_Merchant       := DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
 _CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp` DESC;
 
 /* Enrich credit card transactions with customer and merchant information */
@@ -13,7 +13,7 @@ _CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount,
                               m.category, c.customerId, m.merchantId
                        FROM _Transaction t
                                 JOIN _CardAssignment FOR SYSTEM_TIME AS OF t.`time` c ON t.cardNo = c.cardNo
-                                JOIN Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId;
+                                JOIN _Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId;
 
 SpendingByCategory := SELECT customerId, window_time as timeWeek, category, SUM(amount) as spending
                       FROM TABLE(TUMBLE(TABLE _CustomerTransaction, DESCRIPTOR(`time`), INTERVAL '7' DAY))
@@ -27,7 +27,7 @@ SpendingByDay := SELECT customerId, window_time as timeDay, SUM(amount) as spend
 
 CustomerTransactionWithMerchant :=
                 SELECT * FROM _CustomerTransaction t
-                INNER JOIN Merchant m ON t.merchantId = m.merchantId;
+                INNER JOIN _Merchant m ON t.merchantId = m.merchantId;
 
 
 /* =======TEST CASES======== */
@@ -37,4 +37,3 @@ SpendingByCategoryTest := SELECT *
                             FROM SpendingByCategory
                             ORDER BY customerId DESC, timeWeek DESC, spending DESC
                             LIMIT 5;
-

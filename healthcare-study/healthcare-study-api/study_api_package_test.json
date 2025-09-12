@@ -1,7 +1,10 @@
 {
   "version": "1",
   "script": {
-    "main": "study_api.sqrl"
+    "main": "study_api.sqrl",
+    "config": {
+      "variant": "testdata"
+    }
   },
   "engines": {
     "flink" : {
@@ -12,13 +15,5 @@
   },
   "test-runner": {
     "delay-sec": 200
-  },
-  "dependencies": {
-    "metrics": {
-      "folder": "metrics-testdata"
-    },
-    "study": {
-      "folder": "study-testdata"
-    }
   }
 }

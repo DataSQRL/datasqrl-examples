@@ -6,4 +6,4 @@ CREATE TABLE Vehicle (
     'path' = '${DATA_PATH}/vehicle.jsonl',
     'source.monitor-interval' = '10 min',
     'connector' = 'filesystem'
-);
+) LIKE `vehicle.schema.yml`;

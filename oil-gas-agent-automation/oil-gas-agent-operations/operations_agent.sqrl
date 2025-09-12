@@ -1,6 +1,6 @@
-IMPORT oilgas-data.Assets AS _AssetUpdates;
-IMPORT oilgas-data.Maintenance AS _MaintenanceUpdates;
-IMPORT oilgas-data.Measurement AS _Measurement;
+IMPORT oilgas-{{variant}}.assets AS _AssetUpdates;
+IMPORT oilgas-{{variant}}.maintenance AS _MaintenanceUpdates;
+IMPORT oilgas-{{variant}}.measurement AS _Measurement;
 
 /*+no_query */
 CREATE TABLE FlowRate (
@@ -53,4 +53,3 @@ RecentPressure := SELECT assetId, window_time AS timestamp_normalized,
 
 /*+ test */
 RecentPressureTest := SELECT * FROM RecentPressure ORDER BY timestamp_normalized DESC, assetId ASC;
-

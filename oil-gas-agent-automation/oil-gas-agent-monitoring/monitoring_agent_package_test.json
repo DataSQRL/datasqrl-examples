@@ -2,18 +2,16 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "monitoring_agent.sqrl"
+    "main": "monitoring_agent.sqrl",
+    "config": {
+      "variant": "testdata"
+    }
   },
   "engines": {
     "flink" : {
       "config" : {
         "table.exec.source.idle-timeout": "1 s"
       }
-    }
-  },
-  "dependencies": {
-    "oilgas-data": {
-      "folder": "oilgas-testdata"
     }
   }
 }

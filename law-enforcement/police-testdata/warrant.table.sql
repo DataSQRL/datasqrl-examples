@@ -6,4 +6,4 @@ CREATE TABLE Warrant (
       'path' = '${DATA_PATH}/warrant.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-      );
+) LIKE `warrant.schema.yml`;

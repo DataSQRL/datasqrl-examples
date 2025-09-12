@@ -2,7 +2,10 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "creditcard_rewards.sqrl"
+    "main": "creditcard_rewards.sqrl",
+    "config": {
+      "variant": "testdata"
+    }
   },
   "engines" : {
     "vertx" : {
@@ -28,11 +31,6 @@
   "test-runner": {
     "headers": {
       "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkdW1teS1pc3N1ZXIiLCJhdWQiOlsiZHVtbXktYXVkaWVuY2UiXSwiZXhwIjo5OTk5OTk5OTk5LCJjdXN0b21lcklkIjo5fQ.EQXSynp-Hdee4TESpfL2sx5QU6uyuniNzA-dYuOqpaY"
-    }
-  },
-  "dependencies": {
-    "creditcard-data": {
-      "folder": "creditcard-testdata"
     }
   }
 }

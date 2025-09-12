@@ -1,16 +1,18 @@
-IMPORT study.* AS _CDC_;
+IMPORT study-testdata.* AS _CDC_;
+
 /*+no_query */
-IMPORT metrics.ClinicalIndicator AS AddClinicalData;
+IMPORT metrics-{{variant}}.clinical_indicator AS AddClinicalData;
 
 _ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM AddClinicalData;
 
-_SensorPlacements := DISTINCT _CDC_sensorplacements ON sensorId ORDER BY placedTimestamp DESC;
-_Metadata := DISTINCT _CDC_metadata ON metadataId ORDER BY lastUpdated DESC;
+_SensorPlacements := DISTINCT _CDC_SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata := DISTINCT _CDC_Metadata ON metadataId ORDER BY lastUpdated DESC;
 
 _EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
           JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
           JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
 
+/** Produces alerts for recorded clinical data that is outside the normal range */
 IndicatorAlerts := SUBSCRIBE SELECT * FROM _EnrichedIndicators
     WHERE metric < lowRange OR metric > highRange;
 
@@ -30,8 +32,14 @@ PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, n
 PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetricsHourly
                             WHERE patientId = 5 ORDER BY timeHour DESC, name ASC;
 
+/** Returns a patient by id with patient information and recently recorded
+  clinical data aggregated hourly.
+ */
 /*+query_by_any(patientId) */
-Patients := DISTINCT _CDC_patients ON patientId ORDER BY lastUpdated DESC;
+Patients := DISTINCT _CDC_Patients ON patientId ORDER BY lastUpdated DESC;
 Patients.metrics := SELECT * FROM PatientMetricsHourly m WHERE m.patientId = this.patientId ORDER BY m.timeHour DESC, m.name ASC;
 
+/** Returns a patient by name with patient information and recently recorded
+  clinical data aggregated hourly.
+ */
 PatientsByName(name STRING NOT NULL) := SELECT * FROM Patients WHERE name = :name;

@@ -1,6 +1,6 @@
-IMPORT metrics.ClinicalIndicator;
-IMPORT study.SensorPlacements AS _CDC_SensorPlacements;
-IMPORT study.Metadata AS _CDC_Metadata;
+IMPORT metrics-{{variant}}.clinical_indicator;
+IMPORT study-testdata.sensor_placements AS _CDC_SensorPlacements;
+IMPORT study-testdata.metadata AS _CDC_Metadata;
 
 SensorPlacements := DISTINCT _CDC_SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 Metadata := DISTINCT _CDC_Metadata ON metadataId ORDER BY lastUpdated DESC;
@@ -9,7 +9,7 @@ EnrichedIndicators := SELECT * FROM ClinicalIndicator m
    JOIN SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
    JOIN Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
 
-EXPORT EnrichedIndicators TO metrics.EnrichedIndicator;
+EXPORT EnrichedIndicators TO metrics-{{variant}}.enriched_indicator;
 
 /*+test */
 TotalTest := SELECT COUNT(1) AS total_num FROM EnrichedIndicators;
