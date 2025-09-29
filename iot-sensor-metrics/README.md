@@ -11,7 +11,7 @@ To run the API, execute
 docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c sensors_package_api.json
 ```
 
-To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/graphiql/) to access the API.
+To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/v1/graphiql/) to access the API.
 
 ## Run the Tests
 
@@ -22,7 +22,7 @@ docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest
 ## Add Temperature Readings to Running API
 
 Once the API is up and running, you can access it through GraphiQL, a GraphQL IDE by opening
-[http://localhost:8888//graphiql/](http://localhost:8888//graphiql/) in your browser.
+[http://localhost:8888/v1//graphiql/](http://localhost:8888/v1//graphiql/) in your browser.
 
 Before you run the associated ChatBot, we need to record some sensor data through the API.
 You can do that by copy-pasting the following GraphQL mutation query and running it in GraphiQL:

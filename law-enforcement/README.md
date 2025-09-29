@@ -22,7 +22,7 @@ docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest
 
 ## Queries
 
-To issue queries, open [http://localhost:8888/graphiql/](http://localhost:8888/graphiql/) in your browser. You can then run the following queries.
+To issue queries, open [http://localhost:8888/v1/graphiql/](http://localhost:8888/v1/graphiql/) in your browser. You can then run the following queries.
 
 "Baseball card" for Drivers that provides a comprehensive overview of all relevant information:
 

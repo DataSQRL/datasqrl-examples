@@ -33,7 +33,7 @@ docker run -it -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run myudf.sq
 ### Creating and Testing Records
 1. Creating a Record: Test the function by creating a record via a GraphQL query.
 ```shell
-curl -X POST 'http://localhost:8888/graphql' \
+curl -X POST 'http://localhost:8888/v1/graphql' \
     -H 'Content-Type: application/graphql' \
     -d '
 mutation {
@@ -46,7 +46,7 @@ mutation {
 2. Verifying Function Execution: Confirm the function's execution and output with another GraphQL query. You should see two values come back, 2 and 4.
 
 ```shell
-curl -X POST 'http://localhost:8888/graphql' \
+curl -X POST 'http://localhost:8888/v1/graphql' \
     -H 'Content-Type: application/graphql' \
     -d '
 query {
