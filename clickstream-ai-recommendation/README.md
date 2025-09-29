@@ -28,7 +28,7 @@ Run the API version with this command:
 docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c recommendation_package_api.json
 ```
 
-Next, open [GraphQL Explorer](http://localhost:8888/graphiql/) and add some content:
+Next, open [GraphQL Explorer](http://localhost:8888/v1/graphiql/) and add some content:
 ```graphql
 mutation {
   Content(event: {url: "https://en.wikipedia.org/wiki/Zoop", title: "Zoop", text: "Zoop is a puzzle video game originally developed by Hookstone Productions and published by Viacom New Media for many platforms in 1995. It has similarities to Taito's 1989 arcade game Plotting (known as Flipull in other territories and on other systems) but Zoop runs in real-time instead. Players are tasked with eliminating pieces that spawn from one of the sides of the screen, before they reach the center of the playfield, by pointing at a specific piece and shooting it to either swap it with t"}) {
@@ -94,7 +94,7 @@ docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build -e OPE
    until it finishes (about 4 minutes).
 
 Open GraphiQL and query the data:
-`http://localhost:8888/graphiql/`
+`http://localhost:8888/v1/graphiql/`
 
 Query for recommendations either by page:
 
