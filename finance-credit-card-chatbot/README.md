@@ -76,8 +76,13 @@ any of the main package configurations to secure the endpoints, regardless of ot
 For example, to secure the API with the File data source, invoke the following command in the specific example directory:
 ```bash
 cd credit-card-analytics
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json 
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run \
+  -c creditcard_analytics_package_test.json \
+  -c creditcard_analytics_package_jwt.json
 ```
+
+It is also possible to construct additional API tests and operations via the DataSQRL test runner.
+Take a look at the [Transaction Analytics](credit-card-analytics) example to see how those can be set up.
 
 ## 4. Run the MCP Inspector
 
