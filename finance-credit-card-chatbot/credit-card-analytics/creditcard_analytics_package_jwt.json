@@ -22,6 +22,8 @@
     }
   },
   "test-runner": {
+    "snapshot-folder": "snapshots-jwt",
+    "test-folder": "tests-jwt ",
     "headers": {
       "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkdW1teS1pc3N1ZXIiLCJhdWQiOlsiZHVtbXktYXVkaWVuY2UiXSwiZXhwIjo5OTk5OTk5OTk5fQ.3WQJxy-RsmvHskT4dvQp2ti-E88me5y-kkquy0SJ3SA"
     }
