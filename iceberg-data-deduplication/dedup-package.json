@@ -1,0 +1,23 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "dedup.sqrl",
+    "config": {
+      "warehouse": "/tmp/duckdb",
+      "catalogType": "hadoop",
+      "catalogName": "mycatalog",
+      "databaseName": "mydatabase",
+      "tableName": "CdcData",
+      "partitionCol": "account_id"
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch",
+        "table.exec.source.idle-timeout": "1 ms"
+      }
+    }
+  }
+}

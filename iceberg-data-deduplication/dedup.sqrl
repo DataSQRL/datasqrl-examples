@@ -1,0 +1,121 @@
+IMPORT tables.cdc_data;
+IMPORT tables.compaction_tracker;
+IMPORT udfs.read_partition_sizes;
+IMPORT udfs.delete_deduplicated_data;
+
+--
+-- Part 1: Gather partitions to compact
+--
+
+_Partitions :=
+SELECT *
+FROM TABLE(read_partition_sizes('{{warehouse}}', '{{catalogType}}', '{{catalogName}}', '{{databaseName}}',
+                                '{{tableName}}', '{{partitionCol}}'))
+WHERE time_bucket <= 10; -- max bucket hardcoded for test purposes
+
+_PartitionSizing :=
+SELECT partition_id,
+       SUM(CASE WHEN time_bucket = 0 THEN partition_size ELSE 0 END) AS base_size,
+       SUM(CASE WHEN time_bucket > 0 THEN partition_size ELSE 0 END) AS new_size
+FROM _Partitions
+GROUP BY partition_id;
+
+_PartitionSizing.total_size := base_size + new_size;
+
+_PartitionPriority :=
+SELECT
+    {{partitionCol}} AS partition_id, time_bucket, new_size, total_size, SUM (total_size) OVER (
+    ORDER BY new_size DESC
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS cumulative_total_size, ROW_NUMBER() OVER (ORDER BY new_size DESC) AS row_num
+FROM CdcData d
+    JOIN _PartitionSizing p
+ON d.{{partitionCol}} = p.partition_id
+ORDER BY new_size DESC;
+
+_PartitionsToCompact :=
+SELECT DISTINCT '{{tableName}}'    AS table_name,
+                'dummy_deployment' AS job_id,
+                partition_id,
+                10                 AS max_time_bucket,
+                'initialize' AS action,
+        NOW() AS action_time
+FROM _PartitionPriority
+WHERE cumulative_total_size <= 100000
+   OR row_num <= 5; -- filters hardcoded for test purposes
+
+INSERT INTO CompactionTracker SELECT * FROM _PartitionsToCompact;
+
+NEXT_BATCH;
+
+--
+-- Part 2: Compact gathered partitions
+--
+
+_DataToCompact :=
+SELECT DISTINCT table_name,
+                job_id,
+                partition_id,
+                max_time_bucket
+FROM CompactionTracker
+WHERE LOWER(table_name) = LOWER('{{tableName}}')
+  AND job_id = 'dummy_deployment'
+  AND action = 'initialize'
+  AND action_time > NOW() - INTERVAL '4' HOUR; -- last condition is for efficient pruning of iceberg read
+
+_InputData :=
+SELECT /*+ BROADCAST(c) */ d.*
+FROM {{tableName}} AS d
+        JOIN _DataToCompact AS c
+ON d.{{partitionCol}} = c.partition_id AND d.time_bucket <= c.max_time_bucket;
+
+_InputData.time_bucket := 0;
+
+_DistInputData := DISTINCT _InputData ON {{partitionCol}} ORDER BY ts DESC;
+
+INSERT OVERWRITE {{tableName}} SELECT * FROM _DistInputData;
+
+_CompactionResult :=
+SELECT table_name, job_id, partition_id, max_time_bucket, 'overwrite' AS action, NOW() AS action_time
+FROM _DataToCompact;
+
+INSERT INTO CompactionTracker SELECT * FROM _CompactionResult;
+
+NEXT_BATCH;
+
+--
+-- Part 3: Delete source partitions that were compacted
+--
+
+_DataToDelete :=
+SELECT DISTINCT table_name,
+                job_id,
+                partition_id,
+                max_time_bucket
+FROM CompactionTracker
+WHERE LOWER(table_name) = LOWER('{{tableName}}')
+  AND job_id = 'dummy_deployment'
+  AND action = 'overwrite'
+  AND action_time > NOW() - INTERVAL '4' HOUR;
+
+_DeleteFnResult :=
+SELECT delete_deduplicated_data(
+               '{{warehouse}}',
+               '{{catalogType}}',
+               '{{catalogName}}',
+               '{{databaseName}}',
+               MAX(table_name),
+               '{{partitionCol}}',
+               MAX(max_time_bucket),
+               COLLECT(partition_id)) AS res
+FROM _DataToDelete;
+
+_DeleteResult :=
+SELECT
+    d.*,
+    CASE WHEN fn.res = true THEN 'delete' ELSE 'delete_failed' END AS action,
+        NOW() AS action_time
+FROM _DataToDelete AS d
+    CROSS JOIN (SELECT res FROM _DeleteFnResult LIMIT 1) AS fn;
+
+INSERT INTO CompactionTracker SELECT * FROM _DeleteResult;

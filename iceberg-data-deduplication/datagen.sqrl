@@ -1,0 +1,4 @@
+IMPORT tables.min_source AS _CDC;
+IMPORT tables.cdc_data;
+
+INSERT INTO CdcData SELECT c.*, EXTRACT(SECOND FROM c.ts) + 1 AS time_bucket FROM _CDC c;
