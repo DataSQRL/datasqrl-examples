@@ -1,10 +1,12 @@
 CREATE TABLE `CompactionTracker` (
-    `table_name`      STRING NOT NULL,
-    `job_id`          STRING NOT NULL,
-    `partition_id`    BIGINT NOT NULL,
-    `max_time_bucket` BIGINT NOT NULL,
-    `action`          STRING NOT NULL,
-    `action_time`     TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL
+    `table_name`         STRING NOT NULL,
+    `job_id`             STRING NOT NULL,
+    `partition_id`       BIGINT NOT NULL,
+    `new_rel_percentage` DOUBLE NOT NULL,
+    `new_abs_percentage` DOUBLE NOT NULL,
+    `max_time_bucket`    BIGINT NOT NULL,
+    `action`             STRING NOT NULL,
+    `action_time`        TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL
 ) PARTITIONED BY (`table_name`)
 WITH (
     'connector' = 'iceberg',

@@ -9,7 +9,8 @@
       "catalogName": "mycatalog",
       "databaseName": "mydatabase",
       "tableName": "CdcData",
-      "partitionCol": "account_id"
+      "partitionCol": "account_id",
+      "newDataNormalizer": 100000
     }
   },
   "engines": {

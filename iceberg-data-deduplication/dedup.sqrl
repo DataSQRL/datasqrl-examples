@@ -21,25 +21,33 @@ FROM _Partitions
 GROUP BY partition_id;
 
 _PartitionSizing.total_size := base_size + new_size;
+_PartitionSizing.new_rel_percentage := CAST(new_size AS DOUBLE) / total_size * 100;
+_PartitionSizing.new_abs_percentage := CAST(new_size AS DOUBLE) / {{newDataNormalizer}} * 100;
+_PartitionSizing.score := new_rel_percentage + new_abs_percentage;
 
 _PartitionPriority :=
-SELECT
-    {{partitionCol}} AS partition_id, time_bucket, new_size, total_size, SUM (total_size) OVER (
-    ORDER BY new_size DESC
-    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-    ) AS cumulative_total_size, ROW_NUMBER() OVER (ORDER BY new_size DESC) AS row_num
-FROM CdcData d
-    JOIN _PartitionSizing p
-ON d.{{partitionCol}} = p.partition_id
-ORDER BY new_size DESC;
+SELECT d.{{partitionCol}} AS partition_id,
+    d.time_bucket,
+    p.new_size,
+    p.total_size,
+    p.new_rel_percentage,
+    p.new_abs_percentage,
+    p.new_rel_percentage + p.new_abs_percentage AS score,
+    ROW_NUMBER() OVER (ORDER BY (p.new_rel_percentage + p.new_abs_percentage) DESC) AS row_num,
+    SUM (p.total_size) OVER (
+      ORDER BY (p.new_rel_percentage + p.new_abs_percentage) DESC
+      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_total_size
+FROM CdcData d JOIN _PartitionSizing p ON d.{{partitionCol}} = p.partition_id;
 
 _PartitionsToCompact :=
-SELECT DISTINCT '{{tableName}}'    AS table_name,
-                'dummy_deployment' AS job_id,
+SELECT DISTINCT '{{tableName}}' AS table_name,
+                '${DEPLOYMENT_ID}' AS job_id,
                 partition_id,
-                10                 AS max_time_bucket,
+                new_rel_percentage,
+                new_abs_percentage,
+                10 AS max_time_bucket,
                 'initialize' AS action,
-        NOW() AS action_time
+                NOW() AS action_time
 FROM _PartitionPriority
 WHERE cumulative_total_size <= 100000
    OR row_num <= 5; -- filters hardcoded for test purposes
@@ -56,10 +64,12 @@ _DataToCompact :=
 SELECT DISTINCT table_name,
                 job_id,
                 partition_id,
+                new_rel_percentage,
+                new_abs_percentage,
                 max_time_bucket
 FROM CompactionTracker
 WHERE LOWER(table_name) = LOWER('{{tableName}}')
-  AND job_id = 'dummy_deployment'
+  AND job_id = '${DEPLOYMENT_ID}'
   AND action = 'initialize'
   AND action_time > NOW() - INTERVAL '4' HOUR; -- last condition is for efficient pruning of iceberg read
 
@@ -76,7 +86,14 @@ _DistInputData := DISTINCT _InputData ON {{partitionCol}} ORDER BY ts DESC;
 INSERT OVERWRITE {{tableName}} SELECT * FROM _DistInputData;
 
 _CompactionResult :=
-SELECT table_name, job_id, partition_id, max_time_bucket, 'overwrite' AS action, NOW() AS action_time
+SELECT table_name,
+       job_id,
+       partition_id,
+       new_rel_percentage,
+       new_abs_percentage,
+       max_time_bucket,
+       'overwrite' AS action,
+       NOW() AS action_time
 FROM _DataToCompact;
 
 INSERT INTO CompactionTracker SELECT * FROM _CompactionResult;
@@ -91,10 +108,12 @@ _DataToDelete :=
 SELECT DISTINCT table_name,
                 job_id,
                 partition_id,
+                new_rel_percentage,
+                new_abs_percentage,
                 max_time_bucket
 FROM CompactionTracker
 WHERE LOWER(table_name) = LOWER('{{tableName}}')
-  AND job_id = 'dummy_deployment'
+  AND job_id = '${DEPLOYMENT_ID}'
   AND action = 'overwrite'
   AND action_time > NOW() - INTERVAL '4' HOUR;
 
