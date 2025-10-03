@@ -62,6 +62,11 @@ jobs:
               compile -c study_stream_package_test.json
               test -c study_stream_package_test.json
 
+          - example: iceberg-dedup
+            path: iceberg-data-deduplication
+            test_commands: |
+              compile -c dedup_package.json
+
           - example: iot-sensor
             path: iot-sensor-metrics
             test_commands: |
