@@ -1,0 +1,16 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "datagen.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch",
+        "execution.checkpointing.interval": "8 s",
+        "table.exec.source.idle-timeout": "1 ms"
+      }
+    }
+  }
+}
