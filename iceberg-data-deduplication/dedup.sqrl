@@ -11,7 +11,7 @@ _Partitions :=
 SELECT *
 FROM TABLE(read_partition_sizes('{{warehouse}}', '{{catalogType}}', '{{catalogName}}', '{{databaseName}}',
                                 '{{tableName}}', '{{partitionCol}}'))
-WHERE time_bucket <= 10; -- max bucket hardcoded for test purposes
+WHERE time_bucket <= FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}}) / {{bucketSeconds}}) * {{bucketSeconds}};
 
 _PartitionSizing :=
 SELECT partition_id,
@@ -45,12 +45,12 @@ SELECT DISTINCT '{{tableName}}' AS table_name,
                 partition_id,
                 new_rel_percentage,
                 new_abs_percentage,
-                10 AS max_time_bucket,
+                FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}}) / {{bucketSeconds}}) * {{bucketSeconds}} AS max_time_bucket,
                 'initialize' AS action,
                 NOW() AS action_time
 FROM _PartitionPriority
-WHERE cumulative_total_size <= 100000
-   OR row_num <= 5; -- filters hardcoded for test purposes
+WHERE cumulative_total_size <= {{maxTotalPartitionSizeInBytes}}
+   OR row_num <= 1;
 
 INSERT INTO CompactionTracker SELECT * FROM _PartitionsToCompact;
 

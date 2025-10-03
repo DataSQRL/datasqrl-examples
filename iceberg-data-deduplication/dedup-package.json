@@ -10,7 +10,10 @@
       "databaseName": "mydatabase",
       "tableName": "CdcData",
       "partitionCol": "account_id",
-      "newDataNormalizer": 100000
+      "bufferSeconds": 2,
+      "bucketSeconds": 5,
+      "newDataNormalizer": 100000,
+      "maxTotalPartitionSizeInBytes": 100000
     }
   },
   "engines": {
