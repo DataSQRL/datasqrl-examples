@@ -4,6 +4,7 @@
   "script": {
     "main": "dedup.sqrl",
     "config": {
+      "udfVariant": "bigint",
       "warehouse": "/tmp/duckdb",
       "catalogType": "hadoop",
       "catalogName": "mycatalog",

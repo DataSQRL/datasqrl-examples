@@ -15,29 +15,25 @@
  */
 package com.myudf;
 
-import com.google.auto.service.AutoService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.table.annotation.DataTypeHint;
-import org.apache.flink.table.annotation.FunctionHint;
 import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.types.Row;
 import org.apache.iceberg.FileScanTask;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Table;
 
-@AutoService(TableFunction.class)
-@FunctionHint(
-    output = @DataTypeHint("ROW<partition_id BIGINT, time_bucket BIGINT, partition_size BIGINT>"))
-public class read_partition_sizes extends TableFunction<Row> {
+abstract class AbstractPartitionSizeReader<T> extends TableFunction<Row> {
 
   private transient Map<String, Integer> posByName = null;
 
-  public void eval(
+  abstract T getUnpartitionedId();
+
+  void readPartitionSizes(
       String warehouse,
       @Nullable String catalogType,
       String catalogName,
@@ -45,9 +41,13 @@ public class read_partition_sizes extends TableFunction<Row> {
       String tableName,
       String partitionCol) {
 
+    if (warehouse == null || catalogName == null || tableName == null || partitionCol == null) {
+      return;
+    }
+
     Function<Table, Void> readFn =
         table -> {
-          var partitions = new HashMap<String, Tuple3<Long, Long, Long>>();
+          var partitions = new HashMap<String, Tuple3<T, Long, Long>>();
 
           try (var tasks = table.newScan().planFiles()) {
             for (var task : tasks) {
@@ -81,13 +81,13 @@ public class read_partition_sizes extends TableFunction<Row> {
    * @param partitionCol the name of the partition colum in the table
    * @return tuple of (partition_id, time_bucket, file_size)
    */
-  private Tuple3<Long, Long, Long> extractPartitionData(FileScanTask task, String partitionCol) {
+  private Tuple3<T, Long, Long> extractPartitionData(FileScanTask task, String partitionCol) {
     var dataFile = task.file();
     var spec = task.spec();
     var size = dataFile.fileSizeInBytes();
 
     if (spec.isUnpartitioned()) {
-      return Tuple3.of(-1L, null, size);
+      return Tuple3.of(getUnpartitionedId(), null, size);
     }
 
     if (posByName == null) {
@@ -95,7 +95,7 @@ public class read_partition_sizes extends TableFunction<Row> {
     }
 
     var p = dataFile.partition();
-    var partitionIdVal = p.get(posByName.get(partitionCol), Long.class);
+    var partitionIdVal = (T) p.get(posByName.get(partitionCol), Object.class);
     var timeBucketVal = p.get(posByName.get("time_bucket"), Long.class);
 
     return Tuple3.of(partitionIdVal, timeBucketVal, size);

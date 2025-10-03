@@ -1,7 +1,7 @@
 IMPORT tables.cdc_data;
 IMPORT tables.compaction_tracker;
-IMPORT udfs.read_partition_sizes;
-IMPORT udfs.delete_deduplicated_data;
+IMPORT udfs.read_partition_sizes_{{udfVariant}} AS read_partition_sizes;
+IMPORT udfs.delete_deduplicated_data_{{udfVariant}} AS delete_deduplicated_data;
 
 --
 -- Part 1: Gather partitions to compact

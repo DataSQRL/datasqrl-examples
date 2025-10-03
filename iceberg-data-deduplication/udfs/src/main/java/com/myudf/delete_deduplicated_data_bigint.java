@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 DataSQRL (contact@datasqrl.com)
+ * Copyright © 2025 DataSQRL (contact@datasqrl.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,12 @@ package com.myudf;
 
 import com.google.auto.service.AutoService;
 import java.util.Map;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.flink.table.annotation.DataTypeHint;
 import org.apache.flink.table.functions.ScalarFunction;
-import org.apache.iceberg.Table;
 
 @AutoService(ScalarFunction.class)
-public class delete_deduplicated_data extends ScalarFunction {
+public class delete_deduplicated_data_bigint extends DeduplicatedDataDeleter {
 
   public boolean eval(
       String warehouse,
@@ -36,33 +34,14 @@ public class delete_deduplicated_data extends ScalarFunction {
       Long maxTimeBucket,
       @DataTypeHint("MULTISET<BIGINT>") Map<Long, Integer> partitionIds) {
 
-    if (warehouse == null
-        || catalogName == null
-        || tableName == null
-        || partitionCol == null
-        || maxTimeBucket == null
-        || partitionIds == null
-        || partitionIds.isEmpty()) {
-      return false;
-    }
-
-    var delFn = getDeleteFunction(partitionCol, partitionIds.keySet().toArray(), maxTimeBucket);
-    CatalogUtils.executeInCatalog(
-        warehouse, catalogType, catalogName, databaseName, tableName, delFn);
-
-    return true;
-  }
-
-  private Function<Table, Void> getDeleteFunction(
-      String partitionIdCol, Object[] partitionIdVals, Long maxTimeBucket) {
-
-    return table -> {
-      var delExpr =
-          ExpressionUtils.buildPartitionDelete(partitionIdCol, partitionIdVals, maxTimeBucket);
-      var delFiles = table.newDelete().deleteFromRowFilter(delExpr);
-      delFiles.commit();
-
-      return null;
-    };
+    return deleteDeduplicatedData(
+        warehouse,
+        catalogType,
+        catalogName,
+        databaseName,
+        tableName,
+        partitionCol,
+        maxTimeBucket,
+        toArray(partitionIds));
   }
 }
