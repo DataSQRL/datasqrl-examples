@@ -94,12 +94,15 @@ public class delete_duplicated_data extends ScalarFunction {
       partitionColumns = new HashSet<>(); // Handle case with no partition columns
     }
 
+    // Make final copy for lambda expression
+    final Set<String> finalPartitionColumns = partitionColumns;
+
     try {
       Function<Table, Void> delFn =
           table -> {
             // Get partition spec and find time bucket column
             PartitionSpec spec = table.spec();
-            String timeBucketCol = findTimeBucketColumn(spec, partitionColumns);
+            String timeBucketCol = findTimeBucketColumn(spec, finalPartitionColumns);
             
             // If no time bucket column found, cannot proceed
             if (timeBucketCol == null) {
@@ -267,3 +270,4 @@ public class delete_duplicated_data extends ScalarFunction {
       return value;
     }
   }
+}
