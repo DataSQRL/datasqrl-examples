@@ -1,3 +1,6 @@
+-- This script runs a deduplication compaction on Iceberg tables
+-- It currently assumes a single primary partition column and a single time bucket partition column based on seconds
+
 IMPORT tables.{{tableName}};
 IMPORT tables.compaction_tracker;
 IMPORT udfs.read_partition_sizes;
