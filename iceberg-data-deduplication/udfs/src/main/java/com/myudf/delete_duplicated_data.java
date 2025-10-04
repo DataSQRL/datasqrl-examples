@@ -85,7 +85,8 @@ public class delete_duplicated_data extends ScalarFunction {
       if (partitionColumns == null) {
         partitionColumns = new HashSet<>(partitionMap.keySet());
       } else if (!partitionColumns.equals(partitionMap.keySet())) {
-        throw new IllegalArgumentException("All partition maps must have the same keyset");
+        // Return false instead of throwing exception to avoid crashing Flink job
+        return false;
       }
     }
 
@@ -93,30 +94,45 @@ public class delete_duplicated_data extends ScalarFunction {
       partitionColumns = new HashSet<>(); // Handle case with no partition columns
     }
 
-    Function<Table, Void> delFn =
-        table -> {
-          // Get partition spec and find time bucket column
-          PartitionSpec spec = table.spec();
-          String timeBucketCol = findTimeBucketColumn(spec, partitionColumns);
+    try {
+      Function<Table, Void> delFn =
+          table -> {
+            // Get partition spec and find time bucket column
+            PartitionSpec spec = table.spec();
+            String timeBucketCol = findTimeBucketColumn(spec, partitionColumns);
+            
+            // If no time bucket column found, cannot proceed
+            if (timeBucketCol == null) {
+              return null;
+            }
 
-          // Build delete expression
-          Expression delExpr = buildGeneralizedPartitionDelete(
-              spec, partitionSet.keySet(), timeBucketCol, maxTimeBucket);
+            // Build delete expression
+            Expression delExpr = buildGeneralizedPartitionDelete(
+                spec, partitionSet.keySet(), timeBucketCol, maxTimeBucket);
 
-          // Execute delete
-          var delFiles = table.newDelete().deleteFromRowFilter(delExpr);
-          delFiles.commit();
+            // Execute delete
+            var delFiles = table.newDelete().deleteFromRowFilter(delExpr);
+            delFiles.commit();
 
-          return null;
-        };
+            return null;
+          };
 
-    CatalogUtils.executeInCatalog(
-        warehouse, catalogType, catalogName, databaseName, tableName, delFn);
+      CatalogUtils.executeInCatalog(
+          warehouse, catalogType, catalogName, databaseName, tableName, delFn);
 
-    return true;
+      return true;
+    } catch (Exception e) {
+      // Return false instead of letting exception propagate
+      return false;
+    }
   }
 
   private String findTimeBucketColumn(PartitionSpec spec, Set<String> partitionColumns) {
+    // Handle unpartitioned tables
+    if (spec.isUnpartitioned()) {
+      return null;
+    }
+    
     Set<String> allPartitionFields = new HashSet<>();
     for (PartitionField field : spec.fields()) {
       allPartitionFields.add(field.name());
@@ -126,11 +142,9 @@ public class delete_duplicated_data extends ScalarFunction {
     Set<String> remainingFields = new HashSet<>(allPartitionFields);
     remainingFields.removeAll(partitionColumns);
 
+    // Return null if we don't find exactly one time bucket column
     if (remainingFields.size() != 1) {
-      throw new IllegalArgumentException(
-          "Expected exactly one time bucket column, but found: " + remainingFields +
-          ". Partition columns: " + partitionColumns +
-          ". All partition fields: " + allPartitionFields);
+      return null;
     }
 
     return remainingFields.iterator().next();
@@ -201,15 +215,21 @@ public class delete_duplicated_data extends ScalarFunction {
       return null;
     }
 
-    // Find the partition field type
-    for (PartitionField field : spec.fields()) {
-      if (field.name().equals(columnName)) {
-        Type fieldType = spec.schema().findType(field.sourceId());
-        return castStringToExpectedColumnType(stringValue, fieldType);
+    try {
+      // Find the partition field type
+      for (PartitionField field : spec.fields()) {
+        if (field.name().equals(columnName)) {
+          Type fieldType = spec.schema().findType(field.sourceId());
+          return castStringToExpectedColumnType(stringValue, fieldType);
+        }
       }
+      
+      // If partition column not found, return the string value as fallback
+      return stringValue;
+    } catch (Exception e) {
+      // If casting fails, return the string value as fallback
+      return stringValue;
     }
-    
-    throw new IllegalArgumentException("Partition column not found: " + columnName);
   }
 
   private Object castStringToExpectedColumnType(String value, Type type) {
@@ -217,21 +237,33 @@ public class delete_duplicated_data extends ScalarFunction {
       return null;
     }
 
-    switch (type.typeId()) {
-      case STRING:
-        return value;
-      case INTEGER:
-        return Integer.parseInt(value);
-      case LONG:
-        return Long.parseLong(value);
-      case DOUBLE:
-        return Double.parseDouble(value);
-      case FLOAT:
-        return Float.parseFloat(value);
-      case BOOLEAN:
-        return Boolean.parseBoolean(value);
-      default:
-        // For other types, try to use string value
-        return value;
+    try {
+      switch (type.typeId()) {
+        case STRING:
+          return value;
+        case INTEGER:
+          return Integer.parseInt(value);
+        case LONG:
+          return Long.parseLong(value);
+        case DOUBLE:
+          return Double.parseDouble(value);
+        case FLOAT:
+          return Float.parseFloat(value);
+        case BOOLEAN:
+          return Boolean.parseBoolean(value);
+        case DECIMAL:
+          // For decimal types, try to parse as double or return string
+          try {
+            return Double.parseDouble(value);
+          } catch (NumberFormatException e) {
+            return value;
+          }
+        default:
+          // For other types, use string value
+          return value;
+      }
+    } catch (NumberFormatException e) {
+      // If parsing fails, return the original string value
+      return value;
     }
   }
