@@ -132,7 +132,7 @@ SELECT delete_deduplicated_data(
                '{{databaseName}}',
                MAX(table_name),
                MAX(max_time_bucket),
-               COLLECT(MAP['{{partitionCol}}',partition_id])) AS res
+               COLLECT(MAP('{{partitionCol}}',partition_id))) AS res
 FROM _DataToDelete;
 
 _DeleteResult :=
