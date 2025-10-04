@@ -1,7 +1,7 @@
 CREATE TABLE `CompactionTracker` (
     `table_name`         STRING NOT NULL,
     `job_id`             STRING NOT NULL,
-    `partition_id`       BIGINT NOT NULL,
+    `partition_id`       STRING NOT NULL,
     `new_rel_percentage` DOUBLE NOT NULL,
     `new_abs_percentage` DOUBLE NOT NULL,
     `max_time_bucket`    BIGINT NOT NULL,
