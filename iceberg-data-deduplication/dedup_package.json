@@ -1,0 +1,29 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "dedup.sqrl",
+    "config": {
+      "warehouse": "/tmp/duckdb",
+      "catalogType": "hadoop",
+      "catalogName": "mycatalog",
+      "databaseName": "mydatabase",
+      "tableName": "CdcData",
+      "partitionCol": "account_id",
+      "partitionColType": "bigint",
+      "timeBucketCol": "time_bucket",
+      "bufferSeconds": 2,
+      "bucketSeconds": 5,
+      "newDataNormalizer": 100000,
+      "maxTotalPartitionSizeInBytes": 100000
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch",
+        "table.exec.source.idle-timeout": "1 ms"
+      }
+    }
+  }
+}
