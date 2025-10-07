@@ -50,26 +50,6 @@ public class read_partition_sizes extends TableFunction<Row> {
       @Nullable String databaseName,
       String tableName) {
 
-    readPartitionSizes(warehouse, catalogType, catalogName, databaseName, tableName);
-  }
-
-  /**
-   * Scans all data files in the Iceberg table and aggregates their sizes by partition.
-   * For unpartitioned tables, returns a single row with an empty partition map.
-   * 
-   * @param warehouse The warehouse path or URI for the catalog
-   * @param catalogType The type of catalog (optional)
-   * @param catalogName The name of the catalog
-   * @param databaseName The database/schema name (optional)
-   * @param tableName The name of the table to scan
-   */
-  private void readPartitionSizes(
-      String warehouse,
-      @Nullable String catalogType,
-      String catalogName,
-      @Nullable String databaseName,
-      String tableName) {
-
     if (warehouse == null || catalogName == null || tableName == null) {
       return;
     }
@@ -91,9 +71,7 @@ public class read_partition_sizes extends TableFunction<Row> {
             throw new RuntimeException("Failed to compute partition sizes", e);
           }
 
-          for (var entry : partitions.entrySet()) {
-            collect(Row.of(entry.getKey(), entry.getValue()));
-          }
+          partitions.entrySet().stream().map(e -> Row.of(e.getKey(), e.getValue())).forEach(this::collect);
 
           return null;
         };
@@ -127,5 +105,4 @@ public class read_partition_sizes extends TableFunction<Row> {
 
     return Tuple2.of(partitionMap, size);
   }
-
 }

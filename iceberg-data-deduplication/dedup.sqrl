@@ -11,10 +11,11 @@ IMPORT udfs.delete_duplicated_data;
 --
 
 _AllPartitions :=
-SELECT partition_map['{{partitionCol}}'] AS partition_id, partition_map['{{timeBucketCol}}'] AS time_bucket, partition_size
-FROM TABLE(read_partition_sizes('{{warehouse}}', '{{catalogType}}', '{{catalogName}}', '{{databaseName}}',
-                                '{{tableName}}'));
-
+SELECT partition_map['{{partitionCol}}'] AS partition_id,
+       CAST(partition_map['{{timeBucketCol}}'] AS BIGINT) AS time_bucket,
+       partition_size
+FROM TABLE(read_partition_sizes(
+        '{{warehouse}}', '{{catalogType}}', '{{catalogName}}', '{{databaseName}}', '{{tableName}}'));
 
 _Partitions :=
 SELECT * FROM _AllPartitions
@@ -34,16 +35,16 @@ _PartitionSizing.score := new_rel_percentage + new_abs_percentage;
 
 _PartitionPriority :=
 SELECT partition_id,
-    p.new_size,
-    p.total_size,
-    p.new_rel_percentage,
-    p.new_abs_percentage,
-    p.new_rel_percentage + p.new_abs_percentage AS score,
-    ROW_NUMBER() OVER (ORDER BY (p.new_rel_percentage + p.new_abs_percentage) DESC) AS row_num,
-    SUM (p.total_size) OVER (
-      ORDER BY (p.new_rel_percentage + p.new_abs_percentage) DESC
-      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_total_size
-FROM _PartitionSizing p;
+       new_size,
+       total_size,
+       new_rel_percentage,
+       new_abs_percentage,
+       new_rel_percentage + new_abs_percentage AS score,
+       ROW_NUMBER() OVER (ORDER BY (new_rel_percentage + new_abs_percentage) DESC) AS row_num,
+       SUM(total_size) OVER (
+         ORDER BY (new_rel_percentage + new_abs_percentage) DESC
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_total_size
+FROM _PartitionSizing;
 
 _PartitionsToCompact :=
 SELECT DISTINCT '{{tableName}}' AS table_name,
@@ -79,13 +80,13 @@ WHERE LOWER(table_name) = LOWER('{{tableName}}')
   AND action = 'initialize'
   AND action_time > NOW() - INTERVAL '4' HOUR; -- last condition is for efficient pruning of iceberg read
 
-_DataToCompactWithCast := SELECT * FROM _DataToCompact;
-_DataToCompactWithCast.partition_id := CAST(partition_id AS {{partitionColType}});
+_CastDataToCompact := SELECT * FROM _DataToCompact;
+_CastDataToCompact.partition_id := CAST(partition_id AS {{partitionColType}});
 
 _InputData :=
 SELECT /*+ BROADCAST(c) */ d.*
 FROM {{tableName}} AS d
-        JOIN _DataToCompactWithCast AS c
+        JOIN _CastDataToCompact AS c
 ON d.{{partitionCol}} = c.partition_id AND d.{{timeBucketCol}} <= c.max_time_bucket;
 
 _InputData.{{timeBucketCol}} := 0;
@@ -134,7 +135,7 @@ SELECT delete_duplicated_data(
                '{{databaseName}}',
                MAX(table_name),
                MAX(max_time_bucket),
-               COLLECT(MAP['{{partitionCol}}', CAST(partition_id AS STRING)])) AS res
+               COLLECT(MAP['{{partitionCol}}', partition_id])) AS res
 FROM _DataToDelete;
 
 _DeleteResult :=
