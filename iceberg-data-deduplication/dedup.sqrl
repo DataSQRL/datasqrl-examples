@@ -91,7 +91,7 @@ ON d.{{partitionCol}} = c.partition_id AND d.{{timeBucketCol}} <= c.max_time_buc
 
 _InputData.{{timeBucketCol}} := 0;
 
-_DistInputData := DISTINCT _InputData ON {{partitionCol}} ORDER BY ts DESC;
+_DistInputData := DISTINCT _InputData ON {{partitionCol}} ORDER BY {{timestampCol}} DESC;
 
 INSERT OVERWRITE {{tableName}} SELECT * FROM _DistInputData;
 

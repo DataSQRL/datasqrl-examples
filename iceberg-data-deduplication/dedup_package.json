@@ -12,6 +12,7 @@
       "partitionCol": "account_id",
       "partitionColType": "bigint",
       "timeBucketCol": "time_bucket",
+      "timestampCol": "ts",
       "bufferSeconds": 2,
       "bucketSeconds": 5,
       "newDataNormalizer": 100000,
