@@ -1,8 +1,8 @@
 {
   "version": "1",
-  "enabled-engines": ["flink"],
+  "enabled-engines": ["vertx", "postgres", "flink"],
   "script": {
-    "main": "aggregation-test.sqrl"
+    "main": "aggregation-query-test.sqrl"
   },
   "engines": {
     "flink" : {

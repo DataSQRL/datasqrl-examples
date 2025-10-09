@@ -19,7 +19,7 @@ CREATE TABLE _InputData (
 /**
   Returns aggregations by partition id
  */
-/*+query_by_all(partitionId), primary_key(partitionId, window_end) */
+/*+primary_key(partitionId, window_end) */
 Aggregation := SELECT
   partitionId,
   window_start,
@@ -31,14 +31,6 @@ FROM TABLE(
   TUMBLE(TABLE _InputData, DESCRIPTOR(event_time), INTERVAL '10' SECOND)
 )
 GROUP BY partitionId, window_start, window_end, window_time;
-
-/**
-  Returns aggregations by partition id and time interval
- */
-AggregationByTime(partitionId STRING NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
-SELECT *
-FROM Aggregation WHERE partitionId = :partitionId AND :fromTime <= window_start AND :toTime > window_end
-ORDER BY window_end DESC;
 
 _HighAggregation := SELECT * FROM Aggregation WHERE total_measure > 20000;
 

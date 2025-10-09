@@ -1,4 +1,4 @@
-IMPORT aggregation-test.*;
+IMPORT aggregation-query-test.*;
 
 
 /**
