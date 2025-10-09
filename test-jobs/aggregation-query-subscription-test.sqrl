@@ -2,6 +2,6 @@ IMPORT aggregation-query-test.*;
 
 
 /**
-  Subscribes to aggregations exceeding 2000 in total measure
+  Subscribes to aggregations exceeding 20000 in total measure
  */
 HighAggregation := SUBSCRIBE SELECT * FROM _HighAggregation;
