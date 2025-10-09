@@ -105,6 +105,15 @@ jobs:
               compile -c usertokens_package_test.json
               test -c usertokens_package_test.json
 
+          - example: canary
+            path: test-jobs
+            tag: canary
+            test_commands: |
+              compile -c aggregation-test-package.json
+              compile -c aggregation-query-test-package.json
+              compile -c aggregation-query-test-iceberg-package.json
+              compile -c aggregation-query-subscription-test-package.json
+
     env:
       TZ: 'America/Los_Angeles'
       SQRL_VERSION: 'latest'

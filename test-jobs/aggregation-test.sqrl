@@ -1,0 +1,37 @@
+CREATE TABLE _InputData (
+  uniqueId STRING NOT NULL,
+  measure DOUBLE NOT NULL,
+  partitionId STRING NOT NULL,
+  event_time AS NOW(),
+  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+) WITH (
+  'connector' = 'datagen',
+  'rows-per-second' = '100',
+  'fields.uniqueId.kind' = 'random',
+  'fields.uniqueId.length' = '10',
+  'fields.measure.kind' = 'random',
+  'fields.measure.min' = '0.0',
+  'fields.measure.max' = '1000.0',
+  'fields.partitionId.kind' = 'random',
+  'fields.partitionId.length' = '1'
+);
+
+/**
+  Returns aggregations by partition id
+ */
+/*+primary_key(partitionId, window_end) */
+Aggregation := SELECT
+  partitionId,
+  window_start,
+  window_end,
+  window_time,
+  SUM(measure) AS total_measure,
+  COUNT(*) AS record_count
+FROM TABLE(
+  TUMBLE(TABLE _InputData, DESCRIPTOR(event_time), INTERVAL '10' SECOND)
+)
+GROUP BY partitionId, window_start, window_end, window_time;
+
+_HighAggregation := SELECT * FROM Aggregation WHERE total_measure > 20000;
+
+EXPORT _HighAggregation TO logger.high;

@@ -1,0 +1,9 @@
+IMPORT aggregation-test.*;
+
+/**
+  Returns aggregations by partition id and time interval
+ */
+AggregationByTime(partitionId STRING NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
+SELECT *
+FROM Aggregation WHERE partitionId = :partitionId AND :fromTime <= window_start AND :toTime > window_end
+ORDER BY window_end DESC;
