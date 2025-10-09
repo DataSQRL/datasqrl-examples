@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "main": "aggregation-query-test.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s",
+        "execution.checkpointing.interval": "1 min"
+      }
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "warehouse",
+      "catalog-type": "hadoop",
+      "catalog-name": "mycatalog"
+    }
+  }
+}
