@@ -56,7 +56,7 @@ SELECT DISTINCT '{{tableName}}' AS table_name,
                 'initialize' AS action,
                 NOW() AS action_time
 FROM _PartitionPriority
-WHERE cumulative_total_size <= {{maxTotalPartitionSizeInBytes}}
+WHERE cumulative_total_size <= {{maxTotalPartitionSizeInMB}} * 1024 * 1024
    OR row_num <= 1;
 
 INSERT INTO CompactionTracker SELECT * FROM _PartitionsToCompact;
@@ -91,7 +91,7 @@ ON d.{{partitionCol}} = c.partition_id AND d.{{timeBucketCol}} <= c.max_time_buc
 
 _InputData.{{timeBucketCol}} := 0;
 
-_DistInputData := DISTINCT _InputData ON {{partitionCol}} ORDER BY {{timestampCol}} DESC;
+_DistInputData := DISTINCT _InputData ON {{distinctKeyCol}} ORDER BY {{timestampCol}} DESC;
 
 INSERT OVERWRITE {{tableName}} SELECT * FROM _DistInputData;
 
