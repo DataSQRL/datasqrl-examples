@@ -1,0 +1,14 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "flink"],
+  "script": {
+    "main": "aggregation-test.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  }
+}
