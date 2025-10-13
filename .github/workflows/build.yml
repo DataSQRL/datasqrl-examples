@@ -114,6 +114,18 @@ jobs:
               compile -c aggregation-query-test-iceberg-package.json
               compile -c aggregation-query-subscription-test-package.json
 
+          - example: udf-jbang
+            path: user-defined-function/jbang
+            tag: udf-jbang
+            test_commands: |
+              compile -c udf_jbang_package.json
+
+          - example: udf-maven
+            path: user-defined-function/maven-project
+            tag: udf-maven
+            test_commands: |
+              compile -c udf_maven_package.json
+
     env:
       TZ: 'America/Los_Angeles'
       SQRL_VERSION: 'latest'
