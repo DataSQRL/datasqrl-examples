@@ -30,7 +30,7 @@ GROUP BY partition_id;
 
 _PartitionSizing.total_size := base_size + new_size;
 _PartitionSizing.new_rel_percentage := CAST(new_size AS DOUBLE) / GREATEST(total_size, 1) * 100;
-_PartitionSizing.new_abs_percentage := CAST(new_size AS DOUBLE) / {{newDataNormalizer}} * 100;
+_PartitionSizing.new_abs_percentage := CAST(new_size AS DOUBLE) / ({{newDataNormalizerInMB}} * 1024 * 1024) * 100;
 _PartitionSizing.score := new_rel_percentage + new_abs_percentage;
 
 _PartitionPriority :=
