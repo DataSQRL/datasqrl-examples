@@ -93,7 +93,14 @@ _InputData.{{timeBucketCol}} := 0;
 
 _DistInputData := DISTINCT _InputData ON {{distinctKeyCol}} ORDER BY {{timestampCol}} DESC;
 
-INSERT OVERWRITE {{tableName}} SELECT * FROM _DistInputData;
+_FilteredDistInputData :=
+SELECT * FROM _DistInputData
+-- filter only when "deleteFlagCol" has a value
+{{#deleteFlagCol}}
+WHERE {{deleteFlagCol}} IS TRUE
+{{/deleteFlagCol}};
+
+INSERT OVERWRITE {{tableName}} SELECT * FROM _FilteredDistInputData;
 
 _CompactionResult :=
 SELECT table_name,
