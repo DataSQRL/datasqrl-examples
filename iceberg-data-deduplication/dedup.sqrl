@@ -86,14 +86,22 @@ _CastDataToCompact.partition_id := CAST(partition_id AS {{partitionColType}});
 _InputData :=
 SELECT /*+ BROADCAST(c) */ d.*
 FROM {{tableName}} AS d
-        JOIN _CastDataToCompact AS c
-ON d.{{partitionCol}} = c.partition_id AND d.{{timeBucketCol}} <= c.max_time_bucket;
+JOIN _CastDataToCompact AS c
+  ON d.{{partitionCol}} = c.partition_id
+ AND d.{{timeBucketCol}} <= c.max_time_bucket;
 
 _InputData.{{timeBucketCol}} := 0;
 
 _DistInputData := DISTINCT _InputData ON {{distinctKeyCol}} ORDER BY {{timestampCol}} DESC;
 
-INSERT OVERWRITE {{tableName}} SELECT * FROM _DistInputData;
+INSERT OVERWRITE {{tableName}}
+    SELECT * FROM _DistInputData
+    -- filter only when "deleteFlagCol" has a value
+    {{#deleteFlagCol}}
+    WHERE {{deleteFlagCol}} IS TRUE
+    {{/deleteFlagCol}}
+    -- sort by partition column, and optionally any other column(s)
+    ORDER BY {{partitionCol}} {{#sortKey}}, {{sortKey}}{{/sortKey}};
 
 _CompactionResult :=
 SELECT table_name,
