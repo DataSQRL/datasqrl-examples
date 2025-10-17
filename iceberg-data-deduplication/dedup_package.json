@@ -16,7 +16,7 @@
       "timestampCol": "ts",
       "bufferSeconds": 2,
       "bucketSeconds": 5,
-      "newDataNormalizer": 100000,
+      "newDataNormalizerInMB": 1,
       "maxTotalPartitionSizeInMB": 10
     }
   },
