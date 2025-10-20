@@ -14,6 +14,8 @@
       "partitionColType": "bigint",
       "timeBucketCol": "time_bucket",
       "timestampCol": "ts",
+      "deleteFlagCol": null,
+      "sortKey": null,
       "bufferSeconds": 2,
       "bucketSeconds": 5,
       "newDataNormalizerInMB": 1,
