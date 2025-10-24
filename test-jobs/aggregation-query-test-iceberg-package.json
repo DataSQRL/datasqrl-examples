@@ -14,7 +14,7 @@
   },
   "connectors": {
     "iceberg": {
-      "warehouse": "warehouse",
+      "warehouse": "s3a://sqrl-examples-data-bucket/datasqrl-examples/iceberg-canary",
       "catalog-type": "hadoop",
       "catalog-name": "mycatalog"
     }
