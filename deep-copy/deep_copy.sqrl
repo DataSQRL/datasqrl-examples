@@ -1,0 +1,4 @@
+IMPORT tables.source AS _Src;
+
+/*+partition_key(time_bucket) */
+SinkTable := SELECT s.*, s.ts_col AS time_bucket FROM _Src s;
