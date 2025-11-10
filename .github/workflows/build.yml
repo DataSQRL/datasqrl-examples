@@ -117,6 +117,8 @@ jobs:
               compile -c aggregation-query-test-package.json
               compile -c aggregation-query-test-iceberg-package.json
               compile -c aggregation-query-subscription-test-package.json
+              compile -c runtime-failing-connector-package.json
+              compile -c runtime-failing-udf-package.json
 
           - example: udf-jbang
             path: user-defined-function/jbang
