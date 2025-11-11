@@ -9,6 +9,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  TZ: 'America/Los_Angeles'
+  SQRL_VERSION: 'latest'
+
 jobs:
   build:
     runs-on: ubuntu-latest-4-cores
@@ -131,10 +135,6 @@ jobs:
             tag: udf-maven
             test_commands: |
               compile -c udf_maven_package.json
-
-    env:
-      TZ: 'America/Los_Angeles'
-      SQRL_VERSION: 'latest'
 
     steps:
     - uses: actions/checkout@v4
