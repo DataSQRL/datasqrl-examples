@@ -1,0 +1,55 @@
+CREATE TABLE CardAssignment (
+    customerId BIGINT NOT NULL,
+    cardNo STRING NOT NULL,
+    cardType STRING NOT NULL,
+    `timestamp` TIMESTAMP_LTZ(3) NOT NULL,
+    PRIMARY KEY (`customerId`, `cardNo`, `timestamp`) NOT ENFORCED,
+    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '1' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/card_assignment.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
+
+CREATE TABLE Merchant (
+    merchantId BIGINT NOT NULL,
+    name STRING NOT NULL,
+    category STRING NOT NULL,
+    updatedTime TIMESTAMP_LTZ(3) NOT NULL,
+    PRIMARY KEY (`merchantId`, `updatedTime`) NOT ENFORCED,
+    WATERMARK FOR `updatedTime` AS `updatedTime` - INTERVAL '1' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/merchant.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
+
+CREATE TABLE MerchantReward (
+    merchantId BIGINT NOT NULL,
+    rewardsByCard ARRAY<ROW<cardType STRING, rewardPercentage BIGINT, startTimestamp BIGINT, expirationTimestamp BIGINT>> NOT NULL,
+    updatedTime TIMESTAMP_LTZ(3) NOT NULL,
+    PRIMARY KEY (`merchantId`, `updatedTime`) NOT ENFORCED,
+    WATERMARK FOR `updatedTime` AS `updatedTime` - INTERVAL '1' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/merchant_reward.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
+
+CREATE TABLE Transaction (
+    transactionId BIGINT NOT NULL,
+    cardNo STRING NOT NULL,
+    `time` TIMESTAMP_LTZ(3) NOT NULL,
+    amount DOUBLE NOT NULL,
+    merchantId BIGINT NOT NULL,
+    PRIMARY KEY (`transactionId`, `time`) NOT ENFORCED,
+    WATERMARK FOR `time` AS `time` - INTERVAL '1' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/transaction.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
