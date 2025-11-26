@@ -6,6 +6,7 @@ _Merchant       := DISTINCT sources.Merchant ON merchantId ORDER BY updatedTime 
 _CardAssignment := DISTINCT sources.CardAssignment ON cardNo ORDER BY `timestamp` DESC;
 
 /** Enrich credit card transactions with customer and merchant information */
+/*+no_query */
 CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount, m.name AS merchantName,
                               m.category, c.customerId
                        FROM sources.Transaction t
@@ -27,12 +28,14 @@ _SpendingByDay := SELECT customerId, window_time as timeDay, SUM(amount) as spen
 
 /* ==== QUERY ENDPOINTS ==== */
 
-/** Returns all credit card transactions within a specified time period ordered by time (most recent first) */
+/** Returns all credit card transactions since fromTime (inclusive) and until toTime (exclusive) for the given customer showing most recent transactions first.
+  fromTime and toTime must be RFC-3339 compliant date time scalar. Both must be the start of a day, e.g. 2024-01-19T00:00:00-00:00. */
 Transactions(customerId BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
     SELECT * FROM CustomerTransaction WHERE customerId = :customerId AND :fromTime <= `time` AND :toTime > `time`
     ORDER BY `time` DESC LIMIT 10000;
 
-/* Returns the total customer spending by day for the specified time period ordered by time (most recent first) */
+/* Returns the total customer spending by day since fromTime (inclusive) and until toTime (exclusive) ordered by time (most recent first)
+   fromTime and toTime must be RFC-3339 compliant date time scalar. Both must be the start of a day, e.g. 2024-01-19T00:00:00-00:00. */
 SpendingByDay(customerId BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL, toTime TIMESTAMP NOT NULL) :=
     SELECT timeDay, spending
     FROM _SpendingByDay WHERE customerId = :customerId AND :fromTime <= timeDay AND :toTime > timeDay
