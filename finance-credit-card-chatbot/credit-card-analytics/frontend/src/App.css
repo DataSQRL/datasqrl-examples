@@ -1,0 +1,299 @@
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 0;
+  margin: 0;
+}
+
+.app-header {
+  background: #002d72;
+  color: white;
+  padding: 1rem 3rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chose-logo {
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #117ACA;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.query-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  align-items: end;
+  margin-bottom: 2rem;
+  border-top: 3px solid #117ACA;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: none;
+}
+
+.form-group input {
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+  background: white;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #117ACA;
+  box-shadow: 0 0 0 2px rgba(17, 122, 202, 0.15);
+}
+
+.submit-btn {
+  background: #117ACA;
+  color: white;
+  border: none;
+  padding: 0.625rem 2rem;
+  border-radius: 3px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: none;
+}
+
+.submit-btn:hover {
+  background: #0d5fa3;
+}
+
+.submit-btn:active {
+  background: #0a4d85;
+}
+
+.analytics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.customer-info {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border-left: 4px solid #117ACA;
+}
+
+.customer-info h3 {
+  margin: 0;
+  color: #002d72;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.customer-info p {
+  margin: 0.5rem 0 0 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.chart-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.chart-container h2 {
+  margin: 0 0 1.5rem 0;
+  color: #002d72;
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.table-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.table-container h2 {
+  margin: 0 0 1.5rem 0;
+  color: #002d72;
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.transactions-table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.transactions-table th {
+  padding: 0.875rem;
+  text-align: left;
+  font-weight: 600;
+  color: #002d72;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.transactions-table td {
+  padding: 0.875rem;
+  border-bottom: 1px solid #e9ecef;
+  color: #333;
+}
+
+.transactions-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.transactions-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.amount {
+  font-weight: 600;
+  color: #002d72;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #e6f2ff;
+  color: #002d72;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid #b3d9ff;
+}
+
+.transaction-id {
+  font-family: 'Courier New', monospace;
+  color: #666;
+  font-size: 0.8125rem;
+}
+
+.loading {
+  background: white;
+  padding: 3rem;
+  border-radius: 4px;
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.error {
+  background: #fff5f5;
+  color: #c53030;
+  padding: 2rem;
+  border-radius: 4px;
+  border-left: 4px solid #e53e3e;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.no-data {
+  background: #fffbeb;
+  color: #92400e;
+  padding: 2rem;
+  border-radius: 4px;
+  text-align: center;
+  border-left: 4px solid #f59e0b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.welcome-message {
+  background: white;
+  padding: 4rem 2rem;
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border-top: 3px solid #117ACA;
+}
+
+.welcome-message p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .query-form {
+    grid-template-columns: 1fr;
+  }
+
+  .app-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .chart-container,
+  .table-container {
+    padding: 1.5rem;
+  }
+}
