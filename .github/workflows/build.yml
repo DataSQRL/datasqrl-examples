@@ -11,7 +11,7 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: 'latest'
+  SQRL_VERSION: '0.9.0-alpha1'
 
 jobs:
   build:
@@ -25,116 +25,116 @@ jobs:
           - example: recommendation
             path: clickstream-ai-recommendation
             test_commands: |
-              compile -c recommendation_package_api.json
-              compile -c recommendation_package_kafka.json
+              compile recommendation_package_api.json
+              compile recommendation_package_kafka.json
 
           - example: credit-card-analytics
             path: finance-credit-card-chatbot/credit-card-analytics
             tag: credit-card-analytics
             test_commands: |
-              compile -c creditcard_analytics_package_test.json
-              compile -c creditcard_analytics_package_kafka.json
-              test -c creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json
+              compile creditcard_analytics_package_test.json
+              compile creditcard_analytics_package_kafka.json
+              test creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json
           - example: credit-card-rewards
             path: finance-credit-card-chatbot/credit-card-rewards
             tag: credit-card-rewards
             test_commands: |
-              compile -c creditcard_rewards_package_test.json
-              compile -c creditcard_rewards_package_kafka.json
-              test -c creditcard_rewards_package_test.json creditcard_rewards_package_jwt.json
+              compile creditcard_rewards_package_test.json
+              compile creditcard_rewards_package_kafka.json
+              test creditcard_rewards_package_test.json creditcard_rewards_package_jwt.json
           - example: credit-card-views
             path: finance-credit-card-chatbot/credit-card-views
             tag: credit-card-views
             test_commands: |
-              compile -c creditcard_views_package_test.json
-              test -c creditcard_views_package_test.json
+              compile creditcard_views_package_test.json
+              test creditcard_views_package_test.json
 
           - example: healthcare-study-analytics
             path: healthcare-study/healthcare-study-analytics
             tag: healthcare-study-analytics
             test_commands: |
-              compile -c study_analytics_package_test.json
-              test -c study_analytics_package_test.json
+              compile study_analytics_package_test.json
+              test study_analytics_package_test.json
           - example: healthcare-study-api
             path: healthcare-study/healthcare-study-api
             tag: healthcare-study-api
             test_commands: |
-              compile -c study_api_package_api.json
-              compile -c study_api_package_test.json
-              test -c study_api_package_test.json
+              compile study_api_package_api.json
+              compile study_api_package_test.json
+              test study_api_package_test.json
           - example: healthcare-study-stream
             path: healthcare-study/healthcare-study-stream
             tag: healthcare-study-stream
             test_commands: |
-              compile -c study_stream_package_kafka.json
-              compile -c study_stream_package_test.json
-              test -c study_stream_package_test.json
+              compile study_stream_package_kafka.json
+              compile study_stream_package_test.json
+              test study_stream_package_test.json
 
           - example: iceberg-dedup
             path: iceberg-data-deduplication
             test_commands: |
-              compile -c dedup_package.json
+              compile dedup_package.json
 
           - example: iot-sensor
             path: iot-sensor-metrics
             test_commands: |
-              compile -c sensors_package_api.json
-              compile -c sensors_package_test.json
-              test -c sensors_package_test.json
-              test -c sensors_package_api.json
+              compile sensors_package_api.json
+              compile sensors_package_test.json
+              test sensors_package_test.json
+              test sensors_package_api.json
 
           - example: law-enforcement
             path: law-enforcement
             test_commands: |
-              compile -c baseball_card_package_test.json
-              test -c baseball_card_package_test.json
+              compile baseball_card_package_test.json
+              test baseball_card_package_test.json
 
           - example: logistics
             path: logistics-shipping-geodata
             test_commands: |
-              compile -c logistics_package_test.json
-              test -c logistics_package_test.json
+              compile logistics_package_test.json
+              test logistics_package_test.json
 
           - example: oil-gas-monitoring
             path: oil-gas-agent-automation/oil-gas-agent-monitoring
             tag: oil-gas-agent-monitoring
             test_commands: |
-              compile -c monitoring_agent_package_test.json
+              compile monitoring_agent_package_test.json
           - example: oil-gas-operations
             path: oil-gas-agent-automation/oil-gas-agent-operations
             tag: oil-gas-agent-operations
             test_commands: |
-              compile -c operations_agent_package_test.json
-              test -c operations_agent_package_test.json
+              compile operations_agent_package_test.json
+              test operations_agent_package_test.json
 
           - example: usage-analytics
             path: usage-analytics
             test_commands: |
-              compile -c usertokens_package_test.json
-              test -c usertokens_package_test.json
+              compile usertokens_package_test.json
+              test usertokens_package_test.json
 
           - example: canary
             path: test-jobs
             tag: canary
             test_commands: |
-              compile -c aggregation-test-package.json
-              compile -c aggregation-query-test-package.json
-              compile -c aggregation-query-test-iceberg-package.json
-              compile -c aggregation-query-subscription-test-package.json
-              compile -c runtime-failing-connector-package.json
-              compile -c runtime-failing-udf-package.json
+              compile aggregation-test-package.json
+              compile aggregation-query-test-package.json
+              compile aggregation-query-test-iceberg-package.json
+              compile aggregation-query-subscription-test-package.json
+              compile runtime-failing-connector-package.json
+              compile runtime-failing-udf-package.json
 
           - example: udf-jbang
             path: user-defined-function/jbang
             tag: udf-jbang
             test_commands: |
-              compile -c udf_jbang_package.json
+              compile udf_jbang_package.json
 
           - example: udf-maven
             path: user-defined-function/maven-project
             tag: udf-maven
             test_commands: |
-              compile -c udf_maven_package.json
+              compile udf_maven_package.json
 
     steps:
     - uses: actions/checkout@v4
