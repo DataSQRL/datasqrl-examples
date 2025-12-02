@@ -4,7 +4,7 @@
   "script": {
     "main": "perftest.sqrl",
     "config": {
-      "rowsPerSec": 20,
+      "rowsPerSec": 200,
       "numRows": 800
     }
   },
