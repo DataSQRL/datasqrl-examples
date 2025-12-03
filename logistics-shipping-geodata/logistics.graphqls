@@ -14,9 +14,9 @@ scalar DateTime
 scalar Long
 
 type Query {
-  Shipment(id: Long!, limit: Int = 10, offset: Int = 0): [Shipment!]
-  Vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
-  Customer(email: String, id: Long, limit: Int = 10, offset: Int = 0): [Customer!]
+  shipment(id: Long!, limit: Int = 10, offset: Int = 0): [Shipment!]
+  vehicle(limit: Int = 10, offset: Int = 0): [Vehicle!]
+  customer(email: String, id: Long, limit: Int = 10, offset: Int = 0): [Customer!]
 }
 
 type Shipment {

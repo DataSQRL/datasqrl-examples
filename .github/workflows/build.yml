@@ -219,28 +219,27 @@ jobs:
 
       - name: Lint GraphQL schemas
         run: |
-          docker run --rm -v "$PWD":/app -w /app node:18-slim bash -c '
-            SCHEMAS=$(find . -name "*.graphqls" -type f)
-            if [ -z "$SCHEMAS" ]; then
-              echo "No GraphQL schemas found"
-              exit 0
+          SCHEMAS=$(find . -name "*.graphqls" -type f)
+          if [ -z "$SCHEMAS" ]; then
+            echo "No GraphQL schemas found"
+            exit 0
+          fi
+
+          LINT_OPTS="--rules fields-are-camel-cased,types-are-capitalized,enum-values-all-caps,input-object-values-are-camel-cased"
+          FAILED=0
+
+          for schema in $SCHEMAS; do
+            echo "::group::Checking $schema"
+            output=$(docker run --rm -v "$PWD":/app -w /app node:18-slim npx graphql-schema-linter $LINT_OPTS "$schema" 2>&1)
+            result=$?
+            echo "$output" | grep -v "^npm"
+            echo "::endgroup::"
+            if [ $result -ne 0 ]; then
+              FAILED=1
             fi
+          done
 
-            LINT_OPTS="--rules fields-are-camel-cased,types-are-capitalized,enum-values-all-caps,input-object-values-are-camel-cased"
-            FAILED=0
-
-            for schema in $SCHEMAS; do
-              echo "Checking $schema..."
-              output=$(npx graphql-schema-linter $LINT_OPTS "$schema" 2>&1)
-              result=$?
-              echo "$output" | grep -v "^npm"
-              if [ $result -ne 0 ]; then
-                FAILED=1
-              fi
-            done
-
-            exit $FAILED
-          '
+          exit $FAILED
 
   ci-summary:
     name: build ✅ summary
