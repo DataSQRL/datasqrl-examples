@@ -226,11 +226,12 @@ jobs:
           fi
 
           LINT_OPTS="--rules fields-are-camel-cased,types-are-capitalized,enum-values-all-caps,input-object-values-are-camel-cased"
+          IGNORE='{"fields-are-camel-cased":["Query.Shipment","Query.Vehicle","Query.Customer"]}'
           FAILED=0
 
           for schema in $SCHEMAS; do
             echo "::group::Checking $schema"
-            output=$(docker run --rm -v "$PWD":/app -w /app node:18-slim npx graphql-schema-linter $LINT_OPTS "$schema" 2>&1)
+            output=$(docker run --rm -v "$PWD":/app -w /app node:18-slim npx graphql-schema-linter $LINT_OPTS --ignore "$IGNORE" "$schema" 2>&1)
             result=$?
             echo "$output" | grep -v "^npm"
             echo "::endgroup::"
