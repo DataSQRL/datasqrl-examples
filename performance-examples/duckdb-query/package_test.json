@@ -4,20 +4,20 @@
   "script": {
     "main": "perftest.sqrl",
     "config": {
-      "rowsPerSec": 200,
-      "numRows": 800
+      "rowsPerSec": 10,
+      "numRows": 80000
     }
   },
   "engines": {
     "flink": {
       "config": {
-        "execution.checkpointing.interval": "10 sec"
+        "execution.checkpointing.interval": "5 sec"
       }
     }
   },
   "connectors": {
     "iceberg": {
-      "warehouse": "iceberg-data",
+      "warehouse": "s3a://ferenc-iceberg-hadoop-test",
       "catalog-type": "hadoop",
       "catalog-name": "mydata"
     }
