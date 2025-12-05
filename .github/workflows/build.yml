@@ -113,16 +113,27 @@ jobs:
               compile usertokens_package_test.json
               test usertokens_package_test.json
 
-          - example: canary
-            path: test-jobs
+          - example: canary-aggregation
+            path: test-jobs/aggregation-tests
             tag: canary
             test_commands: |
               compile aggregation-test-package.json
               compile aggregation-query-test-package.json
               compile aggregation-query-test-iceberg-package.json
               compile aggregation-query-subscription-test-package.json
+
+          - example: canary-failures
+            path: test-jobs/failure-tests
+            tag: canary
+            test_commands: |
               compile runtime-failing-connector-package.json
               compile runtime-failing-udf-package.json
+
+          - example: canary-batch
+            path: test-jobs/batch-test
+            tag: canary
+            test_commands: |
+              compile simple-batch-test-package.json
 
           - example: udf-jbang
             path: user-defined-function/jbang
