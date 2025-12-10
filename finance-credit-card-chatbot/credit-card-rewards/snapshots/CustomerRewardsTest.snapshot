@@ -1,6 +1,15 @@
 {
   "data" : {
     "CustomerRewardsTest" : [ {
+      "transactionId" : 8571358,
+      "customerId" : 2,
+      "cardNo" : "6771897352274545",
+      "cardType" : "travel",
+      "time" : "2024-06-05T06:42:05.106Z",
+      "amount" : 48.73,
+      "reward" : 7.3095,
+      "merchantName" : "Hayes Group"
+    }, {
       "transactionId" : 8571374,
       "customerId" : 9,
       "cardNo" : "6771894392571071",
@@ -36,15 +45,6 @@
       "amount" : 165.07,
       "reward" : 33.014,
       "merchantName" : "VonRueden, Donnelly and Gleason"
-    }, {
-      "transactionId" : 8571377,
-      "customerId" : 9,
-      "cardNo" : "6771894392571071",
-      "cardType" : "travel",
-      "time" : "2024-06-04T22:17:51.860Z",
-      "amount" : 221.26,
-      "reward" : 22.126,
-      "merchantName" : "Wolff Inc"
     } ]
   }
 }

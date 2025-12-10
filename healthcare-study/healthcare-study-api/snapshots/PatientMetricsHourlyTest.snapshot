@@ -1,6 +1,10 @@
 {
   "data" : {
     "PatientMetricsHourlyTest" : [ {
+      "timeHour" : "2024-09-16T12:59:59.999Z",
+      "name" : "Arm numbness (paresthesias) Marker",
+      "avgMetric" : 65.28825626
+    }, {
       "timeHour" : "2024-09-16T11:59:59.999Z",
       "name" : "Arm numbness (paresthesias) Marker",
       "avgMetric" : 66.10060308
