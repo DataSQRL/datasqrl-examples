@@ -6,6 +6,11 @@
       "dateOfBirth" : "1984-10-02",
       "diagnosis" : "Down syndrome",
       "metrics" : [ {
+        "timeHour" : "2024-09-16T12:59:59.999Z",
+        "metadataId" : 3,
+        "name" : "Arm numbness (paresthesias) Marker",
+        "avgMetric" : 65.28825626
+      }, {
         "timeHour" : "2024-09-16T11:59:59.999Z",
         "metadataId" : 3,
         "name" : "Arm numbness (paresthesias) Marker",

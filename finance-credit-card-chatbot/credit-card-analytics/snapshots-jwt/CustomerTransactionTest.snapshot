@@ -1,6 +1,14 @@
 {
   "data" : {
     "CustomerTransactionTest" : [ {
+      "transactionId" : 8571358,
+      "cardNo" : "6771897352274545",
+      "time" : "2024-06-05T06:42:05.106Z",
+      "amount" : 48.73,
+      "merchantName" : "Hayes Group",
+      "category" : "Restaurants & Dining",
+      "customerId" : 2
+    }, {
       "transactionId" : 8571374,
       "cardNo" : "6771894392571071",
       "time" : "2024-06-05T06:40:55.077Z",
@@ -32,14 +40,6 @@
       "merchantName" : "Howe and Sons",
       "category" : "Housing & Utilities",
       "customerId" : 6
-    }, {
-      "transactionId" : 8571373,
-      "cardNo" : "6771894392571071",
-      "time" : "2024-06-05T05:38:52.502Z",
-      "amount" : 195.89,
-      "merchantName" : "Paucek, Pfeffer and Nolan",
-      "category" : "Clothing & Apparel",
-      "customerId" : 9
     } ]
   }
 }
