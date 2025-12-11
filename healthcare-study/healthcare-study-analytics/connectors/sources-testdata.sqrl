@@ -1,0 +1,68 @@
+CREATE TABLE Metadata (
+                          `metadataId` BIGINT NOT NULL,
+                          `name` STRING NOT NULL,
+                          `lowRange` DOUBLE NOT NULL,
+                          `highRange` DOUBLE NOT NULL,
+                          `lastUpdated` TIMESTAMP_LTZ(3) NOT NULL,
+                          PRIMARY KEY (`metadataId`, `lastUpdated`) NOT ENFORCED,
+                          WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/metadata.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
+
+CREATE TABLE ObservationGroup (
+                                  `groupId` BIGINT NOT NULL,
+                                  `studyId` BIGINT NOT NULL,
+                                  `groupName` STRING NOT NULL,
+                                  `createdDate` TIMESTAMP_LTZ(3) NOT NULL,
+                                  `patients` ARRAY<ROW<`patientId` BIGINT NOT NULL>> NOT NULL,
+                                  PRIMARY KEY (`groupId`, `createdDate`) NOT ENFORCED,
+                                  WATERMARK FOR `createdDate` AS `createdDate` - INTERVAL '0.001' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/observation_group.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
+
+CREATE TABLE Patients (
+                          `patientId` BIGINT NOT NULL,
+                          `studyId` BIGINT NOT NULL,
+                          `name` STRING NOT NULL,
+                          `bloodGroup` STRING,
+                          `dateOfBirth` STRING,
+                          `diagnosis` STRING,
+                          `lastUpdated` TIMESTAMP_LTZ(3) NOT NULL,
+                          PRIMARY KEY (`patientId`, `lastUpdated`) NOT ENFORCED,
+                          WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/patients.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
+
+CREATE TABLE SensorPlacements (
+                                  `sensorId` BIGINT NOT NULL,
+                                  `patientId` BIGINT NOT NULL,
+                                  `metadataId` BIGINT NOT NULL,
+                                  `eventId` STRING NOT NULL,
+                                  `placedTimestamp` TIMESTAMP_LTZ(3) NOT NULL,
+                                  PRIMARY KEY (`eventId`) NOT ENFORCED,
+                                  WATERMARK FOR `placedTimestamp` AS `placedTimestamp` - INTERVAL '0.001' SECOND
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/sensor_placements.jsonl',
+      'source.monitor-interval' = '10 min',
+      'connector' = 'filesystem'
+      );
+
+CREATE TABLE ClinicalIndicator (
+                                   `timestamp` AS TO_TIMESTAMP_LTZ(`time`,3),
+                                   WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '0.001' SECOND
+) WITH (
+      'source.monitor-interval' = '10 min'
+      ) LIKE `testdata/clinical_indicator.jsonl`;

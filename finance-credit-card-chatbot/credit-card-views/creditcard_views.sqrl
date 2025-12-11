@@ -1,17 +1,15 @@
 /* Import Data */
-IMPORT creditcard-{{variant}}.merchant AS _MerchantStream;
-IMPORT creditcard-{{variant}}.card_assignment AS _CardAssignmentStream;
-IMPORT creditcard-{{variant}}.transaction AS _Transaction;
+IMPORT connectors.sources-{{variant}} AS sources;
 
 /* Deduplicate CDC Streams */
-_Merchant       := DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime DESC;
-_CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp` DESC;
+_Merchant       := DISTINCT sources.Merchant ON merchantId ORDER BY updatedTime DESC;
+_CardAssignment := DISTINCT sources.CardAssignment ON cardNo ORDER BY `timestamp` DESC;
 
 /* Enrich credit card transactions with customer and merchant information */
 /*+partition_key(customerId) */
 _CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount,
                               m.category, c.customerId, m.merchantId
-                       FROM _Transaction t
+                       FROM sources.Transaction t
                                 JOIN _CardAssignment FOR SYSTEM_TIME AS OF t.`time` c ON t.cardNo = c.cardNo
                                 JOIN _Merchant FOR SYSTEM_TIME AS OF t.`time` m ON t.merchantId = m.merchantId;
 
