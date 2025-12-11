@@ -1,12 +1,10 @@
-IMPORT study-testdata.* AS _CDC_;
+IMPORT connectors.study-testdata.*;
+IMPORT connectors.metrics-{{variant}}.*;
 
-/*+no_query */
-IMPORT metrics-{{variant}}.clinical_indicator AS AddClinicalData;
+_ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM ClinicalIndicator;
 
-_ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM AddClinicalData;
-
-_SensorPlacements := DISTINCT _CDC_SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
-_Metadata := DISTINCT _CDC_Metadata ON metadataId ORDER BY lastUpdated DESC;
+_SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
 
 _EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
           JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
@@ -36,10 +34,10 @@ PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetrics
   clinical data aggregated hourly.
  */
 /*+query_by_any(patientId) */
-Patients := DISTINCT _CDC_Patients ON patientId ORDER BY lastUpdated DESC;
-Patients.metrics := SELECT * FROM PatientMetricsHourly m WHERE m.patientId = this.patientId ORDER BY m.timeHour DESC, m.name ASC;
+PatientsDist := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
+PatientsDist.metrics := SELECT * FROM PatientMetricsHourly m WHERE m.patientId = this.patientId ORDER BY m.timeHour DESC, m.name ASC;
 
 /** Returns a patient by name with patient information and recently recorded
   clinical data aggregated hourly.
  */
-PatientsByName(name STRING NOT NULL) := SELECT * FROM Patients WHERE name = :name;
+PatientsByName(name STRING NOT NULL) := SELECT * FROM PatientsDist WHERE name = :name;

@@ -1,13 +1,9 @@
-/*+no_query */
-IMPORT clickstream-{{variant}}.clickstream;
-
-/*+no_query */
-IMPORT content-{{variant}}.content;
+IMPORT connectors.sources-{{variant}} AS sources;
 
 /* Find next page visits within 10 minutes */
 _CoVisits := SELECT b.url AS beforeURL, a.url AS afterURL,
                    a.event_time AS `timestamp`
-            FROM Clickstream b INNER JOIN Clickstream a ON b.userid=a.userid
+            FROM sources._Clickstream b INNER JOIN sources._Clickstream a ON b.userid=a.userid
                    AND b.event_time < a.event_time AND
                        b.event_time >= a.event_time - INTERVAL 10 MINUTE;
 /* Recommend pages that are visited shortly after */
@@ -19,14 +15,14 @@ Recommendation := SELECT beforeURL AS url, afterURL AS recommendation,
 
 IMPORT stdlib.openai.vector_embed;
 
-_ContentEmbedding := SELECT *, vector_embed(text, 'text-embedding-3-small') AS embedding FROM Content;
+_ContentEmbedding := SELECT *, vector_embed(text, 'text-embedding-3-small') AS embedding FROM sources._Content;
 
 EXPORT _ContentEmbedding TO logger.content;
 
 /*+vector_dim(embedding, 1536), index(VECTOR_COSINE, embedding) */
 _DistinctContent := DISTINCT _ContentEmbedding ON url ORDER BY update_time DESC;
 
-_UserInterest := SELECT userid, CENTER(embedding) AS interest FROM Clickstream click
+_UserInterest := SELECT userid, CENTER(embedding) AS interest FROM sources._Clickstream click
                 JOIN _DistinctContent FOR SYSTEM_TIME AS OF click.event_time content ON content.url = click.url
                 GROUP BY userid;
 

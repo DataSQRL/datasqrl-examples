@@ -1,0 +1,12 @@
+CREATE TABLE _Clickstream (
+                             url STRING NOT NULL,
+                             userid STRING NOT NULL,
+                             event_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp'
+);
+
+CREATE TABLE _Content (
+                         url STRING NOT NULL,
+                         title STRING NOT NULL,
+                         text STRING NOT NULL,
+                         update_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp'
+)

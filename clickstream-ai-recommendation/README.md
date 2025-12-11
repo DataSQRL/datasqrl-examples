@@ -36,7 +36,7 @@ mutation {
   }
 }
 ```
-You can find more content samples to add in the [sample_content.jsonl](content-api/sample_content.jsonl) file.
+You can find more content samples to add in the [sample_content.jsonl](connectors/testdata/sample_content.jsonl) file.
 
 Once you have added multiple pieces of content, we can register clicks with this mutation:
 ```graphql
@@ -85,10 +85,10 @@ docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build -e OPE
 1. Once everything is started, open another terminal window to add data to Kafka using the
    load_data.py script in the `yourdata-files` directory. This requires **kafka-python-ng** installed
    via `pip3 install kafka-python-ng`.
-1. Load the content data: `python3 load_data.py content.json.gz localhost:9092 content --msg 50`.
+2. Load the content data: `python3 load_data.py content.json.gz localhost:9092 content --msg 50`.
    Wait until it finishes, which takes about two minutes. Check the Flink Dashboard running
    at http://localhost:8081/ to see the progress. Wait until the task turns blue again.
-1. Load the clickstream
+3. Load the clickstream
    data: `python3 load_data.py clickstream.json.gz localhost:9092 clickstream --msg 100`. This loads
    100 clicks per second. Wait a few seconds for some data to load. Let this run in the background
    until it finishes (about 4 minutes).

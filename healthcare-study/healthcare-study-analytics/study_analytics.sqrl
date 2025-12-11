@@ -1,11 +1,10 @@
-IMPORT study-testdata.* AS _CDC_;
-IMPORT metrics-testdata.clinical_indicator AS _ClinicalIndicator;
+IMPORT connectors.sources-testdata.*;
 
-_SensorPlacements := DISTINCT _CDC_SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
-_Metadata := DISTINCT _CDC_Metadata ON metadataId ORDER BY lastUpdated DESC;
-_Patients := DISTINCT _CDC_Patients ON patientId ORDER BY lastUpdated DESC;
+_SensorPlacements := DISTINCT SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata := DISTINCT Metadata ON metadataId ORDER BY lastUpdated DESC;
+_Patients := DISTINCT Patients ON patientId ORDER BY lastUpdated DESC;
 
-_EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
+_EnrichedIndicators := SELECT * FROM ClinicalIndicator m
     JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
     JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId
     JOIN _Patients  FOR SYSTEM_TIME AS OF m.`timestamp` pt ON p.patientId = pt.patientId;
@@ -16,7 +15,7 @@ _PatientMetricsHourly := SELECT studyId, patientId, window_time AS timeHour, met
             FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
             GROUP BY studyId, patientId, metadataId, name, window_start, window_end, window_time;
 
-_ObservationGroup := DISTINCT _CDC_ObservationGroup ON groupId ORDER BY createdDate DESC;
+_ObservationGroup := DISTINCT ObservationGroup ON groupId ORDER BY createdDate DESC;
 
 /*+primary_key(groupId, patientId), partition_key */
 _ObservationGroupMembership := SELECT groupId, groupName, studyId, p.patientId FROM _ObservationGroup g CROSS JOIN UNNEST(g.patients) p(patientId);
