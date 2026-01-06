@@ -1,8 +1,0 @@
-query {
-  PotentialRewardsByDay {
-    customerId
-    cardType
-    timeDay
-    total_reward
-  }
-}

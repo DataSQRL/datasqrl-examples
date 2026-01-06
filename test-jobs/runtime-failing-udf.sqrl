@@ -1,5 +1,0 @@
-IMPORT udfs.FailingFunction;
-
-Res := SELECT FailingFunction('dummy text') AS text;
-
-EXPORT Res TO logger.res;

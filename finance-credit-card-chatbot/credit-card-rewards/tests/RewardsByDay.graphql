@@ -1,7 +1,0 @@
-query {
-  RewardsByDay {
-    customerId
-    timeDay
-    total_reward
-  }
-}

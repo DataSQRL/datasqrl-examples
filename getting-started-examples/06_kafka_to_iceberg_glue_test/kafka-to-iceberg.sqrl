@@ -1,3 +1,0 @@
-IMPORT kafka-source.contact AS _Contacts;
-
-MyContacts := SELECT id, firstname, lastname, last_updated FROM _Contacts;

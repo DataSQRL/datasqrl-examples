@@ -1,8 +1,0 @@
-query {
-  TotalPotentialReward {
-    customerId
-    cardType
-    total_reward
-    since_time
-  }
-}

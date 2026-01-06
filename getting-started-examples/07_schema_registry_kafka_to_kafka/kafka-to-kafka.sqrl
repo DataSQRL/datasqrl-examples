@@ -1,9 +1,0 @@
-IMPORT kafka-source.contact AS Contact;
-
-EnrichedContacts := SELECT
-  firstname,
-  lastname,
-  CAST(last_updated AS STRING) AS last_updated_str
-FROM Contact;
-
-EXPORT EnrichedContacts TO kafka-sink.enriched_contact;
