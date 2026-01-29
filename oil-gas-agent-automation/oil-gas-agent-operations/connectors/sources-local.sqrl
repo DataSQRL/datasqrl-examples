@@ -1,0 +1,67 @@
+CREATE TABLE AssetUpdates (
+    `asset_id` BIGINT NOT NULL,
+    `asset_number` STRING NOT NULL,
+    `asset_name` STRING NOT NULL,
+    `asset_category_id` BIGINT NOT NULL,
+    `description` STRING NOT NULL,
+    `date_placed_in_service` STRING NOT NULL,
+    `asset_cost` BIGINT NOT NULL,
+    `status` STRING NOT NULL,
+    `asset_manual` STRING NOT NULL,
+    `lastUpdated` TIMESTAMP_LTZ(3) NOT NULL,
+     PRIMARY KEY (`asset_id`, `lastUpdated`) NOT ENFORCED,
+     WATERMARK FOR `lastUpdated` AS `lastUpdated`
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/assets.jsonl',
+      'source.monitor-interval' = '10000',
+      'connector' = 'filesystem'
+);
+
+CREATE TABLE FlowRate (
+    `assetId` BIGINT NOT NULL,
+    `flowrate` DOUBLE NOT NULL,
+    `event_time` TIMESTAMP_LTZ(3) NOT NULL,
+     PRIMARY KEY (`assetId`, `event_time`) NOT ENFORCED,
+     WATERMARK FOR `event_time` AS `event_time`
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/flowrate.jsonl.gz',
+      'source.monitor-interval' = '10000',
+      'connector' = 'filesystem'
+);
+
+CREATE TABLE MaintenanceUpdates (
+    `work_order_id` BIGINT NOT NULL,
+    `work_order_num` STRING NOT NULL,
+    `asset_id` BIGINT NOT NULL,
+    `description` STRING NOT NULL,
+    `wo_type` STRING NOT NULL,
+    `priority` STRING NOT NULL,
+    `status` STRING NOT NULL,
+    `request_date` STRING NOT NULL,
+    `start_date` STRING,
+    `completion_date` STRING,
+    `lastUpdated` TIMESTAMP_LTZ(3) NOT NULL,
+     PRIMARY KEY (`work_order_id`, `lastUpdated`) NOT ENFORCED,
+     WATERMARK FOR `lastUpdated` AS `lastUpdated`
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/maintenance.jsonl',
+      'source.monitor-interval' = '10000',
+      'connector' = 'filesystem'
+);
+
+CREATE TABLE Measurement (
+    `assetId` BIGINT NOT NULL,
+    `pressure_psi` DOUBLE NOT NULL,
+    `temperature_f` DOUBLE NOT NULL,
+    `timestamp` TIMESTAMP_LTZ(3) NOT NULL,
+     PRIMARY KEY (`assetId`, `timestamp`) NOT ENFORCED,
+     WATERMARK FOR `timestamp` AS `timestamp`
+) WITH (
+      'format' = 'flexible-json',
+      'path' = '${DATA_PATH}/measurement.jsonl.gz',
+      'source.monitor-interval' = '10000',
+      'connector' = 'filesystem'
+);

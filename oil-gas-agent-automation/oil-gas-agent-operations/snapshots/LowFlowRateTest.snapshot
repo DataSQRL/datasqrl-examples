@@ -1,0 +1,75 @@
+{
+  "data" : {
+    "LowFlowRateTest" : [ {
+      "assetId" : 45555,
+      "flowrate" : 98.4,
+      "event_time" : "2025-02-11T12:21:39.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 99.5,
+      "event_time" : "2025-02-11T12:21:38.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 104.8,
+      "event_time" : "2025-02-11T12:21:37.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 107.2,
+      "event_time" : "2025-02-11T12:21:36.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 110.7,
+      "event_time" : "2025-02-11T12:21:35.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 113.1,
+      "event_time" : "2025-02-11T12:21:34.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 114.6,
+      "event_time" : "2025-02-11T12:21:33.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 114.9,
+      "event_time" : "2025-02-11T12:21:32.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    }, {
+      "assetId" : 34443,
+      "flowrate" : 117.3,
+      "event_time" : "2025-02-11T12:21:39.000Z",
+      "asset_number" : "W-34443",
+      "asset_name" : "Well Epsilon 34443",
+      "description" : "Production well in Field Epsilon"
+    }, {
+      "assetId" : 45555,
+      "flowrate" : 117.3,
+      "event_time" : "2025-02-11T12:21:31.000Z",
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "description" : "Injection well in Field Delta"
+    } ]
+  }
+}
