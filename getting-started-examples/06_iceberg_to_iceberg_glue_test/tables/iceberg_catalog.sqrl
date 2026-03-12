@@ -1,0 +1,19 @@
+CREATE CATALOG glue_catalog WITH (
+    'type' = 'iceberg',
+    'catalog-impl' = 'org.apache.iceberg.aws.glue.GlueCatalog',
+    'io-impl' = 'org.apache.iceberg.aws.s3.S3FileIO',
+    'warehouse' = 's3://ferenc-sandbox/glue-warehouse'
+);
+
+USE CATALOG glue_catalog;
+
+CREATE DATABASE IF NOT EXISTS `ferenc_test`;
+USE `ferenc_test`;
+
+CREATE TABLE IF NOT EXISTS my_data_table (
+  `id` BIGINT,
+  `name` STRING,
+  `value` DOUBLE
+) WITH (
+    'format-version' = '2'
+);

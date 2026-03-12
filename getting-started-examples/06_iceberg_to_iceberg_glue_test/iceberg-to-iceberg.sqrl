@@ -1,0 +1,3 @@
+IMPORT tables.iceberg_catalog;
+
+MyMaterializedTable := SELECT * FROM glue_catalog.ferenc_test.my_data_table /*+ OPTIONS('streaming'='true', 'monitor-interval'='10s')*/;

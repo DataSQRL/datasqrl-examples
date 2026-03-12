@@ -1,0 +1,29 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "iceberg", "duckdb", "vertx"],
+  "script": {
+    "main": "iceberg-to-iceberg.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.checkpointing.interval": "1min",
+        "table.exec.source.idle-timeout": "60s"
+      }
+    },
+    "duckdb": {
+      "url": "jdbc:duckdb:",
+      "use-version-guessing": true
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "connector": "iceberg",
+      "warehouse": "s3://ferenc-sandbox/glue-warehouse",
+      "catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
+      "io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+      "catalog-name": "glue",
+      "catalog-database": "ferenc_test"
+    }
+  }
+}
