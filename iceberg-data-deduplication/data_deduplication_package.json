@@ -8,7 +8,7 @@
       "catalogType": "hadoop",
       "catalogName": "mycatalog",
       "databaseName": "mydatabase",
-      "tableName": "CdcData",
+      "tableName": "cdc_data",
       "distinctKeyCol": "account_id",
       "partitionCol": "account_id",
       "partitionColType": "bigint",

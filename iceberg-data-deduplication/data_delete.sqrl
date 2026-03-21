@@ -1,6 +1,5 @@
-IMPORT tables.compaction_tracker;
+IMPORT tables.compaction_tracker.*;
 IMPORT udfs.delete_duplicated_data;
-
 
 _DataToDelete :=
 SELECT table_name,
