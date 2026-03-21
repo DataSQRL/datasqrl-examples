@@ -4,7 +4,7 @@
   "script": {
     "main": "dedup.sqrl",
     "config": {
-      "warehouse": "/tmp/duckdb",
+      "warehouse": "sqrl-iceberg-data",
       "catalogType": "hadoop",
       "catalogName": "mycatalog",
       "databaseName": "mydatabase",

@@ -14,6 +14,6 @@ WITH (
     'catalog-database' = 'mydatabase',
     'catalog-table' = 'cdcdata',
     'catalog-type' = 'hadoop',
-    'warehouse' = '/tmp/duckdb',
+    'warehouse' = 'sqrl-iceberg-data',
     'format-version' = '2'
 );

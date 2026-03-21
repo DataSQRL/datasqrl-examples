@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "partition_delete.sqrl",
+    "config": {
+      "warehouse": "sqrl-iceberg-data",
+      "catalogType": "hadoop",
+      "catalogName": "mycatalog",
+      "databaseName": "mydatabase",
+      "partitionCol": "account_id",
+      "commit_wait_sec": 1
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch"
+      }
+    }
+  }
+}

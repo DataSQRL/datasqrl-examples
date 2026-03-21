@@ -4,11 +4,6 @@
 IMPORT tables.{{tableName}};
 IMPORT tables.compaction_tracker;
 IMPORT udfs.read_partition_sizes;
-IMPORT udfs.delete_duplicated_data;
-
---
--- Part 1: Gather partitions to compact
---
 
 _AllPartitions :=
 SELECT partition_map['{{partitionCol}}'] AS partition_id,
@@ -52,41 +47,17 @@ SELECT DISTINCT '{{tableName}}' AS table_name,
                 partition_id,
                 new_rel_percentage,
                 new_abs_percentage,
-                FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}}) / {{bucketSeconds}}) * {{bucketSeconds}} AS max_time_bucket,
-                'initialize' AS action,
-                NOW() AS action_time
+                FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}}) / {{bucketSeconds}}) * {{bucketSeconds}} AS max_time_bucket
 FROM _PartitionPriority
 WHERE cumulative_total_size <= {{maxTotalPartitionSizeInMB}} * 1024 * 1024
    OR row_num <= 1;
 
-INSERT INTO CompactionTracker SELECT * FROM _PartitionsToCompact;
-
-NEXT_BATCH;
-
---
--- Part 2: Compact gathered partitions
---
-
-_DataToCompact :=
-SELECT DISTINCT table_name,
-                job_id,
-                partition_id,
-                new_rel_percentage,
-                new_abs_percentage,
-                max_time_bucket
-FROM CompactionTracker
-WHERE LOWER(table_name) = LOWER('{{tableName}}')
-  AND job_id = '${DEPLOYMENT_ID}'
-  AND action = 'initialize'
-  AND action_time > NOW() - INTERVAL '4' HOUR; -- last condition is for efficient pruning of iceberg read
-
-_CastDataToCompact := SELECT * FROM _DataToCompact;
-_CastDataToCompact.partition_id := CAST(partition_id AS {{partitionColType}});
+_PartitionsToCompact.partition_id := CAST(partition_id AS {{partitionColType}});
 
 _InputData :=
 SELECT /*+ BROADCAST(c) */ d.*
 FROM {{tableName}} AS d
-JOIN _CastDataToCompact AS c
+JOIN _PartitionsToCompact AS c
   ON d.{{partitionCol}} = c.partition_id
  AND d.{{timeBucketCol}} <= c.max_time_bucket;
 
@@ -104,54 +75,14 @@ INSERT OVERWRITE {{tableName}}
     ORDER BY {{partitionCol}} {{#sortKey}}, {{sortKey}}{{/sortKey}};
 
 _CompactionResult :=
-SELECT table_name,
-       job_id,
-       partition_id,
+SELECT CAST(table_name AS STRING),
+       CAST(job_id AS STRING),
+       CAST(partition_id AS STRING),
        new_rel_percentage,
        new_abs_percentage,
        max_time_bucket,
-       'overwrite' AS action,
+       CAST('overwrite' AS STRING) AS action,
        NOW() AS action_time
-FROM _DataToCompact;
+FROM _PartitionsToCompact;
 
 INSERT INTO CompactionTracker SELECT * FROM _CompactionResult;
-
-NEXT_BATCH;
-
---
--- Part 3: Delete source partitions that were compacted
---
-
-_DataToDelete :=
-SELECT DISTINCT table_name,
-                job_id,
-                partition_id,
-                new_rel_percentage,
-                new_abs_percentage,
-                max_time_bucket
-FROM CompactionTracker
-WHERE LOWER(table_name) = LOWER('{{tableName}}')
-  AND job_id = '${DEPLOYMENT_ID}'
-  AND action = 'overwrite'
-  AND action_time > NOW() - INTERVAL '4' HOUR;
-
-_DeleteFnResult :=
-SELECT delete_duplicated_data(
-               '{{warehouse}}',
-               '{{catalogType}}',
-               '{{catalogName}}',
-               '{{databaseName}}',
-               MAX(table_name),
-               MAX(max_time_bucket),
-               COLLECT(MAP['{{partitionCol}}', partition_id])) AS res
-FROM _DataToDelete;
-
-_DeleteResult :=
-SELECT
-    d.*,
-    CASE WHEN fn.res = true THEN 'delete' ELSE 'delete_failed' END AS action,
-        NOW() AS action_time
-FROM _DataToDelete AS d
-    CROSS JOIN (SELECT res FROM _DeleteFnResult LIMIT 1) AS fn;
-
-INSERT INTO CompactionTracker SELECT * FROM _DeleteResult;
