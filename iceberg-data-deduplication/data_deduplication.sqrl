@@ -69,7 +69,7 @@ INSERT OVERWRITE {{tableName}}
     SELECT * FROM _DistInputData
     -- filter only when "deleteFlagCol" has a value
     {{#deleteFlagCol}}
-    WHERE {{deleteFlagCol}} IS TRUE
+    WHERE {{deleteFlagCol}} IS NOT TRUE
     {{/deleteFlagCol}}
     -- sort by partition column, and optionally any other column(s)
     ORDER BY {{partitionCol}} {{#sortKey}}, {{sortKey}}{{/sortKey}};
@@ -81,7 +81,7 @@ SELECT CAST(table_name AS STRING),
        new_rel_percentage,
        new_abs_percentage,
        max_time_bucket,
-       CAST('overwrite' AS STRING) AS action,
+       'overwrite' AS action,
        NOW() AS action_time
 FROM _PartitionsToCompact;
 

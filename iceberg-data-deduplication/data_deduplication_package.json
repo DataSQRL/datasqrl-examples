@@ -2,7 +2,7 @@
   "version": "1",
   "enabled-engines": ["flink"],
   "script": {
-    "main": "dedup.sqrl",
+    "main": "data_deduplication.sqrl",
     "config": {
       "warehouse": "sqrl-iceberg-data",
       "catalogType": "hadoop",
