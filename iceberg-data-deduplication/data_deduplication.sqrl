@@ -78,6 +78,7 @@ _CompactionResult :=
 SELECT CAST(table_name AS STRING),
        CAST(job_id AS STRING),
        CAST(partition_id AS STRING),
+       '{{partitionCol}}' AS partition_col_name,
        new_rel_percentage,
        new_abs_percentage,
        max_time_bucket,

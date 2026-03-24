@@ -16,15 +16,18 @@
 package com.myudf;
 
 import com.google.auto.service.AutoService;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.flink.table.annotation.DataTypeHint;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.iceberg.PartitionField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.expressions.Expression;
@@ -33,6 +36,8 @@ import org.apache.iceberg.types.Type;
 
 @AutoService(ScalarFunction.class)
 public class delete_duplicated_data extends ScalarFunction {
+
+  private static final Logger LOG = LoggerFactory.getLogger(delete_duplicated_data.class);
 
   private static final String DEFAULT_TIME_BUCKET = "time_bucket";
 
@@ -43,73 +48,85 @@ public class delete_duplicated_data extends ScalarFunction {
    * @param catalogType The type of catalog (optional, e.g., "hadoop", "hive")
    * @param catalogName The name of the catalog
    * @param databaseName The database/schema name (optional)
-   * @param tableName The name of the table to delete from
    * @param maxTimeBucket The maximum time bucket value (inclusive) for records to delete
-   * @param partitionSet Set of partition specifications where each map contains column name -> value mappings.
-   *                     Maps can be empty for tables partitioned only by time bucket column.
-   *                     All maps must have the same keyset (same partition columns).
-   * @return true if deletion was successful, false if invalid parameters provided
+   * @param tablePartitionSet Set of table partition specifications where each map contains
+   *                          tableName -> Map(partitionColName -> partitionValue) mappings.
+   * @return true if deletion was successful for all tables, false if any failed
    */
   public boolean eval(
       String warehouse,
       @Nullable String catalogType,
       String catalogName,
       @Nullable String databaseName,
-      String tableName,
       Long maxTimeBucket,
-      @DataTypeHint("MULTISET<MAP<STRING, STRING>>") Map<Map<String, String>, Integer> partitionSet) {
+      @DataTypeHint("MULTISET<MAP<STRING, MAP<STRING, STRING>>>") Map<Map<String, Map<String,String>>, Integer> tablePartitionSet) {
 
-    if (warehouse == null
-        || catalogName == null
-        || tableName == null
-        || maxTimeBucket == null
-        || partitionSet == null
-        || partitionSet.isEmpty()) {
-      System.out.println("invalid input");
+    var invalid = new ArrayList<String>();
+    if (warehouse == null) invalid.add("warehouse");
+    if (catalogName == null) invalid.add("catalogName");
+    if (maxTimeBucket == null) invalid.add("maxTimeBucket");
+    if (tablePartitionSet == null) invalid.add("tablePartitionSet is null");
+    else if (tablePartitionSet.isEmpty()) invalid.add("tablePartitionSet is empty");
+    if (!invalid.isEmpty()) {
+      LOG.warn("Invalid arguments: {}", invalid);
       return false;
     }
 
-
-    var partitionColsOpt = Optional.<Set<String>>empty();
-    for (var partitionMap : partitionSet.keySet()) {
-      if (partitionColsOpt.isEmpty()) {
-        partitionColsOpt = Optional.of(new HashSet<>(partitionMap.keySet()));
-      } else if (!partitionColsOpt.get().equals(partitionMap.keySet())) {
-        // Return false instead of throwing exception to avoid crashing Flink job
-        return false;
+    // Group partition col name -> value mappings by table name
+    Map<String, Set<Map<String, String>>> partitionsByTable = new HashMap<>();
+    for (var entry : tablePartitionSet.keySet()) {
+      for (var tableEntry : entry.entrySet()) {
+        String tableName = tableEntry.getKey();
+        Map<String, String> partitionMap = tableEntry.getValue();
+        partitionsByTable
+            .computeIfAbsent(tableName, k -> new HashSet<>())
+            .add(partitionMap == null ? Map.of() : partitionMap);
       }
     }
 
-    // Make final copy for lambda expression
-    final var partitionCols = partitionColsOpt.get();
-
     try {
-      Function<Table, Boolean> delFn =
-          table -> {
-            var spec = table.spec();
-            var timeBucketCol = findTimeBucketColumn(spec, partitionCols);
+      for (var tableEntry : partitionsByTable.entrySet()) {
+        String tableName = tableEntry.getKey();
+        Set<Map<String, String>> partitionMaps = tableEntry.getValue();
 
-            // If no time bucket column found, cannot proceed
-            if (timeBucketCol == null) {
-              return false;
-            }
+        // Collect all partition column names for this table
+        var partitionCols = new HashSet<String>();
+        for (var pm : partitionMaps) {
+          partitionCols.addAll(pm.keySet());
+        }
 
-            // Build delete expression
-            var delExpr = buildGeneralizedPartitionDelete(
-                spec, partitionSet.keySet(), timeBucketCol, maxTimeBucket);
+        final var finalPartitionCols = partitionCols;
+        final var finalPartitionMaps = partitionMaps;
 
-            // Execute delete
-            var delFiles = table.newDelete().deleteFromRowFilter(delExpr);
-            delFiles.commit();
+        Function<Table, Boolean> delFn =
+            table -> {
+              var spec = table.spec();
+              var timeBucketCol = findTimeBucketColumn(spec, finalPartitionCols);
 
-            return true;
-          };
+              if (timeBucketCol == null) {
+                return false;
+              }
 
-      return CatalogUtils.executeInCatalog(
-          warehouse, catalogType, catalogName, databaseName, tableName, delFn);
+              var delExpr = buildGeneralizedPartitionDelete(
+                  spec, finalPartitionMaps, timeBucketCol, maxTimeBucket);
+
+              var delFiles = table.newDelete().deleteFromRowFilter(delExpr);
+              delFiles.commit();
+
+              return true;
+            };
+
+        boolean result = CatalogUtils.executeInCatalog(
+            warehouse, catalogType, catalogName, databaseName, tableName, delFn);
+        if (!result) {
+          return false;
+        }
+      }
+
+      return true;
 
     } catch (Exception e) {
-      // Return false instead of letting exception propagate
+      LOG.warn("Failed to delete partitions", e);
       return false;
     }
   }
