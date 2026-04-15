@@ -1,0 +1,46 @@
+IMPORT tables.compaction_tracker.*;
+IMPORT udfs.delete_duplicated_data;
+
+_DataToDelete :=
+SELECT table_name,
+       job_id,
+       partition_id,
+       new_rel_percentage,
+       new_abs_percentage,
+       max_time_bucket
+FROM (
+    SELECT table_name,
+           job_id,
+           partition_id,
+           new_rel_percentage,
+           new_abs_percentage,
+           max_time_bucket,
+           action,
+           ROW_NUMBER() OVER (PARTITION BY table_name, partition_id ORDER BY action_time DESC) AS row_num
+    FROM CompactionTracker
+    WHERE action_time < NOW() - INTERVAL '{{commit_wait_sec}}' SECOND AND action_time > NOW() - INTERVAL '24' HOUR -- time buffer to ensure commit happened and stop attempting to delete
+)
+WHERE row_num = 1 AND action <> 'delete'; -- compacted partitions haven't been deleted yet
+
+--TODO: need extra safety: validate that the selected partitions should be deleted by checking that the last partition update time < partition 0 update time
+
+_DeleteFnResult :=
+SELECT delete_duplicated_data(
+               '{{warehouse}}',
+               '{{catalogType}}',
+               '{{catalogName}}',
+               '{{databaseName}}',
+               MAX(table_name),
+               MAX(max_time_bucket),
+               COLLECT(MAP['{{partitionCol}}', partition_id])) AS res
+FROM _DataToDelete;
+
+_DeleteResult :=
+SELECT
+    d.*,
+    CASE WHEN fn.res = true THEN 'delete' ELSE 'delete_failed' END AS action,
+        NOW() AS action_time
+FROM _DataToDelete AS d
+    CROSS JOIN (SELECT res FROM _DeleteFnResult LIMIT 1) AS fn;
+
+INSERT INTO CompactionTracker SELECT * FROM _DeleteResult;

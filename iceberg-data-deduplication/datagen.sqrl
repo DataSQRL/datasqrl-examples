@@ -1,4 +1,8 @@
 IMPORT tables.min_source AS _CDC;
-IMPORT tables.CdcData;
+IMPORT tables.{{tableName}}.*;
 
-INSERT INTO CdcData SELECT c.*, EXTRACT(SECOND FROM c.ts) + 1 AS time_bucket FROM _CDC c;
+CountRecords := SELECT COUNT(*) AS num_records FROM _CDC.SrcRecords;
+
+EXPORT CountRecords TO logger.records;
+
+INSERT INTO {{tableName}} SELECT c.*, EXTRACT(SECOND FROM c.ts) + 1 AS time_bucket FROM _CDC.SrcRecords c;

@@ -1,4 +1,4 @@
-CREATE TABLE `CdcData` (
+CREATE TABLE `cdc_data` (
     `account_id`  BIGINT NOT NULL,
     `id`          BIGINT NOT NULL,
     `pt`          STRING NOT NULL,
@@ -10,10 +10,10 @@ CREATE TABLE `CdcData` (
 ) PARTITIONED BY (`account_id`, `id`, `time_bucket`)
 WITH (
     'connector' = 'iceberg',
-    'catalog-name' = 'mycatalog',
-    'catalog-database' = 'mydatabase',
-    'catalog-table' = 'cdcdata',
-    'catalog-type' = 'hadoop',
-    'warehouse' = '/tmp/duckdb',
+    'catalog-name' = '{{catalogName}}',
+    'catalog-database' = '{{databaseName}}',
+    'catalog-table' = '{{tableName}}',
+    'catalog-type' = '{{catalogType}}',
+    'warehouse' = '{{warehouse}}',
     'format-version' = '2'
 );

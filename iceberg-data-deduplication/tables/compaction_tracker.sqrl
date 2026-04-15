@@ -10,10 +10,10 @@ CREATE TABLE `CompactionTracker` (
 ) PARTITIONED BY (`table_name`)
 WITH (
     'connector' = 'iceberg',
-    'catalog-name' = 'mycatalog',
-    'catalog-database' = 'mydatabase',
-    'catalog-table' = 'compactiontracker',
-    'catalog-type' = 'hadoop',
-    'warehouse' = '/tmp/duckdb',
+    'catalog-name' = '{{catalogName}}',
+    'catalog-database' = '{{databaseName}}',
+    'catalog-table' = 'compaction_tracker',
+    'catalog-type' = '{{catalogType}}',
+    'warehouse' = '{{warehouse}}',
     'format-version' = '2'
 );

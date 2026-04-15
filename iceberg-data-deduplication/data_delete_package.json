@@ -2,21 +2,20 @@
   "version": "1",
   "enabled-engines": ["flink"],
   "script": {
-    "main": "datagen.sqrl",
+    "main": "data_delete.sqrl",
     "config": {
       "warehouse": "sqrl-iceberg-data",
       "catalogType": "hadoop",
       "catalogName": "mycatalog",
       "databaseName": "mydatabase",
-      "tableName": "cdc_data"
+      "partitionCol": "account_id",
+      "commit_wait_sec": 1
     }
   },
   "engines": {
     "flink": {
       "config": {
-        "execution.runtime-mode": "batch",
-        "execution.checkpointing.interval": "8 s",
-        "table.exec.source.idle-timeout": "1 ms"
+        "execution.runtime-mode": "batch"
       }
     }
   }

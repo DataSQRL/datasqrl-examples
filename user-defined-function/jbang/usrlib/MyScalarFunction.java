@@ -1,4 +1,4 @@
-//DEPS org.apache.flink:flink-table-common:1.19.3
+///usr/bin/env jbang "$0" "$@" ; exit $?
 
 import org.apache.flink.table.functions.ScalarFunction;
 
