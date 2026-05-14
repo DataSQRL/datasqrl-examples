@@ -1,8 +1,8 @@
 /*+no_query */
-IMPORT clickstream-{{variant}}.clickstream;
+IMPORT clickstream-{{variant}}.clickstream.*;
 
 /*+no_query */
-IMPORT content-{{variant}}.content;
+IMPORT content-{{variant}}.content.*;
 
 /* Find next page visits within 10 minutes */
 _CoVisits := SELECT b.url AS beforeURL, a.url AS afterURL,
