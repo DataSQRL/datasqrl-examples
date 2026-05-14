@@ -1,3 +1,4 @@
+/*+ engine(kafka) */
 CREATE TABLE Readings (
    sensorid INT NOT NULL,
    temperature decimal(8,2) NOT NULL,

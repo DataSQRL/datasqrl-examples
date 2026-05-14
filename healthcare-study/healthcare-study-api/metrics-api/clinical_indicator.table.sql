@@ -1,3 +1,4 @@
+/*+ engine(kafka) */
 CREATE TABLE ClinicalIndicator (
    sensorId BIGINT NOT NULL,
    metric DOUBLE NOT NULL,

@@ -1,3 +1,4 @@
+/*+ engine(kafka) */
 CREATE TABLE Content (
     url STRING NOT NULL,
     title STRING NOT NULL,
