@@ -6,4 +6,4 @@ CREATE TABLE AddClinicalData (
       'path' = '${DATA_PATH}/clinical_indicator.jsonl',
       'source.monitor-interval' = '10 min',
       'connector' = 'filesystem'
-) LIKE `clinical_indicator.avsc`;
+) LIKE `clinical_indicator.jsonl`;
