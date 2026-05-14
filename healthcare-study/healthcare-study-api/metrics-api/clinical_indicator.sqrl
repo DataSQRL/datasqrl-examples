@@ -1,4 +1,4 @@
-/*+engine(kafka) */
+/*+ engine(kafka) */
 CREATE TABLE AddClinicalData (
    sensorId BIGINT NOT NULL,
    metric DOUBLE NOT NULL,
