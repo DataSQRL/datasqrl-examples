@@ -1,12 +1,24 @@
 name: Build and test DataSQRL Examples
 
+run-name: examples build [${{ inputs.correlation_id || github.run_number }}]
+
 on:
   push:
     branches: [ "main" ]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      sqrl_image:
+        description: "Full SQRL CLI image reference (e.g. ghcr.io/datasqrl/cmd:pr-123 or datasqrl/cmd:dev). When set, overrides SQRL_VERSION and skips Docker Hub publishing."
+        required: false
+        default: ''
+      correlation_id:
+        description: "Optional correlation ID used by upstream dispatchers to locate this run."
+        required: false
+        default: ''
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.correlation_id || github.run_id }}
   cancel-in-progress: true
 
 env:
@@ -150,6 +162,20 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Resolve SQRL image
+      id: resolve-image
+      run: |
+        if [ -n "${{ inputs.sqrl_image }}" ]; then
+          IMAGE="${{ inputs.sqrl_image }}"
+          IS_SNAPSHOT=true
+        else
+          IMAGE="datasqrl/cmd:${SQRL_VERSION}"
+          IS_SNAPSHOT=false
+        fi
+        echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+        echo "is_snapshot=$IS_SNAPSHOT" >> "$GITHUB_OUTPUT"
+        echo "Using SQRL image: $IMAGE (snapshot=$IS_SNAPSHOT)"
+
     - name: Setup Timezone
       uses: szenius/set-timezone@v1.1
       with:
@@ -158,18 +184,20 @@ jobs:
     - name: Cache Docker images
       uses: ScribeMD/docker-cache@0.5.0
       with:
-        # one cache entry per SQRL version & OS
-        key: sqrl-${{ runner.os }}-${{ env.SQRL_VERSION }}
+        # one cache entry per SQRL image ref & OS
+        key: sqrl-${{ runner.os }}-${{ steps.resolve-image.outputs.image }}
 
     - name: Pull SQRL Docker image
-      run: docker pull datasqrl/cmd:${{ env.SQRL_VERSION }}
+      run: docker pull "${{ steps.resolve-image.outputs.image }}"
 
     - name: Run ${{ matrix.example }} Tests
       working-directory: ${{ matrix.path }}
+      env:
+        SQRL_IMAGE: ${{ steps.resolve-image.outputs.image }}
       run: |
         # Read raw lines from the matrix value
         mapfile -t raw_cmds <<< "${{ matrix.test_commands }}"
-       
+
         # Keep only non‑empty lines
         cmds=()
         for c in "${raw_cmds[@]}"; do
@@ -188,32 +216,39 @@ jobs:
             -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -e AWS_REGION="${{ secrets.AWS_REGION }}" \
-            --rm -v "$PWD":/build "datasqrl/cmd:${SQRL_VERSION}" $cmd
+            --rm -v "$PWD":/build "$SQRL_IMAGE" $cmd
           echo "::endgroup::"
         done
 
     - name: Write Dockerfile
+      if: steps.resolve-image.outputs.is_snapshot != 'true'
+      env:
+        SQRL_IMAGE: ${{ steps.resolve-image.outputs.image }}
       run: |
         cat <<EOF > ${{ matrix.path }}/Dockerfile
-        FROM datasqrl/cmd:${SQRL_VERSION}
+        FROM ${SQRL_IMAGE}
 
         COPY . /build
         WORKDIR /build
         EOF
 
     - name: Set up QEMU
+      if: steps.resolve-image.outputs.is_snapshot != 'true'
       uses: docker/setup-qemu-action@v2
 
     - name: Set up Docker Buildx
+      if: steps.resolve-image.outputs.is_snapshot != 'true'
       uses: docker/setup-buildx-action@v2
 
     - name: Login to Docker Hub
+      if: steps.resolve-image.outputs.is_snapshot != 'true'
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Publish ${{ matrix.example }}
+      if: steps.resolve-image.outputs.is_snapshot != 'true'
       uses: docker/build-push-action@v3
       with:
         context: ./${{ matrix.path }}
