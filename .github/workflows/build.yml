@@ -162,7 +162,7 @@ jobs:
         key: sqrl-${{ runner.os }}-${{ env.SQRL_VERSION }}
 
     - name: Pull SQRL Docker image
-      run: docker pull datasqrl/cmd:${{ env.SQRL_VERSION }}
+      run: docker pull ghcr.io/datasqrl/cmd:${{ env.SQRL_VERSION }}
 
     - name: Run ${{ matrix.example }} Tests
       working-directory: ${{ matrix.path }}
@@ -188,14 +188,14 @@ jobs:
             -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -e AWS_REGION="${{ secrets.AWS_REGION }}" \
-            --rm -v "$PWD":/build "datasqrl/cmd:${SQRL_VERSION}" $cmd
+            --rm -v "$PWD":/build "ghcr.io/datasqrl/cmd:${SQRL_VERSION}" $cmd
           echo "::endgroup::"
         done
 
     - name: Write Dockerfile
       run: |
         cat <<EOF > ${{ matrix.path }}/Dockerfile
-        FROM datasqrl/cmd:${SQRL_VERSION}
+        FROM ghcr.io/datasqrl/cmd:${SQRL_VERSION}
 
         COPY . /build
         WORKDIR /build
