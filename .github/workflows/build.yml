@@ -29,6 +29,9 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest-4-cores
     timeout-minutes: 30
+    permissions:
+      id-token: write
+      contents: read
 
     strategy:
       fail-fast: false
@@ -190,6 +193,16 @@ jobs:
     - name: Pull SQRL Docker image
       run: docker pull "${{ steps.resolve-image.outputs.image }}"
 
+    - name: Configure AWS credentials via OIDC
+      # Tolerated: PRs from forks cannot mint an OIDC token for this repo's role.
+      # Such PRs fall back to running without AWS credentials, which is fine for
+      # every matrix entry except the S3-backed iceberg canary.
+      continue-on-error: true
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
+        aws-region: us-east-1
+
     - name: Run ${{ matrix.example }} Tests
       working-directory: ${{ matrix.path }}
       env:
@@ -213,9 +226,11 @@ jobs:
         for cmd in "${cmds[@]}"; do
           echo "::group::Running: $cmd"
           docker run -i -p 8888:8888 -p 8081:8081 -p 9092:9092 \
-            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -e AWS_REGION="${{ secrets.AWS_REGION }}" \
+            -e AWS_ACCESS_KEY_ID \
+            -e AWS_SECRET_ACCESS_KEY \
+            -e AWS_SESSION_TOKEN \
+            -e AWS_REGION \
+            -e AWS_DEFAULT_REGION \
             --rm -v "$PWD":/build "$SQRL_IMAGE" $cmd
           echo "::endgroup::"
         done
