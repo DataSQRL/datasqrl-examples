@@ -1,0 +1,3 @@
+CREATE TABLE SensorReading (
+   WATERMARK FOR `event_time` AS `event_time` - INTERVAL '0.001' SECOND
+) LIKE `readings.jsonl`;

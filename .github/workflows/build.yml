@@ -23,7 +23,7 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: '0.9.5'
+  SQRL_VERSION: '0.10.4'
 
 jobs:
   build-and-push:
@@ -172,7 +172,7 @@ jobs:
           IMAGE="${{ inputs.sqrl_image }}"
           IS_SNAPSHOT=true
         else
-          IMAGE="datasqrl/cmd:${SQRL_VERSION}"
+          IMAGE="ghcr.io/datasqrl/cmd:${SQRL_VERSION}"
           IS_SNAPSHOT=false
         fi
         echo "image=$IMAGE" >> "$GITHUB_OUTPUT"

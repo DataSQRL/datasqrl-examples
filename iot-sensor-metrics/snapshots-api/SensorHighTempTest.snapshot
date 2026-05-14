@@ -2,7 +2,7 @@
   "data" : {
     "SensorHighTempTest" : [ {
       "num" : 5,
-      "avg_temp" : 106.0
+      "avg_temp" : 106.2
     } ]
   }
 }
