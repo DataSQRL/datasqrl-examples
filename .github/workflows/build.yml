@@ -88,7 +88,8 @@ jobs:
           - example: iceberg-dedup
             path: iceberg-data-deduplication
             test_commands: |
-              compile data_deduplication_package.json
+              compile data_compaction_package.json
+              compile data_delete_package.json
 
           - example: iot-sensor
             path: iot-sensor-metrics

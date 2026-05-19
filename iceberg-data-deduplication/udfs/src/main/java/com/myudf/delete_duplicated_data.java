@@ -16,15 +16,16 @@
 package com.myudf;
 
 import com.google.auto.service.AutoService;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import org.apache.flink.table.annotation.DataTypeHint;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.iceberg.PartitionField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.expressions.Expression;
@@ -34,21 +35,22 @@ import org.apache.iceberg.types.Type;
 @AutoService(ScalarFunction.class)
 public class delete_duplicated_data extends ScalarFunction {
 
+  private static final Logger LOG = LoggerFactory.getLogger(delete_duplicated_data.class);
+
   private static final String DEFAULT_TIME_BUCKET = "time_bucket";
 
   /**
-   * Deletes duplicated data from an Iceberg table based on partition specifications and time bucket constraints.
+   * Deletes duplicated data from an Iceberg table based on partition and time bucket constraints.
    *
-   * @param warehouse The warehouse path or URI for the catalog
-   * @param catalogType The type of catalog (optional, e.g., "hadoop", "hive")
-   * @param catalogName The name of the catalog
-   * @param databaseName The database/schema name (optional)
-   * @param tableName The name of the table to delete from
-   * @param maxTimeBucket The maximum time bucket value (inclusive) for records to delete
-   * @param partitionSet Set of partition specifications where each map contains column name -> value mappings.
-   *                     Maps can be empty for tables partitioned only by time bucket column.
-   *                     All maps must have the same keyset (same partition columns).
-   * @return true if deletion was successful, false if invalid parameters provided
+   * @param warehouse        The warehouse path or URI for the catalog
+   * @param catalogType      The type of catalog (optional, e.g., "hadoop", "hive")
+   * @param catalogName      The name of the catalog
+   * @param databaseName     The database/schema name (optional)
+   * @param tableName        The name of the Iceberg table to delete from
+   * @param partitionColName The partition column name used to identify duplicated data
+   * @param partitionId      The partition column value to match for deletion
+   * @param maxTimeBucket    The maximum time bucket value (inclusive) for records to delete
+   * @return true if deletion was successful, false otherwise
    */
   public boolean eval(
       String warehouse,
@@ -56,38 +58,27 @@ public class delete_duplicated_data extends ScalarFunction {
       String catalogName,
       @Nullable String databaseName,
       String tableName,
-      Long maxTimeBucket,
-      @DataTypeHint("MULTISET<MAP<STRING, STRING>>") Map<Map<String, String>, Integer> partitionSet) {
+      String partitionColName,
+      String partitionId,
+      Long maxTimeBucket) {
 
-    if (warehouse == null
-        || catalogName == null
-        || tableName == null
-        || maxTimeBucket == null
-        || partitionSet == null
-        || partitionSet.isEmpty()) {
-      System.out.println("invalid input");
+    var invalid = new ArrayList<String>();
+    if (warehouse == null) invalid.add("warehouse");
+    if (catalogName == null) invalid.add("catalogName");
+    if (maxTimeBucket == null) invalid.add("maxTimeBucket");
+    if (tableName == null) invalid.add("tableName");
+    if (partitionColName == null) invalid.add("partitionColName");
+    if (partitionId == null) invalid.add("partitionId");
+    if (!invalid.isEmpty()) {
+      LOG.warn("Invalid arguments: {}", invalid);
       return false;
     }
-
-
-    var partitionColsOpt = Optional.<Set<String>>empty();
-    for (var partitionMap : partitionSet.keySet()) {
-      if (partitionColsOpt.isEmpty()) {
-        partitionColsOpt = Optional.of(new HashSet<>(partitionMap.keySet()));
-      } else if (!partitionColsOpt.get().equals(partitionMap.keySet())) {
-        // Return false instead of throwing exception to avoid crashing Flink job
-        return false;
-      }
-    }
-
-    // Make final copy for lambda expression
-    final var partitionCols = partitionColsOpt.get();
 
     try {
       Function<Table, Boolean> delFn =
           table -> {
             var spec = table.spec();
-            var timeBucketCol = findTimeBucketColumn(spec, partitionCols);
+            var timeBucketCol = findTimeBucketColumn(spec, Set.of(partitionColName));
 
             // If no time bucket column found, cannot proceed
             if (timeBucketCol == null) {
@@ -96,7 +87,7 @@ public class delete_duplicated_data extends ScalarFunction {
 
             // Build delete expression
             var delExpr = buildGeneralizedPartitionDelete(
-                spec, partitionSet.keySet(), timeBucketCol, maxTimeBucket);
+                spec, Set.of(Map.of(partitionColName, partitionId)), timeBucketCol, maxTimeBucket);
 
             // Execute delete
             var delFiles = table.newDelete().deleteFromRowFilter(delExpr);
@@ -105,11 +96,10 @@ public class delete_duplicated_data extends ScalarFunction {
             return true;
           };
 
-      return CatalogUtils.executeInCatalog(
-          warehouse, catalogType, catalogName, databaseName, tableName, delFn);
+      return CatalogUtils.executeInCatalog(warehouse, catalogType, catalogName, databaseName, tableName, delFn);
 
     } catch (Exception e) {
-      // Return false instead of letting exception propagate
+      LOG.warn("Failed to delete partition %s=%s from table %s".formatted(partitionColName, partitionId, tableName), e);
       return false;
     }
   }
