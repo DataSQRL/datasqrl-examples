@@ -8,8 +8,8 @@
       "catalogType": "hadoop",
       "catalogName": "mycatalog",
       "databaseName": "mydatabase",
-      "partitionCol": "account_id",
-      "commit_wait_sec": 1
+      "commitWaitSec": 1,
+      "stopDeleteFilter": ""
     }
   },
   "engines": {

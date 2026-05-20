@@ -5,23 +5,38 @@ IMPORT tables.{{tableName}}.*;
 IMPORT tables.compaction_tracker.*;
 IMPORT udfs.read_partition_sizes;
 
+-- Collect previously compacted partitions
+_PrevCompactions :=
+SELECT partition_id,
+       MAX(partition_time_bucket) AS partition_time_bucket
+FROM CompactionTracker
+WHERE `action` = 'overwrite'
+GROUP BY partition_id;
+
 _AllPartitions :=
-SELECT partition_map['{{partitionCol}}'] AS partition_id,
-       CAST(partition_map['{{timeBucketCol}}'] AS BIGINT) AS time_bucket,
-       partition_size
-FROM TABLE(read_partition_sizes(
-        '{{warehouse}}', '{{catalogType}}', '{{catalogName}}', '{{databaseName}}', '{{tableName}}'));
+SELECT p.*
+FROM (
+  SELECT partition_map['{{partitionCol}}'] AS partition_id,
+         CAST(partition_map['{{timeBucketCol}}'] AS BIGINT) AS time_bucket,
+         partition_size
+  FROM TABLE(read_partition_sizes('{{warehouse}}', '{{catalogType}}', '{{catalogName}}', '{{databaseName}}', '{{tableName}}'))
+) p
+-- filter out partitions that have been compacted already
+LEFT JOIN _PrevCompactions pc ON pc.partition_id = p.partition_id
+WHERE pc.partition_id IS NULL
+   OR pc.partition_time_bucket < p.time_bucket;
 
 _Partitions :=
 SELECT * FROM _AllPartitions
-WHERE time_bucket <= FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}}) / {{bucketSeconds}}) * {{bucketSeconds}};
+WHERE time_bucket <= FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}} * 1000) / ({{bucketSeconds}} * 1000)) * {{bucketSeconds}} * 1000;
 
 _PartitionSizing :=
 SELECT partition_id,
+       time_bucket,
        SUM(CASE WHEN time_bucket = 0 THEN partition_size ELSE 0 END) AS base_size,
        SUM(CASE WHEN time_bucket > 0 THEN partition_size ELSE 0 END) AS new_size
 FROM _Partitions
-GROUP BY partition_id;
+GROUP BY partition_id, time_bucket;
 
 _PartitionSizing.total_size := base_size + new_size;
 _PartitionSizing.new_rel_percentage := CAST(new_size AS DOUBLE) / GREATEST(total_size, 1) * 100;
@@ -30,6 +45,7 @@ _PartitionSizing.score := new_rel_percentage + new_abs_percentage;
 
 _PartitionPriority :=
 SELECT partition_id,
+       time_bucket,
        new_size,
        total_size,
        new_rel_percentage,
@@ -45,9 +61,10 @@ _PartitionsToCompact :=
 SELECT DISTINCT '{{tableName}}' AS table_name,
                 '${DEPLOYMENT_ID}' AS job_id,
                 partition_id,
+                time_bucket,
                 new_rel_percentage,
                 new_abs_percentage,
-                FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}}) / {{bucketSeconds}}) * {{bucketSeconds}} AS max_time_bucket
+                FLOOR((CAST('${DEPLOYMENT_TIMESTAMP}' AS BIGINT) - {{bufferSeconds}} * 1000) / ({{bucketSeconds}} * 1000)) * {{bucketSeconds}} * 1000 AS max_time_bucket
 FROM _PartitionPriority
 WHERE cumulative_total_size <= {{maxTotalPartitionSizeInMB}} * 1024 * 1024
    OR row_num <= 1;
@@ -69,7 +86,7 @@ INSERT OVERWRITE {{tableName}}
     SELECT * FROM _DistInputData
     -- filter only when "deleteFlagCol" has a value
     {{#deleteFlagCol}}
-    WHERE {{deleteFlagCol}} IS NOT TRUE
+    WHERE {{{deleteFlagCol}}} IS NOT TRUE
     {{/deleteFlagCol}}
     -- sort by partition column, and optionally any other column(s)
     ORDER BY {{partitionCol}} {{#sortKey}}, {{sortKey}}{{/sortKey}};
@@ -78,10 +95,12 @@ _CompactionResult :=
 SELECT CAST(table_name AS STRING),
        CAST(job_id AS STRING),
        CAST(partition_id AS STRING),
+       '{{partitionCol}}' AS partition_col_name,
+       time_bucket AS partition_time_bucket,
        new_rel_percentage,
        new_abs_percentage,
        max_time_bucket,
-       'overwrite' AS action,
+       'overwrite' AS `action`,
        NOW() AS action_time
 FROM _PartitionsToCompact;
 

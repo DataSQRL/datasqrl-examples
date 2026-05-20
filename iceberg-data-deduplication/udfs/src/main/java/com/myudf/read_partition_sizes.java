@@ -26,7 +26,6 @@ import org.apache.flink.table.annotation.FunctionHint;
 import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.types.Row;
 import org.apache.iceberg.FileScanTask;
-import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Table;
 
 @AutoService(TableFunction.class)
@@ -34,7 +33,7 @@ public class read_partition_sizes extends TableFunction<Row> {
 
   /**
    * Computes the total size on disk for each partition in an Iceberg table.
-   * 
+   *
    * @param warehouse The warehouse path or URI for the catalog
    * @param catalogType The type of catalog (optional, e.g., "hadoop", "hive")
    * @param catalogName The name of the catalog
