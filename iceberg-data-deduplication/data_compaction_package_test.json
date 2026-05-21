@@ -1,0 +1,34 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "data_compaction.sqrl",
+    "config": {
+      "env": "test",
+      "warehouse": "s3://sqrl-examples-data-bucket/datasqrl-examples/iceberg-canary",
+      "catalogType": "glue",
+      "catalogName": "canary",
+      "databaseName": "canary",
+      "tableName": "iceberg_dedup_test",
+      "distinctKeyCol": "account_id",
+      "partitionCol": "account_id",
+      "partitionColType": "bigint",
+      "timeBucketCol": "time_bucket",
+      "timestampCol": "ts",
+      "deleteFlagCol": null,
+      "sortKey": null,
+      "bufferSeconds": 2,
+      "bucketSeconds": 5,
+      "newDataNormalizerInMB": 1,
+      "maxTotalPartitionSizeInMB": 10
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch",
+        "table.exec.source.idle-timeout": "1 ms"
+      }
+    }
+  }
+}

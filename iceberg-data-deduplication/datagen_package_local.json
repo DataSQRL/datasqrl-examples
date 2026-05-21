@@ -1,0 +1,24 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "datagen.sqrl",
+    "config": {
+      "env": "local",
+      "warehouse": "sqrl-iceberg-data",
+      "catalogType": "hadoop",
+      "catalogName": "mycatalog",
+      "databaseName": "mydatabase",
+      "tableName": "cdc_data"
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch",
+        "execution.checkpointing.interval": "8 s",
+        "table.exec.source.idle-timeout": "1 ms"
+      }
+    }
+  }
+}

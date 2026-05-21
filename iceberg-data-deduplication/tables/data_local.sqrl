@@ -1,4 +1,4 @@
-CREATE TABLE `cdc_data` (
+CREATE TABLE `DedupData` (
     `account_id`  BIGINT NOT NULL,
     `id`          BIGINT NOT NULL,
     `pt`          STRING NOT NULL,
