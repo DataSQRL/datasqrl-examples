@@ -1,3 +1,4 @@
+/*+ engine(kafka) */
 CREATE TABLE UserTokens (
     `userid` BIGINT NOT NULL,
     `tokens` BIGINT NOT NULL,

@@ -1,3 +1,4 @@
+/*+ engine(kafka) */
 CREATE TABLE Clickstream (
     url STRING NOT NULL,
     userid STRING NOT NULL,

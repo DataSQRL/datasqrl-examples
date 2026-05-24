@@ -1,0 +1,7 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "runtime-failing-udf.sqrl"
+  }
+}

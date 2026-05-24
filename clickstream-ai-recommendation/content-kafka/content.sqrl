@@ -7,7 +7,7 @@ CREATE TABLE Content (
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'content',
-    'properties.bootstrap.servers' = '${PROPERTIES_BOOTSTRAP_SERVERS}',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
     'properties.group.id' = 'clickstream-group',
     'scan.startup.mode' = 'group-offsets',
     'properties.auto.offset.reset' = 'earliest',

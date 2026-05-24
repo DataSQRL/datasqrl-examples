@@ -8,7 +8,6 @@ _Merchant       := DISTINCT _MerchantStream ON merchantId ORDER BY updatedTime D
 _CardAssignment := DISTINCT _CardAssignmentStream ON cardNo ORDER BY `timestamp` DESC;
 
 /* Enrich credit card transactions with customer and merchant information */
-/*+partition_key(customerId) */
 _CustomerTransaction := SELECT t.transactionId, t.cardNo, t.`time`, t.amount,
                               m.category, c.customerId, m.merchantId
                        FROM _Transaction t

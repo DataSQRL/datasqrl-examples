@@ -28,7 +28,7 @@ docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest
 ```
 
 This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
-for data pipelines. To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/graphiql/) to access the API.
+for data pipelines. To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/v1/graphiql/) to access the API.
 
 When you are done, you can stop the pipeline by hitting CTRL-C.
 
@@ -62,7 +62,7 @@ The first load should be pretty quick. The transactions are then loaded at a rat
 
 To see how the data enters the topics and the [Flink UI](http://localhost:8081/) to see the processing status.
 
-As above, you can [open GraphiQL](http://localhost:8888/graphiql/) to access the API and query for data. Note, that the time windows are very long,
+As above, you can [open GraphiQL](http://localhost:8888/v1/graphiql/) to access the API and query for data. Note, that the time windows are very long,
 so you won't be seeing any output there for the short period of time we are inserting data.
 You can adjust the time windows or keep loading data for a long time ;-).
 
@@ -76,8 +76,13 @@ any of the main package configurations to secure the endpoints, regardless of ot
 For example, to secure the API with the File data source, invoke the following command in the specific example directory:
 ```bash
 cd credit-card-analytics
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json 
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run \
+  -c creditcard_analytics_package_test.json \
+  -c creditcard_analytics_package_jwt.json
 ```
+
+It is also possible to construct additional API tests and operations via the DataSQRL test runner.
+Take a look at the [Transaction Analytics](credit-card-analytics) example to see how those can be set up.
 
 ## 4. Run the MCP Inspector
 
@@ -86,6 +91,6 @@ Both use cases can utilize the MCP inspector. If API is running, open a new term
 npx @modelcontextprotocol/inspector
 ```
 Assuming `npm` is installed, first time, this will install a new `npm` package, then it will start the inspector.
-In the browser window that pop up, pick **Streamable HTTP**, and the SQRL MCP server should be available at `http://localhost:8888/mcp`.
+In the browser window that pop up, pick **Streamable HTTP**, and the SQRL MCP server should be available at `http://localhost:8888/v1/mcp`.
 
 All public API endpoints will be listed under. **Tools**. For more information about MCP inspector, [see its documentation](https://modelcontextprotocol.io/docs/tools/inspector). 

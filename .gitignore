@@ -224,3 +224,8 @@ Temporary Items
 
 py-venv
 # End of https://www.toptal.com/developers/gitignore/api/macos
+
+##performance benchmarking
+node_modules/
+iceberg-data/
+sqrl-iceberg-data/

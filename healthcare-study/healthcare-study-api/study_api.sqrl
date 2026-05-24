@@ -1,7 +1,7 @@
 IMPORT study-testdata.* AS _CDC_;
 
-/*+no_query */
-IMPORT metrics-{{variant}}.clinical_indicator AS AddClinicalData;
+/*+ no_query */
+IMPORT metrics-{{variant}}.clinical_indicator.*;
 
 _ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM AddClinicalData;
 

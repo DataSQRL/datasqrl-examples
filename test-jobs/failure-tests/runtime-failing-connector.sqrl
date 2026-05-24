@@ -1,0 +1,20 @@
+CREATE TABLE _InputData (
+  uniqueId STRING NOT NULL,
+  measure DOUBLE NOT NULL,
+  partitionId STRING NOT NULL,
+  event_time TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp',
+  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+) WITH (
+  'connector' = 'kafka',
+  'topic' = 'failing-test-source',
+  'format' = 'json',
+  'properties.bootstrap.servers' = 'non-existent-broker:9092',
+  'properties.request.timeout.ms' = '5000', -- Fail after 5sec
+  'properties.retry.backoff.ms' = '500',
+  'properties.metadata.max.age.ms' = '1000',
+  'scan.startup.mode' = 'earliest-offset'
+);
+
+_Res := SELECT * FROM _InputData;
+
+EXPORT _Res TO logger.res;

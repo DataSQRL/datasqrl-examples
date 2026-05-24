@@ -3,7 +3,7 @@ CREATE TABLE EnrichedIndicators (
 ) WITH (
       'connector' = 'kafka',
       'topic' = 'enrichedindicators',
-      'properties.bootstrap.servers' = '${PROPERTIES_BOOTSTRAP_SERVERS}',
+      'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
       'properties.group.id' = 'mygroup',
       'scan.startup.mode' = 'earliest-offset',
       'value.format' = 'flexible-json',

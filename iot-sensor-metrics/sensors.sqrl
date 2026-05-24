@@ -1,5 +1,5 @@
 /*+no_query*/
-IMPORT sensors-{{variant}}.readings AS SensorReading;
+IMPORT sensors-{{variant}}.readings.*;
 
 /**
  Returns all sensor temperature readings above the given temperature

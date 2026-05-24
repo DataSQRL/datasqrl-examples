@@ -2,7 +2,7 @@ IMPORT oilgas-{{variant}}.assets AS _AssetUpdates;
 IMPORT oilgas-{{variant}}.maintenance AS _MaintenanceUpdates;
 IMPORT oilgas-{{variant}}.measurement AS _Measurement;
 
-/*+no_query */
+/*+ no_query, engine(kafka) */
 CREATE TABLE FlowRate (
     event_id STRING NOT NULL METADATA FROM 'uuid',
     assetId BIGINT NOT NULL,

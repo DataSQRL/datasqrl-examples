@@ -1,6 +1,7 @@
 IMPORT usrlib.MyScalarFunction;
 
 -- Capture some input data
+/*+engine(kafka) */
 CREATE TABLE InputData (
     val BIGINT NOT NULL
 );

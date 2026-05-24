@@ -80,7 +80,7 @@ WarrantsTest := SELECT warrant_status, COUNT(1) AS num_warrants
 
 /* License plate tracking and alerting */
 
-/*+no_query*/
+/*+ engine(kafka), no_query*/
 CREATE TABLE Tracking (
    plate STRING NOT NULL,
    latitude decimal(8,3) NOT NULL,

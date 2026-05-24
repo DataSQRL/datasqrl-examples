@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "kafka", "postgres", "vertx"],
+  "script": {
+    "main": "simple-batch.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH",
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  },
+  "test-runner": {
+    "delay-sec": -1
+  }
+}

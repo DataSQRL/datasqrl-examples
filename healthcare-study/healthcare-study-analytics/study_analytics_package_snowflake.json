@@ -18,11 +18,9 @@
   },
   "connectors": {
     "iceberg": {
-      "warehouse": "s3://my-iceberg-warehouse",
-      "catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
-      "io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
-      "catalog-name": "mycatalog",
-      "catalog-database": "mydatabase"
+      "warehouse": "s3a://sqrl-examples-data-bucket/datasqrl-examples/healthcare-study-analytics-iceberg",
+      "catalog-type": "hadoop",
+      "catalog-name": "mycatalog"
     }
   }
 }
