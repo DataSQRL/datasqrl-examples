@@ -1,0 +1,1 @@
+{"information":{"label":"test2","description":"my flink test query"},"script":{"config":{"sqlQuery":"select 1 from workbench_data_stream"}}}
