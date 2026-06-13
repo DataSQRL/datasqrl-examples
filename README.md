@@ -42,4 +42,4 @@ docker run -it --rm -v $PWD:/build datasqrl/cmd:latest compile [ARGUMENTS GO HER
 Check out the main [DataSQRL repository](https://github.com/DataSQRL/sqrl/) for more information on the compiler and runtime used in these examples.
 
 Take a look at the [DataSQRL documentation](https://datasqrl.github.io/sqrl) to learn how to build your own project with DataSQRL.
-1
+2
