@@ -46,7 +46,7 @@ NewCustomerTransaction(customerId BIGINT) := SUBSCRIBE SELECT * FROM CustomerTra
 /* ==== TEST CASES ==== */
 
 /*+test */
-CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY `time` DESC limit 5;
+CustomerTransactionTest := SELECT * FROM CustomerTransaction ORDER BY `time` DESC LIMIT 5;
 
 /*+test */
-SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerId DESC, timeWeek DESC, category ASC limit 5;
+SpendingByCategoryTest := SELECT * FROM SpendingByCategory ORDER BY customerId DESC, timeWeek DESC, category ASC LIMIT 5;
