@@ -11,31 +11,106 @@ This is a repository for real world [DataSQRL](https://github.com/DataSQRL/sqrl)
 * **[Logistics Shipping](logistics-shipping-geodata)**: Build a data pipeline that processes logistics data to provide real-time tracking and shipment information for customers.
 * **[User Defined Function](user-defined-function)**: This small tutorial shows how to include your call a custom function in your SQRL script.
 
-## Running the Examples
+## Getting Started
 
 ### Prerequisites
 
-To compile and run these examples with DataSQRL you need to have a [recent version of Docker](https://docs.docker.com/get-docker/) installed on your machine.
+**Required for all examples:**
+- [Docker](https://docs.docker.com/get-docker/) - Recent version installed and running
 
-### Running & Compiling Examples
+**Required for Claude Desktop integration (optional):**
+- [Node.js and npm](https://nodejs.org/) - For MCP server support
+- [Claude Desktop](https://claude.ai/download) - For MCP integration
 
-To run the examples on Linux or MacOS, open a terminal and run the following command:
-```bash
-docker run -it --rm -p 8888:8888 -p 8081:8081 -p 9092:9092 -v $PWD:/build datasqrl/cmd:latest run [ARGUMENTS GO HERE]
-```
+### Running Examples
 
-If you are on windows using Powershell, you need to reference the local directory with a slightly different syntax:
-```bash
-docker run -it --rm -p 8888:8888 -p 8081:8081 -p 9092:9092 -v $PWD:/build datasqrl/cmd:latest run [ARGUMENTS GO HERE]
-```
+1. **Navigate to an example directory:**
+   ```bash
+   cd <example-directory>
+   ```
 
-Check the `README.md` in the respective directory for more information on the arguments to run each example. 
-We will be using the Unix syntax, so keep in mind that you have to adjust the commands slightly on Windows machines by using `${PWD}` instead.
+2. **Compile the SQRL file** (generates package configuration):
+   ```bash
+   docker run --rm -v $PWD:/build datasqrl/cmd:latest compile <your-sqrl-file>.sqrl
+   ```
 
-To compile an example (without running it), use this command:
-```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd:latest compile [ARGUMENTS GO HERE]
-```
+3. **Run the example:**
+   ```bash
+   docker run -it --rm -p 8888:8888 -p 8081:8081 -p 9092:9092 -v $PWD:/build datasqrl/cmd:latest run <your-sqrl-file>.sqrl
+   ```
+
+   The `datasqrl/cmd` image will be pulled automatically if not present locally.
+
+4. **Verify the server is running:**
+   Look for these log messages:
+   ```
+   HTTP server listening on port 8888
+   ```
+
+   The server is now accessible at:
+   - GraphQL API: http://localhost:8888
+   - Swagger UI: http://localhost:8888/v1/swagger-ui
+   - Swagger JSON: http://localhost:8888/v1/swagger
+
+**Note:** Check the `README.md` in each example directory for specific arguments and configuration. On Windows PowerShell, use `${PWD}` instead of `$PWD`.
+
+### Claude Desktop Integration (Optional)
+
+DataSQRL can expose its APIs to Claude Desktop via MCP (Model Context Protocol), enabling Claude to interact with your data pipelines directly.
+
+#### Setup
+
+1. **Configure Claude Desktop MCP Server:**
+   - Open Claude Desktop
+   - Navigate to Settings → Developer Settings
+   - Click Edit Config to open `claude_desktop_config.json`
+   - Add the MCP server configuration:
+     ```json
+     {
+       "globalShortcut": "Alt+C",
+       "mcpServers": {
+         "MCP Tooling": {
+           "command": "mcp-remote",
+           "args": [
+             "http://localhost:8888/v1/mcp"
+           ]
+         }
+       }
+     }
+     ```
+   - Save and restart Claude Desktop completely
+
+2. **Start the DataSQRL server** (see "Running Examples" above)
+
+3. **Verify MCP connection:**
+   - Open Claude Desktop (restart if it was running during configuration)
+   - Start a new chat session
+   - Open the tools menu (settings icon at bottom left of input field)
+   - Verify **MCP Tooling** appears in the server list with enabled toggles
+   - Expand **MCP Tooling** to view available DataSQRL tools
+
+   ![MCP Servers in Claude Desktop](./docs/images/claude-desktop-mcp-servers.png)
+   ![MCP Tooling APIs List](./docs/images/claude-desktop-mcp-tools.png)
+
+All DataSQRL tools defined in your SQRL file are exposed via MCP. Available tools depend on your schema and query definitions.
+
+#### Troubleshooting
+
+**MCP Server Not Appearing:**
+- Open Claude Desktop → Settings → Developer Settings → See Logs
+- Review logs for connection errors
+- Common issues: incorrect endpoint URL, server not running, or configuration syntax errors
+
+**Port 8888 Already in Use:**
+- Identify process: `lsof -i :8888`
+- Stop conflicting service or change port mapping: `-p 8889:8888`
+- Update MCP config endpoint to: `http://localhost:8889/v1/mcp`
+
+**MCP Server Connection Failed:**
+- Verify container is running: `docker ps`
+- Check server logs for "HTTP server listening on port 8888"
+- Confirm MCP endpoint URL matches config: `http://localhost:8888/v1/mcp`
+- Restart Claude Desktop after configuration changes
 
 ## What is DataSQRL?
 
