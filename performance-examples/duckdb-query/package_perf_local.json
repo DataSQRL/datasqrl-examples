@@ -1,0 +1,25 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "main": "perftest.sqrl",
+    "config": {
+      "rowsPerSec": 20000,
+      "numRows": 20000000
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.checkpointing.interval": "20 sec"
+      }
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "iceberg-data",
+      "catalog-type": "hadoop",
+      "catalog-name": "mydata"
+    }
+  }
+}
