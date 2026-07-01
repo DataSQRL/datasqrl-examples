@@ -1,0 +1,25 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "kafka", "postgres", "vertx"],
+  "script": {
+    "main": "simple-batch.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH",
+        "security.delegation.tokens.enabled": false,
+        "state.backend.type": "rocksdb"
+      },
+      "deployment": {
+        "jobmanager-size": "small",
+        "taskmanager-size": "small",
+        "taskmanager-count": 1,
+        "schedule": {
+          "cron": "*/30 * * * *",
+          "timezone": "UTC"
+        }
+      }
+    }
+  }
+}
