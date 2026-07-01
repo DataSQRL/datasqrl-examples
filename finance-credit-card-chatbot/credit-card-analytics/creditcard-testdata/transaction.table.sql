@@ -5,7 +5,7 @@ CREATE TABLE Transaction (
     amount DOUBLE NOT NULL,
     merchantId BIGINT NOT NULL,
     PRIMARY KEY (`transactionId`, `time`) NOT ENFORCED,
-    WATERMARK FOR `time` AS `time` - INTERVAL '1' SECOND
+    WATERMARK FOR `time` AS `time`
 ) WITH (
       'format' = 'flexible-json',
       'path' = '${DATA_PATH}/transaction.jsonl',
