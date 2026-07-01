@@ -8,8 +8,7 @@
     "flink": {
       "config": {
         "execution.runtime-mode": "BATCH",
-        "security.delegation.tokens.enabled": false,
-        "state.backend.type": "rocksdb"
+        "security.delegation.tokens.enabled": false
       },
       "deployment": {
         "jobmanager-size": "small",
