@@ -8,6 +8,11 @@ cache
 */myenv
 warehouse
 
+# Performance benchmarking
+node_modules/
+iceberg-data/
+sqrl-iceberg-data/
+
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
@@ -225,8 +230,3 @@ Temporary Items
 
 py-venv
 # End of https://www.toptal.com/developers/gitignore/api/macos
-
-##performance benchmarking
-node_modules/
-iceberg-data/
-sqrl-iceberg-data/

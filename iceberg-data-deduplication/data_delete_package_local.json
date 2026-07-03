@@ -4,6 +4,7 @@
   "script": {
     "main": "data_delete.sqrl",
     "config": {
+      "env": "local",
       "warehouse": "sqrl-iceberg-data",
       "catalogType": "hadoop",
       "catalogName": "mycatalog",
