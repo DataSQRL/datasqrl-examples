@@ -1,16 +1,14 @@
-IMPORT study-testdata.* AS _CDC_;
+IMPORT `data-catalog`.`study-{{variant}}` AS study_ctl;
+IMPORT `data-catalog`.`metrics-{{variant}}` AS metrics_ctl;
 
-/*+ no_query */
-IMPORT metrics-{{variant}}.clinical_indicator.*;
+_ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM metrics_ctl.ClinicalIndicator;
 
-_ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM AddClinicalData;
-
-_SensorPlacements := DISTINCT _CDC_SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
-_Metadata := DISTINCT _CDC_Metadata ON metadataId ORDER BY lastUpdated DESC;
+_SensorPlacements := DISTINCT study_ctl.SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
+_Metadata         := DISTINCT study_ctl.Metadata ON metadataId ORDER BY lastUpdated DESC;
 
 _EnrichedIndicators := SELECT * FROM _ClinicalIndicator m
           JOIN _SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
-          JOIN _Metadata  FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
+          JOIN _Metadata         FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
 
 /** Produces alerts for recorded clinical data that is outside the normal range */
 IndicatorAlerts := SUBSCRIBE SELECT * FROM _EnrichedIndicators
@@ -23,8 +21,7 @@ IndicatorAlertsTest := SELECT sensorId, COUNT(metric) AS numAlerts FROM Indicato
 EXPORT IndicatorAlerts TO logger.Alert;
 
 /*+no_query */
-PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, name,
-                         avg(metric) as avgMetric
+PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, name, AVG(metric) as avgMetric
             FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
             GROUP BY patientId, metadataId, name, window_start, window_end, window_time;
 
@@ -36,7 +33,7 @@ PatientMetricsHourlyTest := SELECT timeHour, name, avgMetric FROM PatientMetrics
   clinical data aggregated hourly.
  */
 /*+query_by_any(patientId) */
-Patients := DISTINCT _CDC_Patients ON patientId ORDER BY lastUpdated DESC;
+Patients := DISTINCT study_ctl.Patients ON patientId ORDER BY lastUpdated DESC;
 Patients.metrics := SELECT * FROM PatientMetricsHourly m WHERE m.patientId = this.patientId ORDER BY m.timeHour DESC, m.name ASC;
 
 /** Returns a patient by name with patient information and recently recorded

@@ -23,7 +23,7 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: '0.10.7'
+  SQRL_VERSION: '0.10.8'
 
 jobs:
   build-and-push:

@@ -1,0 +1,27 @@
+CREATE TABLE CardAssignment (
+    PRIMARY KEY (`customerId`, `cardNo`, `timestamp`) NOT ENFORCED,
+    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '1' SECOND
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/card_assignment.jsonl`;
+
+CREATE TABLE Merchant (
+    PRIMARY KEY (`merchantId`, `updatedTime`) NOT ENFORCED,
+    WATERMARK FOR `updatedTime` AS `updatedTime` - INTERVAL '1' SECOND
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/merchant.jsonl`;
+
+CREATE TABLE MerchantReward (
+    PRIMARY KEY (`merchantId`, `updatedTime`) NOT ENFORCED,
+    WATERMARK FOR `updatedTime` AS `updatedTime` - INTERVAL '1' SECOND
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/merchant_reward.jsonl`;
+
+CREATE TABLE Transaction (
+    PRIMARY KEY (`transactionId`, `time`) NOT ENFORCED,
+    WATERMARK FOR `time` AS `time`
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/transaction.jsonl`;

@@ -2,7 +2,7 @@
 
 Run the data backend with the following command:
 
-`docker run -it -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run  -c package-local.json `
+`docker run -it -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/workspace datasqrl/cmd:latest run  -c package-local.json `
 
 To publish flowrate metrics, open [GraphiQL in the browser](http://localhost:8888/v1/graphiql/) and run the following mutation:
 

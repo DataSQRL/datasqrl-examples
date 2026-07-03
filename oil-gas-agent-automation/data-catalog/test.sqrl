@@ -1,0 +1,27 @@
+CREATE TABLE Assets (
+    PRIMARY KEY (`asset_id`, `lastUpdated`) NOT ENFORCED,
+    WATERMARK FOR `lastUpdated` AS `lastUpdated`
+) WITH (
+    'source.monitor-interval' = '10s'
+) LIKE `testdata/assets.jsonl`;
+
+CREATE TABLE FlowRate (
+    PRIMARY KEY (`assetId`, `event_time`) NOT ENFORCED,
+    WATERMARK FOR `event_time` AS `event_time`
+) WITH (
+    'source.monitor-interval' = '10s'
+) LIKE `testdata/flowrate.jsonl.gz`;
+
+CREATE TABLE Maintenance (
+    PRIMARY KEY (`work_order_id`, `lastUpdated`) NOT ENFORCED,
+    WATERMARK FOR `lastUpdated` AS `lastUpdated`
+) WITH (
+    'source.monitor-interval' = '10s'
+) LIKE `testdata/maintenance.jsonl`;
+
+CREATE TABLE Measurement (
+    PRIMARY KEY (`assetId`, `timestamp`) NOT ENFORCED,
+    WATERMARK FOR `timestamp` AS `timestamp`
+) WITH (
+    'source.monitor-interval' = '10s'
+) LIKE `testdata/measurement.jsonl.gz`;
