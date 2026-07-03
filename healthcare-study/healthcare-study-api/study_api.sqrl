@@ -1,4 +1,4 @@
-IMPORT `data-catalog`.`study-{{variant}}` AS study_ctl;
+IMPORT `data-catalog`.`study-test` AS study_ctl;
 IMPORT `data-catalog`.`metrics-{{variant}}` AS metrics_ctl;
 
 _ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM metrics_ctl.ClinicalIndicator;
