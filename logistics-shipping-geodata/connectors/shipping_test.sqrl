@@ -1,0 +1,26 @@
+CREATE TABLE _Customer (
+    PRIMARY KEY (`id`) NOT ENFORCED,
+    WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) LIKE `testdata/customer.jsonl`;
+
+CREATE TABLE _Shipment (
+    PRIMARY KEY (`id`) NOT ENFORCED,
+    WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) LIKE `testdata/shipment.jsonl`;
+
+CREATE TABLE _Vehicle (
+    PRIMARY KEY (`id`) NOT ENFORCED,
+    WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) LIKE `testdata/vehicle.jsonl`;
+
+/*+no_query */
+CREATE TABLE ShipmentLocation (
+    PRIMARY KEY (`timestamp`, `shipmentId`, `vehicleId`) NOT ENFORCED,
+    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '0.001' SECOND
+) LIKE `testdata/shipment_location.jsonl`;
+
+/*+no_query */
+CREATE TABLE VehicleStatus (
+    PRIMARY KEY (`timestamp`, `vehicleId`) NOT ENFORCED,
+    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '0.001' SECOND
+) LIKE `testdata/vehicle_status.jsonl`;

@@ -3,8 +3,13 @@
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
     "main": "creditcard_rewards.sqrl",
+    "shared": {
+      "data-catalog": {
+        "path": "../data-catalog"
+      }
+    },
     "config": {
-      "variant": "testdata"
+      "variant": "test"
     }
   },
   "engines" : {

@@ -23,7 +23,7 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: '0.10.4'
+  SQRL_VERSION: '0.10.8'
 
 jobs:
   build-and-push:
@@ -44,46 +44,46 @@ jobs:
               compile recommendation_package_kafka.json
 
           - example: credit-card-analytics
-            path: finance-credit-card-chatbot/credit-card-analytics
+            path: finance-credit-card-chatbot
             tag: credit-card-analytics
             test_commands: |
-              compile creditcard_analytics_package_test.json
-              compile creditcard_analytics_package_kafka.json
-              test creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json
+              compile credit-card-analytics/creditcard_analytics_package_test.json
+              compile credit-card-analytics/creditcard_analytics_package_kafka.json
+              test creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json -r credit-card-analytics
           - example: credit-card-rewards
-            path: finance-credit-card-chatbot/credit-card-rewards
+            path: finance-credit-card-chatbot
             tag: credit-card-rewards
             test_commands: |
-              compile creditcard_rewards_package_test.json
-              compile creditcard_rewards_package_kafka.json
-              test creditcard_rewards_package_test.json creditcard_rewards_package_jwt.json
+              compile credit-card-rewards/creditcard_rewards_package_test.json
+              compile credit-card-rewards/creditcard_rewards_package_kafka.json
+              test creditcard_rewards_package_test.json creditcard_rewards_package_jwt.json -r credit-card-rewards
           - example: credit-card-views
-            path: finance-credit-card-chatbot/credit-card-views
+            path: finance-credit-card-chatbot
             tag: credit-card-views
             test_commands: |
-              compile creditcard_views_package_test.json
-              test creditcard_views_package_test.json
+              compile credit-card-views/creditcard_views_package_test.json
+              test credit-card-views/creditcard_views_package_test.json
 
           - example: healthcare-study-analytics
-            path: healthcare-study/healthcare-study-analytics
+            path: healthcare-study
             tag: healthcare-study-analytics
             test_commands: |
-              compile study_analytics_package_test.json
-              test study_analytics_package_test.json
+              compile healthcare-study-analytics/study_analytics_package_test.json
+              test healthcare-study-analytics/study_analytics_package_test.json
           - example: healthcare-study-api
-            path: healthcare-study/healthcare-study-api
+            path: healthcare-study
             tag: healthcare-study-api
             test_commands: |
-              compile study_api_package_api.json
-              compile study_api_package_test.json
-              test study_api_package_test.json
+              compile healthcare-study-api/study_api_package_api.json
+              compile healthcare-study-api/study_api_package_test.json
+              test healthcare-study-api/study_api_package_test.json
           - example: healthcare-study-stream
-            path: healthcare-study/healthcare-study-stream
+            path: healthcare-study
             tag: healthcare-study-stream
             test_commands: |
-              compile study_stream_package_kafka.json
-              compile study_stream_package_test.json
-              test study_stream_package_test.json
+              compile healthcare-study-stream/study_stream_package_kafka.json
+              compile healthcare-study-stream/study_stream_package_test.json
+              test healthcare-study-stream/study_stream_package_test.json
 
           - example: iceberg-dedup
             path: iceberg-data-deduplication
@@ -113,16 +113,16 @@ jobs:
               test logistics_package_test.json
 
           - example: oil-gas-monitoring
-            path: oil-gas-agent-automation/oil-gas-agent-monitoring
+            path: oil-gas-agent-automation
             tag: oil-gas-agent-monitoring
             test_commands: |
-              compile monitoring_agent_package_test.json
+              compile oil-gas-agent-monitoring/monitoring_agent_package_test.json
           - example: oil-gas-operations
-            path: oil-gas-agent-automation/oil-gas-agent-operations
+            path: oil-gas-agent-automation
             tag: oil-gas-agent-operations
             test_commands: |
-              compile operations_agent_package_test.json
-              test operations_agent_package_test.json
+              compile oil-gas-agent-operations/operations_agent_package_test.json
+              test oil-gas-agent-operations/operations_agent_package_test.json
 
           - example: usage-analytics
             path: usage-analytics
@@ -174,7 +174,7 @@ jobs:
           IMAGE="${{ inputs.sqrl_image }}"
           IS_SNAPSHOT=true
         else
-          IMAGE="ghcr.io/datasqrl/cmd:${SQRL_VERSION}"
+          IMAGE="datasqrl/cmd:${SQRL_VERSION}"
           IS_SNAPSHOT=false
         fi
         echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
@@ -233,7 +233,7 @@ jobs:
             -e AWS_SESSION_TOKEN \
             -e AWS_REGION \
             -e AWS_DEFAULT_REGION \
-            --rm -v "$PWD":/build "$SQRL_IMAGE" $cmd
+            --rm -v "$PWD":/workspace "$SQRL_IMAGE" $cmd
           echo "::endgroup::"
         done
 
@@ -245,8 +245,8 @@ jobs:
         cat <<EOF > ${{ matrix.path }}/Dockerfile
         FROM ${SQRL_IMAGE}
 
-        COPY . /build
-        WORKDIR /build
+        COPY . /workspace
+        WORKDIR /workspace
         EOF
 
     - name: Set up QEMU
@@ -278,7 +278,7 @@ jobs:
     name: Lint GraphQL Schemas
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Lint GraphQL schemas
         run: |

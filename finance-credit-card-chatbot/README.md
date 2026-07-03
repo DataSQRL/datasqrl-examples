@@ -24,7 +24,7 @@ package JSON filename) - the instructions are otherwise identical.
 To run this example, invoke the following command in the example directory on Unix based systems to compile the project:
 ```bash
 cd credit-card-analytics
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_test.json
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/workspace datasqrl/cmd:latest run -c creditcard_analytics_package_test.json
 ```
 
 This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
@@ -42,7 +42,7 @@ To use Kafka as the data source, follow these steps:
 Invoke the following command in the example directory:
 ```bash
 cd credit-card-analytics
-docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/build datasqrl/cmd:latest run -c creditcard_analytics_package_kafka.json
+docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/workspace datasqrl/cmd:latest run -c creditcard_analytics_package_kafka.json
 ```
 
 This command stands up the entire data pipeline and all data services, including Kafka.
@@ -76,7 +76,7 @@ any of the main package configurations to secure the endpoints, regardless of ot
 For example, to secure the API with the File data source, invoke the following command in the specific example directory:
 ```bash
 cd credit-card-analytics
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run \
+docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
   -c creditcard_analytics_package_test.json \
   -c creditcard_analytics_package_jwt.json
 ```
