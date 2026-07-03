@@ -1,18 +1,14 @@
-IMPORT shipping-{{variant}}.customer AS _CustomerUpdates;
-IMPORT shipping-{{variant}}.shipment  AS _ShipmentUpdates;
-IMPORT shipping-{{variant}}.vehicle AS _VehicleUpdates;
-/*+no_query */
-IMPORT shipping-{{variant}}.shipment_location;
-/*+no_query */
-IMPORT shipping-{{variant}}.vehicle_status;
+IMPORT connectors.shipping_{{variant}}.*;
 
 -- Turn the Customer and Shipment CDC change streams to a state tables.
 /*+query_by_any(id, email) */
-Customer := DISTINCT _CustomerUpdates ON id ORDER BY lastUpdated DESC;
+Customer := DISTINCT _Customer ON id ORDER BY lastUpdated DESC;
+
 /*+query_by_all(id) */
-Shipment := DISTINCT _ShipmentUpdates ON id ORDER BY lastUpdated DESC;
+Shipment := DISTINCT _Shipment ON id ORDER BY lastUpdated DESC;
+
 /*+query_by_all(id) */
-Vehicle := DISTINCT _VehicleUpdates ON id ORDER BY lastUpdated DESC;
+Vehicle := DISTINCT _Vehicle ON id ORDER BY lastUpdated DESC;
 
 -- Create a relationship between the two.
 Customer.shipments := SELECT * FROM Shipment s WHERE s.customerId = this.id;

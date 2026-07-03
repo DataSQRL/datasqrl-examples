@@ -4,7 +4,7 @@ This script produces study analytics for observations groups in Iceberg tables t
 
 Run the `study_analytics.sqrl` script using iceberg and duckdb locally as follows:
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c study_analytics_package_test.json
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/workspace datasqrl/cmd:latest run -c study_analytics_package_test.json
 ```
 
 This writes the data to the local directory `warehouse` which is configured in `study_analytics_package_test.json`
@@ -16,7 +16,7 @@ otherwise you might run into errors of catalog mismatch.
 There is also a package configuration for running this example using Snowflake as the query engine:
 ```bash
 docker run -it -p 8888:8888 -p 8081:8081 --rm \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   -e AWS_ACCESS_KEY_ID="<my-access-key>" \
   -e AWS_SECRET_ACCESS_KEY="<my-secret-key" \
   -e AWS_REGION="<my-region>" \

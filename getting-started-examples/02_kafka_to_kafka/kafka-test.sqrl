@@ -1,5 +1,5 @@
-IMPORT kafka-source.contact AS Contacts;
+IMPORT connectors.contact.*;
 
-ContactsUpdated := SELECT firstname, lastname, last_updated FROM Contacts;
+ContactsUpdated := SELECT firstname, lastname, last_updated FROM Contact;
 
-EXPORT ContactsUpdated TO kafka-sink.contact_updated;
+EXPORT ContactsUpdated TO connectors.contact_updated;
