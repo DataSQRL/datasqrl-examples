@@ -151,6 +151,13 @@ jobs:
             test_commands: |
               compile simple-batch-test-package.json
 
+          - example: canary-scheduled-batch
+            path: test-jobs/scheduled-batch-test
+            tag: canary
+            test_commands: |
+              compile scheduled-batch-package.json
+              compile simple-scheduled-batch-package.json
+
           - example: udf-jbang
             path: user-defined-function/jbang
             tag: udf-jbang

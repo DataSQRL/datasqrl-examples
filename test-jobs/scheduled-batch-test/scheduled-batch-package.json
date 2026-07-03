@@ -2,7 +2,7 @@
   "version": "1",
   "enabled-engines": ["flink", "kafka", "postgres", "vertx"],
   "script": {
-    "main": "simple-batch.sqrl"
+    "main": "scheduled-batch.sqrl"
   },
   "engines": {
     "flink": {
