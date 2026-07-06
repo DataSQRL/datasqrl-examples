@@ -15,7 +15,7 @@
         "taskmanager-size": "small",
         "taskmanager-count": 1,
         "schedule": {
-          "cron": "*/30 * * * *",
+          "cron": "*/15 * * * *",
           "timezone": "UTC"
         }
       }
