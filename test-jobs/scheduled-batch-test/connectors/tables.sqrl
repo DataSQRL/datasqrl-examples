@@ -1,5 +1,1 @@
-CREATE TABLE Addresses WITH (
-    'connector' = 'filesystem',
-    'format' = 'flexible-json',
-    'path' = '${DATA_PATH}/addresses.jsonl'
-) LIKE `addresses.jsonl`;
+CREATE TABLE Addresses LIKE `addresses.jsonl`;

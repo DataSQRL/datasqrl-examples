@@ -1,6 +1,6 @@
 IMPORT connectors.tables.*;
 
-EXPORT Addresses TO logger.addresses;
+EXPORT Addresses TO print.addresses;
 
 AddressByCity := SELECT city, COUNT(*) AS total FROM Addresses GROUP BY city;
 AddressByCountry := SELECT country, COUNT(*) AS total FROM Addresses GROUP BY country;
