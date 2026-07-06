@@ -1,0 +1,9 @@
+IMPORT connectors.tables.*;
+
+EXPORT Addresses TO print.addresses;
+
+AddressByCity := SELECT city, COUNT(*) AS total FROM Addresses GROUP BY city;
+AddressByCountry := SELECT country, COUNT(*) AS total FROM Addresses GROUP BY country;
+
+EXPORT AddressByCity TO print.AddressByCity;
+EXPORT AddressByCountry TO print.AddressByCountry;
