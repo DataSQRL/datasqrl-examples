@@ -37,7 +37,7 @@ Each folder includes:
 docker run -it --rm \
   -p 8888:8888 \
   -p 8081:8081 \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   datasqrl/cmd:latest run -c package.json
 ```
 #### Persistent Data
@@ -49,7 +49,7 @@ stopped running, extend with `/data` mount:
 docker run -it --rm \
   -p 8888:8888 \
   -p 8081:8081 \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   -v $PWD/data:/data \
   datasqrl/cmd:latest run -c package.json
 ```
@@ -62,7 +62,7 @@ If using AWS pass the necessary environment variables defined by the AWS SDK::
 docker run -it --rm \
   -p 8888:8888 \
   -p 8081:8081 \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   -e AWS_ACCESS_KEY_ID="<my-access-key>" \
   -e AWS_SECRET_ACCESS_KEY="<my-secret-key" \
   -e AWS_REGION="<my-region>" \
@@ -73,7 +73,7 @@ docker run -it --rm \
 
 ```bash
 docker run -it --rm \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   datasqrl/cmd:latest compile -c package.json
 ```
 

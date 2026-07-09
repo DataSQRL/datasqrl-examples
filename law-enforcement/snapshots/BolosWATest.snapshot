@@ -1,6 +1,10 @@
 {
   "data" : {
     "BolosWATest" : [ {
+      "week" : "2024-11-14T15:59:59.999Z",
+      "state" : "WA",
+      "num_bolos" : 2
+    }, {
       "week" : "2024-11-07T15:59:59.999Z",
       "state" : "WA",
       "num_bolos" : 6
@@ -36,10 +40,6 @@
       "week" : "2024-08-29T13:59:59.999Z",
       "state" : "WA",
       "num_bolos" : 1
-    }, {
-      "week" : "2024-08-22T13:59:59.999Z",
-      "state" : "WA",
-      "num_bolos" : 2
     } ]
   }
 }

@@ -1,0 +1,28 @@
+CREATE TABLE Metadata (
+     PRIMARY KEY (`metadataId`, `lastUpdated`) NOT ENFORCED,
+     WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/metadata.jsonl`;
+
+CREATE TABLE ObservationGroup (
+
+     PRIMARY KEY (`groupId`, `createdDate`) NOT ENFORCED,
+     WATERMARK FOR `createdDate` AS `createdDate` - INTERVAL '0.001' SECOND
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/observation_group.jsonl`;
+
+CREATE TABLE Patients (
+    PRIMARY KEY (`patientId`, `lastUpdated`) NOT ENFORCED,
+    WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/patients.jsonl`;
+
+CREATE TABLE SensorPlacements (
+    PRIMARY KEY (`eventId`) NOT ENFORCED,
+    WATERMARK FOR `placedTimestamp` AS `placedTimestamp` - INTERVAL '0.001' SECOND
+) WITH (
+    'source.monitor-interval' = '10 min'
+) LIKE `testdata/sensor_placements.jsonl`;

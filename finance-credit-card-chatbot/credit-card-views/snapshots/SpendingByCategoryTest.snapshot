@@ -2,29 +2,29 @@
   "data" : {
     "SpendingByCategoryTest" : [ {
       "customerId" : 10,
-      "timeWeek" : "2024-05-30T06:59:59.999Z",
+      "timeWeek" : "2024-06-06T06:59:59.999Z",
       "category" : "Housing & Utilities",
-      "spending" : 4767.13
+      "spending" : 4104.57
     }, {
       "customerId" : 10,
-      "timeWeek" : "2024-05-30T06:59:59.999Z",
+      "timeWeek" : "2024-06-06T06:59:59.999Z",
       "category" : "Miscellaneous",
-      "spending" : 2431.46
+      "spending" : 1941.07
     }, {
       "customerId" : 10,
-      "timeWeek" : "2024-05-30T06:59:59.999Z",
+      "timeWeek" : "2024-06-06T06:59:59.999Z",
+      "category" : "Childcare",
+      "spending" : 1374.08
+    }, {
+      "customerId" : 10,
+      "timeWeek" : "2024-06-06T06:59:59.999Z",
+      "category" : "Education",
+      "spending" : 974.29
+    }, {
+      "customerId" : 10,
+      "timeWeek" : "2024-06-06T06:59:59.999Z",
       "category" : "Travel & Vacations",
-      "spending" : 2088.6
-    }, {
-      "customerId" : 10,
-      "timeWeek" : "2024-05-30T06:59:59.999Z",
-      "category" : "Groceries",
-      "spending" : 1529.74
-    }, {
-      "customerId" : 10,
-      "timeWeek" : "2024-05-30T06:59:59.999Z",
-      "category" : "Restaurants & Dining",
-      "spending" : 1478.88
+      "spending" : 438.78
     } ]
   }
 }

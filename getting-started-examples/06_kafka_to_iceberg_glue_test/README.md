@@ -31,7 +31,7 @@ docker run -it --rm \
   -p 8888:8888 \
   -p 8081:8081 \
   -p 9092:9092 \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   -e AWS_ACCESS_KEY_ID="<my-access-key>" \
   -e AWS_SECRET_ACCESS_KEY="<my-secret-key" \
   -e AWS_REGION="<my-region>" \

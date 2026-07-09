@@ -1,0 +1,23 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "data_delete.sqrl",
+    "config": {
+      "env": "local",
+      "warehouse": "sqrl-iceberg-data",
+      "catalogType": "hadoop",
+      "catalogName": "mycatalog",
+      "databaseName": "mydatabase",
+      "commitWaitSec": 1,
+      "stopDeleteFilter": ""
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch"
+      }
+    }
+  }
+}

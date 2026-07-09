@@ -2,8 +2,13 @@
   "version": "1",
   "script": {
     "main": "study_api.sqrl",
+    "shared": {
+      "data-catalog": {
+        "path": "../data-catalog"
+      }
+    },
     "config": {
-      "variant": "testdata"
+      "variant": "test"
     }
   },
   "engines": {

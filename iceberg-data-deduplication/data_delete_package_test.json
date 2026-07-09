@@ -1,0 +1,23 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": {
+    "main": "data_delete.sqrl",
+    "config": {
+      "env": "test",
+      "warehouse": "s3://sqrl-examples-data-bucket/datasqrl-examples/iceberg-canary",
+      "catalogType": "glue",
+      "catalogName": "canary",
+      "databaseName": "canary",
+      "commitWaitSec": 1,
+      "stopDeleteFilter": ""
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "batch"
+      }
+    }
+  }
+}

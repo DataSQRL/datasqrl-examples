@@ -2,6 +2,11 @@
   "data" : {
     "PotentialRewardsByDay" : [ {
       "customerId" : 9,
+      "cardType" : "sports",
+      "timeDay" : "2024-06-05T13:59:59.999Z",
+      "total_reward" : 135.775
+    }, {
+      "customerId" : 9,
       "cardType" : "business",
       "timeDay" : "2024-06-04T13:59:59.999Z",
       "total_reward" : 122.329
@@ -20,11 +25,6 @@
       "cardType" : "business",
       "timeDay" : "2024-06-03T13:59:59.999Z",
       "total_reward" : 85.588
-    }, {
-      "customerId" : 9,
-      "cardType" : "sports",
-      "timeDay" : "2024-06-03T13:59:59.999Z",
-      "total_reward" : 151.689
     } ]
   }
 }

@@ -17,7 +17,7 @@ Furthermore, it provides a mutation for capturing traffic stop and producing ale
 Invoke the following command to run this example.
 
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/build datasqrl/cmd:latest run -c baseball_card_package_test.json
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/workspace datasqrl/cmd:latest run -c baseball_card_package_test.json
 ```
 
 ## Queries

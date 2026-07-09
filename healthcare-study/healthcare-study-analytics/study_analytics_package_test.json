@@ -2,7 +2,12 @@
   "version": "1",
   "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
   "script": {
-    "main": "study_analytics.sqrl"
+    "main": "study_analytics.sqrl",
+    "shared": {
+      "data-catalog": {
+        "path": "../data-catalog"
+      }
+    }
   },
   "engines": {
     "flink": {

@@ -1,33 +1,30 @@
-IMPORT police-{{variant}}.driver AS _DriverUpdates;
-IMPORT police-{{variant}}.vehicle AS _VehicleUpdates;
-/*+no_query */
-IMPORT police-{{variant}}.warrant;
-/*+no_query */
-IMPORT police-{{variant}}.bolo;
+IMPORT connectors.police_{{variant}} AS ctl;
 
 /**
  Retrieves driver information using their license number.
  */
 /*+query_by_all(license_number) */
-Driver := DISTINCT _DriverUpdates ON driver_id ORDER BY last_updated DESC;
+Driver := DISTINCT ctl.Driver ON driver_id ORDER BY last_updated DESC;
+
 /**
   Retrieves vehicle details using the registration number.
  */
 /*+query_by_all(registration_number) */
-Vehicle := DISTINCT _VehicleUpdates ON vehicle_id ORDER BY last_updated DESC;
+Vehicle := DISTINCT ctl.Vehicle ON vehicle_id ORDER BY last_updated DESC;
 
-Driver.warrants := SELECT * FROM Warrant w WHERE w.person_id = this.driver_id ORDER BY issue_date DESC;
+Driver.warrants := SELECT * FROM ctl.Warrant w WHERE w.person_id = this.driver_id ORDER BY issue_date DESC;
 Driver.vehicles := SELECT * FROM Vehicle v WHERE v.owner_driver_id = this.driver_id;
 Vehicle.driver := SELECT * FROM Driver d WHERE this.owner_driver_id = d.driver_id LIMIT 1;
 
 _EnrichedBolo := SELECT b.bolo_id, b.vehicle_id, b.issue_date, b.status, b.last_updated,
                        v.make, v.model, v.`year`, v.registration_state, v.registration_number,
                        d.license_state, d.driver_id
-                       FROM Bolo b
+                       FROM ctl.Bolo b
                 JOIN Vehicle FOR SYSTEM_TIME AS OF b.last_updated v ON b.vehicle_id = v.vehicle_id
                 JOIN Driver  FOR SYSTEM_TIME AS OF b.last_updated d ON d.driver_id = v.owner_driver_id;
 
---EXPORT _EnrichedBolo TO logger.Bolo;
+-- EXPORT _EnrichedBolo TO logger.Bolo;
+
 /**
   Fetches Bolo details for all vehicles that match the given make and (optional) model.
  */
@@ -46,13 +43,13 @@ The status of the warrant must be one of: active, urgent, closed, suspended.
  */
 /*+query_by_any(status) */
 WarrantsByState := SELECT state_of_issuance AS state, warrant_status AS status, COUNT(1) as num_warrants
-                   FROM Warrant GROUP BY state_of_issuance, warrant_status ORDER BY state ASC, status ASC;
+                   FROM ctl.Warrant GROUP BY state_of_issuance, warrant_status ORDER BY state ASC, status ASC;
 
 /**
   Fetches statistics on warrants by crime
  */
 WarrantsByCrime := SELECT crime_description AS crime, COUNT(1) as num_warrants
-                   FROM Warrant
+                   FROM ctl.Warrant
                    WHERE warrant_status = 'active' OR warrant_status = 'urgent'
                    GROUP BY crime_description ORDER BY crime ASC;
 
@@ -74,8 +71,7 @@ BolosWATest := SELECT * FROM BolosByWeekState WHERE state = 'WA';
 
 /*+ test */
 WarrantsTest := SELECT warrant_status, COUNT(1) AS num_warrants
-                FROM Warrant GROUP BY warrant_status ORDER BY warrant_status ASC;
-
+                FROM ctl.Warrant GROUP BY warrant_status ORDER BY warrant_status ASC;
 
 
 /* License plate tracking and alerting */

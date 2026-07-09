@@ -21,12 +21,12 @@ To compile and run these examples with DataSQRL you need to have a [recent versi
 
 To run the examples on Linux or MacOS, open a terminal and run the following command:
 ```bash
-docker run -it --rm -p 8888:8888 -p 8081:8081 -p 9092:9092 -v $PWD:/build datasqrl/cmd:latest run [ARGUMENTS GO HERE]
+docker run -it --rm -p 8888:8888 -p 8081:8081 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run [ARGUMENTS GO HERE]
 ```
 
 If you are on windows using Powershell, you need to reference the local directory with a slightly different syntax:
 ```bash
-docker run -it --rm -p 8888:8888 -p 8081:8081 -p 9092:9092 -v $PWD:/build datasqrl/cmd:latest run [ARGUMENTS GO HERE]
+docker run -it --rm -p 8888:8888 -p 8081:8081 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run [ARGUMENTS GO HERE]
 ```
 
 Check the `README.md` in the respective directory for more information on the arguments to run each example. 
@@ -34,7 +34,7 @@ We will be using the Unix syntax, so keep in mind that you have to adjust the co
 
 To compile an example (without running it), use this command:
 ```bash
-docker run -it --rm -v $PWD:/build datasqrl/cmd:latest compile [ARGUMENTS GO HERE]
+docker run -it --rm -v $PWD:/workspace datasqrl/cmd:latest compile [ARGUMENTS GO HERE]
 ```
 
 ## What is DataSQRL?

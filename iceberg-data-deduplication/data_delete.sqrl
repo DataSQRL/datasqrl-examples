@@ -1,4 +1,4 @@
-IMPORT tables.compaction_tracker.*;
+IMPORT tables.tracker_{{env}}.*;
 IMPORT udfs.delete_duplicated_data;
 
 _DataToDelete :=

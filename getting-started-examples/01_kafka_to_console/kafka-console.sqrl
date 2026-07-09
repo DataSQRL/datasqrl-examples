@@ -1,5 +1,5 @@
--- Import the source table under the name it is defined in the 'contact.table.sql' file
-IMPORT kafka-source.contact;
+-- Import the source table inline from the 'contact.sqrl' file
+IMPORT connectors.test.*;
 
 -- Export the results to console (print)
 EXPORT Contact TO print.Contact;
