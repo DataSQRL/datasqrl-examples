@@ -139,6 +139,12 @@ jobs:
               compile aggregation-query-test-iceberg-package.json
               compile aggregation-query-subscription-test-package.json
 
+          - example: canary-mutation
+            path: test-jobs/mutation-tests
+            tag: canary
+            test_commands: |
+              compile mutation-test-package.json
+
           - example: canary-failures
             path: test-jobs/failure-tests
             tag: canary

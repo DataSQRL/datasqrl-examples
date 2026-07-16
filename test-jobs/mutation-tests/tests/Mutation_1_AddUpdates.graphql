@@ -1,0 +1,23 @@
+mutation SensorUpdates {
+    update1: SensorUpdate(event: {
+        sensor_id: 101,
+        sensor_name: "Living Room Sensor"
+    }) {
+        sensor_id
+        sensor_name
+    }
+    update2: SensorUpdate(event: {
+        sensor_id: 111,
+        sensor_name: "Dining Room Sensor"
+    }) {
+        sensor_id
+        sensor_name
+    }
+    update3: SensorUpdate(event: {
+        sensor_id: 121,
+        sensor_name: "Bathroom Room Sensor"
+    }) {
+        sensor_id
+        sensor_name
+    }
+}

@@ -1,0 +1,8 @@
+query GetEnrichedReadings {
+    EnrichedReading(limit: 10, offset: 0) {
+        sensor_id
+        temperature
+        placement
+        sensor_name
+    }
+}
