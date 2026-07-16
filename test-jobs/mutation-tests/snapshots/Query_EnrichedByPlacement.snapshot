@@ -1,0 +1,15 @@
+{
+  "data" : {
+    "EnrichedReadingByPlacement" : [ {
+      "sensor_id" : 101,
+      "temperature" : 23.5,
+      "placement" : "DOWNSTAIRS",
+      "sensor_name" : "Living Room Sensor"
+    }, {
+      "sensor_id" : 101,
+      "temperature" : 33.5,
+      "placement" : "DOWNSTAIRS",
+      "sensor_name" : "Living Room Sensor"
+    } ]
+  }
+}

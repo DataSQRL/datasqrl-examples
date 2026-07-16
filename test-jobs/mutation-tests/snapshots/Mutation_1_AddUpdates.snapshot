@@ -1,0 +1,16 @@
+{
+  "data" : {
+    "update1" : {
+      "sensor_id" : 101,
+      "sensor_name" : "Living Room Sensor"
+    },
+    "update2" : {
+      "sensor_id" : 111,
+      "sensor_name" : "Dining Room Sensor"
+    },
+    "update3" : {
+      "sensor_id" : 121,
+      "sensor_name" : "Bathroom Room Sensor"
+    }
+  }
+}

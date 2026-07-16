@@ -1,0 +1,19 @@
+{
+  "data" : {
+    "add1" : {
+      "sensor_id" : 101,
+      "temperature" : 23.5,
+      "placement" : "DOWNSTAIRS"
+    },
+    "add2" : {
+      "sensor_id" : 101,
+      "temperature" : 33.5,
+      "placement" : "DOWNSTAIRS"
+    },
+    "add3" : {
+      "sensor_id" : 111,
+      "temperature" : 13.5,
+      "placement" : "UPSTAIRS"
+    }
+  }
+}
