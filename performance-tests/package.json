@@ -1,0 +1,13 @@
+{
+  "name": "datasqrl-examples-performance-tests",
+  "version": "1.0.0",
+  "description": "Performance testing for DataSQRL examples",
+  "scripts": {
+    "test:finance-analytics": "artillery run finance-analytics-test.yml",
+    "test:finance-rewards": "artillery run finance-rewards-test.yml "
+  },
+  "dependencies": {
+    "artillery": "^2.0.0",
+    "dayjs": "^1.11.10"
+  }
+}
