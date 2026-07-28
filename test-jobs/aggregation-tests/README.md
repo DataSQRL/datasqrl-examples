@@ -47,6 +47,12 @@ curl -s http://localhost:8888/v1/graphql -H 'Content-Type: application/json' \
   -d '{"query":"{ Aggregation(limit:5){ partitionId window_start window_end total_measure record_count } }"}'
 ```
 
+> [!IMPORTANT]
+> The warehouse path is fixed, so the Iceberg tables persist between runs. If you change a column
+> in the SQRL script, compilation fails with `Field <name> not found in source schema` — Iceberg is
+> reconciling against the table already at that path. Clear it first:
+> `aws s3 rm s3://sqrl-examples-data-bucket/datasqrl-examples/iceberg-mutation-test/ --recursive`
+
 > [!NOTE]
 > Running locally, DuckDB reads S3 with the `AWS_*` environment variables above. Deployed to a
 > cluster where the pod authenticates through IRSA, the **write** side works but DuckDB queries

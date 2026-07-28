@@ -1,40 +1,42 @@
 -- Unlike aggregation-test.sqrl, data does not come from datagen: it arrives through the GraphQL API
--- into a kafka-engine mutation table. event_time is the kafka record timestamp, so the watermark
+-- into a kafka-engine mutation table. eventTime is the kafka record timestamp, so the watermark
 -- only advances while rows keep being posted -- an idle API means windows never close.
 /*+engine(kafka), insert(batch) */
 CREATE TABLE InputData (
   uniqueId STRING NOT NULL,
   measure DOUBLE NOT NULL,
   partitionId STRING NOT NULL,
-  event_time TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
-  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+  eventTime TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR eventTime AS eventTime - INTERVAL '5' SECOND
 );
 
 -- Three tables computed in the iceberg engine, so the job covers more than a single sink.
-/*+primary_key(partitionId, window_end) */
+-- The TUMBLE columns are aliased to camelCase because the repo lints schemas with
+-- graphql-schema-linter's fields-are-camel-cased rule.
+/*+primary_key(partitionId, windowEnd) */
 Aggregation := SELECT
   partitionId,
-  window_start,
-  window_end,
-  window_time,
-  SUM(measure) AS total_measure,
-  COUNT(*) AS record_count
+  window_start AS windowStart,
+  window_end AS windowEnd,
+  window_time AS windowTime,
+  SUM(measure) AS totalMeasure,
+  COUNT(*) AS recordCount
 FROM TABLE(
-  TUMBLE(TABLE InputData, DESCRIPTOR(event_time), INTERVAL '10' SECOND)
+  TUMBLE(TABLE InputData, DESCRIPTOR(eventTime), INTERVAL '10' SECOND)
 )
 GROUP BY partitionId, window_start, window_end, window_time;
 
-Measurement := SELECT uniqueId, partitionId, measure, event_time
+Measurement := SELECT uniqueId, partitionId, measure, eventTime
 FROM InputData WHERE measure > 500.0;
 
-/*+primary_key(partitionId, window_end) */
+/*+primary_key(partitionId, windowEnd) */
 Activity := SELECT
   partitionId,
-  window_start,
-  window_end,
-  window_time,
-  COUNT(*) AS record_count
+  window_start AS windowStart,
+  window_end AS windowEnd,
+  window_time AS windowTime,
+  COUNT(*) AS recordCount
 FROM TABLE(
-  TUMBLE(TABLE InputData, DESCRIPTOR(event_time), INTERVAL '30' SECOND)
+  TUMBLE(TABLE InputData, DESCRIPTOR(eventTime), INTERVAL '30' SECOND)
 )
 GROUP BY partitionId, window_start, window_end, window_time;

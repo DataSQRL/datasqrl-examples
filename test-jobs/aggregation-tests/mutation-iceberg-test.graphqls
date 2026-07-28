@@ -14,31 +14,31 @@ type InputDataResultOutput {
   uniqueId: String!
   measure: Float!
   partitionId: String!
-  event_time: DateTime
+  eventTime: DateTime
 }
 
 type Aggregation {
   partitionId: String!
-  window_start: DateTime!
-  window_end: DateTime!
-  window_time: DateTime!
-  total_measure: Float!
-  record_count: Long!
+  windowStart: DateTime!
+  windowEnd: DateTime!
+  windowTime: DateTime!
+  totalMeasure: Float!
+  recordCount: Long!
 }
 
 type Measurement {
   uniqueId: String!
   partitionId: String!
   measure: Float!
-  event_time: DateTime
+  eventTime: DateTime
 }
 
 type Activity {
   partitionId: String!
-  window_start: DateTime!
-  window_end: DateTime!
-  window_time: DateTime!
-  record_count: Long!
+  windowStart: DateTime!
+  windowEnd: DateTime!
+  windowTime: DateTime!
+  recordCount: Long!
 }
 
 type Mutation {
