@@ -1,0 +1,52 @@
+"A DateTime scalar that handles both full RFC3339 and shorter timestamp formats"
+scalar DateTime
+
+"A 64-bit signed integer"
+scalar Long
+
+input InputDataInput {
+  uniqueId: String!
+  measure: Float!
+  partitionId: String!
+}
+
+type InputDataResultOutput {
+  uniqueId: String!
+  measure: Float!
+  partitionId: String!
+  event_time: DateTime
+}
+
+type Aggregation {
+  partitionId: String!
+  window_start: DateTime!
+  window_end: DateTime!
+  window_time: DateTime!
+  total_measure: Float!
+  record_count: Long!
+}
+
+type Measurement {
+  uniqueId: String!
+  partitionId: String!
+  measure: Float!
+  event_time: DateTime
+}
+
+type Activity {
+  partitionId: String!
+  window_start: DateTime!
+  window_end: DateTime!
+  window_time: DateTime!
+  record_count: Long!
+}
+
+type Mutation {
+  InputData(event: [InputDataInput!]!): [InputDataResultOutput!]!
+}
+
+type Query {
+  Aggregation(limit: Int = 10, offset: Int = 0): [Aggregation!]
+  Measurement(limit: Int = 10, offset: Int = 0): [Measurement!]
+  Activity(limit: Int = 10, offset: Int = 0): [Activity!]
+}
