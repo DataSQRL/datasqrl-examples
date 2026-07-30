@@ -138,6 +138,7 @@ jobs:
               compile aggregation-query-test-package.json
               compile aggregation-query-test-iceberg-package.json
               compile aggregation-query-subscription-test-package.json
+              compile mutation-iceberg-test-package.json
 
           - example: canary-mutation
             path: test-jobs/mutation-tests
@@ -302,7 +303,7 @@ jobs:
           fi
 
           LINT_OPTS="--rules fields-are-camel-cased,types-are-capitalized,enum-values-all-caps,input-object-values-are-camel-cased"
-          IGNORE='{"fields-are-camel-cased":["Query.Shipment","Query.Vehicle","Query.Customer"]}'
+          IGNORE='{"fields-are-camel-cased":["Query.Shipment","Query.Vehicle","Query.Customer","Query.Aggregation","Query.Measurement","Query.Activity","Mutation.InputData"]}'
           FAILED=0
 
           for schema in $SCHEMAS; do
