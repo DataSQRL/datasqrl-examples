@@ -1,0 +1,23 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "kafka", "flink"],
+  "script": {
+    "main": "mutation-iceberg-test.sqrl",
+    "graphql": "mutation-iceberg-test.graphqls"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "1 s",
+        "execution.checkpointing.interval": "20 s"
+      }
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "s3a://sqrl-examples-data-bucket/datasqrl-examples/iceberg-mutation-test",
+      "catalog-type": "hadoop",
+      "catalog-name": "mycatalog"
+    }
+  }
+}
