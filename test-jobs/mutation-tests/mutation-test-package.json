@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "sensors.sqrl"
+  },
+  "engines": {
+    "flink" : {
+      "config" : {
+        "table.exec.source.idle-timeout": "5s"
+      }
+    }
+  },
+  "test-runner": {
+    "delay-sec": 30,
+    "mutation-delay-sec": 1
+  }
+}

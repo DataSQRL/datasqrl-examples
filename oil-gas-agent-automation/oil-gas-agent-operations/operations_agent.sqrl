@@ -1,6 +1,4 @@
-IMPORT oilgas-{{variant}}.assets AS _AssetUpdates;
-IMPORT oilgas-{{variant}}.maintenance AS _MaintenanceUpdates;
-IMPORT oilgas-{{variant}}.measurement AS _Measurement;
+IMPORT `data-catalog`.{{variant}} AS ctl;
 
 /*+ no_query, engine(kafka) */
 CREATE TABLE FlowRate (
@@ -15,9 +13,9 @@ CREATE TABLE FlowRate (
   description, and other important information.
  */
 /*+query_by_all(asset_id) */
-Assets := DISTINCT _AssetUpdates ON asset_id ORDER BY lastUpdated DESC;
+Assets := DISTINCT ctl.Assets ON asset_id ORDER BY lastUpdated DESC;
 /*+no_query */
-Maintenance := DISTINCT _MaintenanceUpdates ON work_order_id ORDER BY lastUpdated DESC;
+Maintenance := DISTINCT ctl.Maintenance ON work_order_id ORDER BY lastUpdated DESC;
 Assets.maintenance := SELECT * FROM Maintenance m WHERE this.asset_id = m.asset_id ORDER BY m.lastUpdated DESC;
 
 EXPORT FlowRate TO print.Flowrate;
@@ -46,7 +44,7 @@ Returns recent pressure and temperature readings for a given well/asset by id.
 RecentPressure := SELECT assetId, window_time AS timestamp_normalized,
                              AVG(pressure_psi) AS pressure_psi,
                              AVG(temperature_f) AS temperature_f
-                  FROM TABLE(TUMBLE(TABLE _Measurement, DESCRIPTOR(`timestamp`), INTERVAL '10' SECOND))
+                  FROM TABLE(TUMBLE(TABLE ctl.Measurement, DESCRIPTOR(`timestamp`), INTERVAL '10' SECOND))
                       GROUP BY assetId, window_start, window_end, window_time
                       ORDER BY window_time DESC;
 

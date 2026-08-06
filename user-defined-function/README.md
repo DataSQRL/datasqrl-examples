@@ -22,13 +22,13 @@ The next sections contain instructions about how to run and interact with the ex
 ```shell
 # "cd jbang" OR "cd maven-project"
 
-docker run --rm -v $PWD:/build datasqrl/cmd:latest compile myudf.sqrl
+docker run --rm -v $PWD:/workspace datasqrl/cmd:latest compile myudf.sqrl
 ```
 
 ## Deployment and Testing
 ### Run Example
 ```shell
-docker run -it -p 8888:8888 --rm -v $PWD:/build datasqrl/cmd:latest run myudf.sqrl
+docker run -it -p 8888:8888 --rm -v $PWD:/workspace datasqrl/cmd:latest run myudf.sqrl
 ```
 ### Creating and Testing Records
 1. Creating a Record: Test the function by creating a record via a GraphQL query.

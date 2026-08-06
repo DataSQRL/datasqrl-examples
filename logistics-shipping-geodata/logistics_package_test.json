@@ -4,7 +4,7 @@
     "main": "logistics.sqrl",
     "graphql": "logistics.graphqls",
     "config": {
-      "variant": "testdata"
+      "variant": "test"
     }
   }
 }

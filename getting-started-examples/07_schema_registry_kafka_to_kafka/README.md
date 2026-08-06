@@ -29,7 +29,7 @@ Run the following command from the project root where your `package.json` and SQ
 ```bash
 docker run -it --rm \
   -p 8888:8888 \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   datasqrl/cmd:latest run -c package.json
 ```
 

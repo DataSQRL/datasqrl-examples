@@ -3,6 +3,11 @@
   "enabled-engines": ["kafka", "flink"],
   "script": {
     "main": "study_stream.sqrl",
+    "shared": {
+      "data-catalog": {
+        "path": "../data-catalog"
+      }
+    },
     "config": {
       "variant": "testdata"
     }
