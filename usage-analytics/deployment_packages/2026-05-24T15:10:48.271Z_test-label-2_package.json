@@ -1,0 +1,1 @@
+{"information": {"label": "test-label-2", "description": "desc from inline package.json"},  "version": "1", "script": {   "main": "usertokens.sqrl",    "config": {   "variant": "testdata"   } }}
