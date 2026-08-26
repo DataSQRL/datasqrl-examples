@@ -16,7 +16,7 @@
 #   --list-envs         print the environments this project declares, one line
 #   --list-subprojects  print the sub-projects this project ships, one line
 #   --list-invocations  print what would run and run nothing, one
-#                       `SQRL_INVOCATION <sub-project> <verb> -r <root> <config...> -b <dir>`
+#                       `SQRL_INVOCATION <sub-project> <verb> -r <root> <config...> -b <name>`
 #                       line per suite — exactly the arguments a real run would use
 #
 # EXAMPLES (using this project's own sub-project, creditcard_rewards)
@@ -127,8 +127,9 @@ selected() {
   return 1
 }
 
-# Each suite writes its own build folder, build/<sub-project> (the -b flag in the driver loop
-# below), so one suite's build artifacts never overwrite a sibling's.
+# Each suite writes its own build folder (the -b flag in the driver loop below), so one suite's
+# artifacts never overwrite a sibling's. `-b <name>` names a subfolder of build/: DataSQRL
+# resolves `-b fraud_store` to <project-root>/build/fraud_store
 
 sqrl() {
   local verb="$1"; shift
@@ -201,7 +202,7 @@ for sub in $SUBPROJECTS; do
     continue
   }
   # shellcheck disable=SC2086  # the declaration is a space-separated argument list, on purpose
-  sqrl "$VERB" $args -b "build/$sub" || fail=1
+  sqrl "$VERB" $args -b "$sub" || fail=1
 done
 
 # ── EDIT FOR YOUR PROJECT (optional): teardown ───────────────────────────────
