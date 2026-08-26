@@ -3,23 +3,17 @@
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
     "main": "creditcard_analytics.sqrl",
-    "shared": {
+    "include": {
       "data-catalog": {
-        "path": "../data-catalog"
+        "package": "../data-catalog/package.json"
       }
-    },
-    "config": {
-      "variant": "kafka"
     }
   },
   "engines": {
-    "flink" : {
-      "config" : {
+    "flink": {
+      "config": {
         "table.exec.source.idle-timeout": "10 s"
       }
     }
-  },
-  "test-runner": {
-    "create-topics": ["transaction", "cardassignment","merchant","merchantreward"]
   }
 }
