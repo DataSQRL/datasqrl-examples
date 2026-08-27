@@ -61,7 +61,7 @@ WarrantsByCrime := SELECT crime_description AS crime, COUNT(1) as num_warrants
 /*+query_by_any(state) */
 BolosByWeekState := SELECT window_time AS week,
                            registration_state AS state, COUNT(1) as num_bolos
-                FROM TABLE(TUMBLE(TABLE _EnrichedBolo, DESCRIPTOR(`last_updated`), INTERVAL '7' DAY))
+                FROM TUMBLE(TABLE _EnrichedBolo, DESCRIPTOR(`last_updated`), INTERVAL '7' DAY)
                       GROUP BY registration_state, window_start, window_end, window_time
                       ORDER BY window_time DESC, state ASC;
 

@@ -44,7 +44,7 @@ Returns recent pressure and temperature readings for a given well/asset by id.
 RecentPressure := SELECT assetId, window_time AS timestamp_normalized,
                              AVG(pressure_psi) AS pressure_psi,
                              AVG(temperature_f) AS temperature_f
-                  FROM TABLE(TUMBLE(TABLE ctl.Measurement, DESCRIPTOR(`timestamp`), INTERVAL '10' SECOND))
+                  FROM TUMBLE(TABLE ctl.Measurement, DESCRIPTOR(`timestamp`), INTERVAL '10' SECOND)
                       GROUP BY assetId, window_start, window_end, window_time
                       ORDER BY window_time DESC;
 

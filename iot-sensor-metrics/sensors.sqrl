@@ -10,12 +10,18 @@ ReadingsAboveTemp(temp INT NOT NULL) := SELECT * FROM SensorReading WHERE temper
 HighTemp := SUBSCRIBE SELECT * FROM SensorReading  WHERE temperature > 100;
 
 /* A sliding time window for the max temperature */
-_SensorSlidingMaxTemp := SELECT sensorid, window_time, MAX(temperature) AS maxTemp, MAX(event_time) AS lastUpdated
-                         FROM TABLE(HOP(TABLE SensorReading, DESCRIPTOR(event_time),
-                                         INTERVAL '10' SECOND,   -- slide interval
-                                         INTERVAL '5' MINUTE    -- window size
-                                 ))
-                         GROUP BY sensorid, window_start, window_end, window_time;
+_SensorSlidingMaxTemp :=
+SELECT sensorid,
+       window_time,
+       MAX(temperature) AS maxTemp,
+       CAST(MAX(event_time) AS TIMESTAMP_LTZ(3)) AS lastUpdated
+  FROM HOP(
+       TABLE SensorReading,
+       DESCRIPTOR(event_time),
+       INTERVAL '10' SECOND,   -- slide interval
+       INTERVAL '5' MINUTE    -- window size
+  )
+  GROUP BY sensorid, window_start, window_end, window_time;
 
 /**
   Returns the maximum temperature recorded by each sensor in the last 5 minutes
