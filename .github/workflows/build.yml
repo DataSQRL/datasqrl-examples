@@ -23,7 +23,7 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: '0.10.8'
+  SQRL_VERSION: '0.11.2'
 
 jobs:
   build-and-push:
@@ -47,22 +47,22 @@ jobs:
             path: finance-credit-card-chatbot
             tag: credit-card-analytics
             test_commands: |
-              compile credit-card-analytics/creditcard_analytics_package_test.json
-              compile credit-card-analytics/creditcard_analytics_package_kafka.json
-              test creditcard_analytics_package_test.json creditcard_analytics_package_jwt.json -r credit-card-analytics
+              compile credit-card-analytics/creditcard_analytics-shared-package.json credit-card-analytics/creditcard_analytics-test-package.json
+              compile credit-card-analytics/creditcard_analytics-shared-package.json credit-card-analytics/creditcard_analytics-dev-package.json
+              test creditcard_analytics-shared-package.json creditcard_analytics-test-package.json -r credit-card-analytics
           - example: credit-card-rewards
             path: finance-credit-card-chatbot
             tag: credit-card-rewards
             test_commands: |
-              compile credit-card-rewards/creditcard_rewards_package_test.json
-              compile credit-card-rewards/creditcard_rewards_package_kafka.json
-              test creditcard_rewards_package_test.json creditcard_rewards_package_jwt.json -r credit-card-rewards
+              compile credit-card-rewards/creditcard_rewards-shared-package.json credit-card-rewards/creditcard_rewards-test-package.json
+              compile credit-card-rewards/creditcard_rewards-shared-package.json credit-card-rewards/creditcard_rewards-dev-package.json
+              test creditcard_rewards-shared-package.json creditcard_rewards-test-package.json -r credit-card-rewards
           - example: credit-card-views
             path: finance-credit-card-chatbot
             tag: credit-card-views
             test_commands: |
-              compile credit-card-views/creditcard_views_package_test.json
-              test credit-card-views/creditcard_views_package_test.json
+              compile credit-card-views/creditcard_views-shared-package.json credit-card-views/creditcard_views-test-package.json
+              test credit-card-views/creditcard_views-shared-package.json credit-card-views/creditcard_views-test-package.json
 
           - example: healthcare-study-analytics
             path: healthcare-study

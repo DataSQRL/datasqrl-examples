@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "creditcard_rewards.sqrl",
+    "include": {
+      "data-catalog": {
+        "package": "../data-catalog/package.json"
+      }
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "10 s"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "script": {
+    "config": {
+      "environment": "dev"
+    }
+  }
+}

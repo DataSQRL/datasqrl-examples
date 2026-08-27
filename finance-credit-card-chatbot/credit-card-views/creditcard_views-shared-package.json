@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "main": "creditcard_views.sqrl",
+    "include": {
+      "data-catalog": {
+        "package": "../data-catalog/package.json"
+      }
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "10 s"
+      }
+    }
+  }
+}

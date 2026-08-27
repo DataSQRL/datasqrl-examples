@@ -1,7 +1,11 @@
 {
-  "version": "1",
-  "engines" : {
-    "vertx" : {
+  "script": {
+    "config": {
+      "environment": "test"
+    }
+  },
+  "engines": {
+    "vertx": {
       "authKind": ["JWT"],
       "config": {
         "jwtAuth": {
@@ -22,8 +26,11 @@
     }
   },
   "test-runner": {
+    "snapshot-folder": "snapshots/creditcard_analytics/",
+    "test-folder": "creditcard_analytics-api/tests/",
     "headers": {
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkdW1teS1pc3N1ZXIiLCJhdWQiOlsiZHVtbXktYXVkaWVuY2UiXSwiZXhwIjo5OTk5OTk5OTk5LCJjdXN0b21lcklkIjo5fQ.EQXSynp-Hdee4TESpfL2sx5QU6uyuniNzA-dYuOqpaY"
-    }
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkdW1teS1pc3N1ZXIiLCJhdWQiOlsiZHVtbXktYXVkaWVuY2UiXSwiZXhwIjo5OTk5OTk5OTk5fQ.3WQJxy-RsmvHskT4dvQp2ti-E88me5y-kkquy0SJ3SA"
+    },
+    "create-topics": ["transaction", "cardassignment", "merchant", "merchantreward"]
   }
 }
