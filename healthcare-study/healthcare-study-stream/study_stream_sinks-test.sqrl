@@ -1,3 +1,4 @@
+/* Enriched readings sink for the test environment: a local directory under the test data path. */
 CREATE TABLE EnrichedIndicator (
     PRIMARY KEY (patientId) NOT ENFORCED
 ) WITH (

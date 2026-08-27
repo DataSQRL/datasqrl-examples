@@ -1,3 +1,4 @@
+/* Clinical indicator readings from the Kafka topic `indicators`; the event time is the record timestamp. */
 CREATE TABLE ClinicalIndicator (
      `timestamp` TIMESTAMP_LTZ(3) NOT NULL METADATA FROM 'timestamp',
      WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '0.001' SECOND
@@ -8,4 +9,4 @@ CREATE TABLE ClinicalIndicator (
       'properties.group.id' = 'mygroup',
       'scan.startup.mode' = 'earliest-offset',
       'format' = 'flexible-json'
-) LIKE `clinical_indicator.avsc`;
+) LIKE `schema/clinical_indicator.avsc`;

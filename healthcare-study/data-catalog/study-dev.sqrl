@@ -1,0 +1,68 @@
+/* Healthcare study master data for the dev environment: change streams on Kafka (one topic per dataset).
+   Same tables and columns as study-test.sqrl; the watermark stays on the record's update time. */
+
+CREATE TABLE Metadata (
+     metadataId BIGINT NOT NULL,
+     name STRING NOT NULL,
+     lowRange DOUBLE NOT NULL,
+     highRange DOUBLE NOT NULL,
+     lastUpdated TIMESTAMP_LTZ(3) NOT NULL,
+     WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) WITH (
+      'connector' = 'kafka',
+      'topic' = 'metadata',
+      'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+      'properties.group.id' = 'mygroup',
+      'scan.startup.mode' = 'earliest-offset',
+      'format' = 'flexible-json'
+);
+
+CREATE TABLE ObservationGroup (
+     groupId BIGINT NOT NULL,
+     studyId BIGINT NOT NULL,
+     groupName STRING NOT NULL,
+     createdDate TIMESTAMP_LTZ(3) NOT NULL,
+     patients ARRAY<ROW<patientId BIGINT NOT NULL>> NOT NULL,
+     WATERMARK FOR `createdDate` AS `createdDate` - INTERVAL '0.001' SECOND
+) WITH (
+      'connector' = 'kafka',
+      'topic' = 'observationgroup',
+      'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+      'properties.group.id' = 'mygroup',
+      'scan.startup.mode' = 'earliest-offset',
+      'format' = 'flexible-json'
+);
+
+CREATE TABLE Patients (
+     patientId BIGINT NOT NULL,
+     studyId BIGINT NOT NULL,
+     name STRING NOT NULL,
+     bloodGroup STRING NOT NULL,
+     dateOfBirth STRING NOT NULL,
+     diagnosis STRING NOT NULL,
+     lastUpdated TIMESTAMP_LTZ(3) NOT NULL,
+     WATERMARK FOR `lastUpdated` AS `lastUpdated` - INTERVAL '0.001' SECOND
+) WITH (
+      'connector' = 'kafka',
+      'topic' = 'patients',
+      'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+      'properties.group.id' = 'mygroup',
+      'scan.startup.mode' = 'earliest-offset',
+      'format' = 'flexible-json'
+);
+
+CREATE TABLE SensorPlacements (
+     sensorId BIGINT NOT NULL,
+     patientId BIGINT NOT NULL,
+     metadataId BIGINT NOT NULL,
+     eventId STRING NOT NULL,
+     placedTimestamp TIMESTAMP_LTZ(3) NOT NULL,
+     WATERMARK FOR `placedTimestamp` AS `placedTimestamp` - INTERVAL '0.001' SECOND
+) WITH (
+      'connector' = 'kafka',
+      'topic' = 'sensorplacements',
+      'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+      'properties.group.id' = 'mygroup',
+      'scan.startup.mode' = 'earliest-offset',
+      'format' = 'flexible-json'
+);
