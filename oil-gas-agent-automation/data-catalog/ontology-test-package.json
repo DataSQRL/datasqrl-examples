@@ -1,0 +1,10 @@
+{
+  "script": {
+    "config": {
+      "environment": "test"
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots/ontology/"
+  }
+}

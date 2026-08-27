@@ -1,8 +1,34 @@
 # Automated Monitoring - Oil & Gas Use Case
 
-Run the data backend with the following command:
+Two projects over one shared [`data-catalog`](data-catalog) of wells (`Assets`), their maintenance work
+orders and their flow-rate and pressure/temperature readings:
 
-`docker run -it -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/workspace datasqrl/cmd:latest run  -c package-local.json `
+* [**oil-gas-agent-monitoring**](oil-gas-agent-monitoring): a query API for an agent — well profiles with
+  their work orders and per-minute flow-rate and pressure aggregates (environments: `test`, `dev`).
+* [**oil-gas-agent-operations**](oil-gas-agent-operations): the same well data plus an **ingest mutation**
+  for flow-rate readings, a `LowFlowRate` subscription that pushes enriched readings below 200, and recent
+  pressure/temperature per well (environments: `test`, `dev`).
+
+Each project keeps its configuration in a base manifest (`<script>-shared-package.json`) plus thin
+per-environment overlays: `test` reads the sample files bundled in the catalog (`sources-test.sqrl`), `dev`
+reads Kafka topics (`sources-dev.sqrl`; the dev overlays list those topics under `test-runner.create-topics`,
+so a local run starts its own Redpanda and creates them). DataSQRL merges the manifests in the order given —
+later files override earlier ones. Because the projects import the catalog next to them, the commands mount
+this directory at `/workspace` and name the project with `-r`.
+
+Every project ships `run-tests.sh`, the single entry point for its test suites: `./run-tests.sh` runs every
+suite, `./run-tests.sh --compile --env dev` compiles the dev configuration, and
+`./run-tests.sh --list-invocations` prints what would run without running it.
+
+## Run the operations backend
+
+```bash
+cd oil-gas-agent-automation
+docker run -it -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
+  -r oil-gas-agent-operations \
+  operations_agent-shared-package.json \
+  operations_agent-test-package.json
+```
 
 To publish flowrate metrics, open [GraphiQL in the browser](http://localhost:8888/v1/graphiql/) and run the following mutation:
 
@@ -39,3 +65,6 @@ To retrieve recent pressure and temperature readings for a well, run this query:
   }
 }
 ```
+
+The monitoring backend runs the same way with `-r oil-gas-agent-monitoring` and the
+`monitoring_agent-*-package.json` manifests.

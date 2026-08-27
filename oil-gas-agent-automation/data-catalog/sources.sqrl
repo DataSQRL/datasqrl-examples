@@ -1,0 +1,88 @@
+-- ## Oil & Gas Sources - Schemas
+--
+-- The payload columns of every dataset, written once and shared by the environment files
+-- (sources-<env>.sqrl), which add the connector and the watermark.
+
+/** A well (asset) of the field, as maintained in the asset register.
+    Grain: one row per asset_id and lastUpdated.
+
+    # Columns:
+    * asset_id: Unique identifier of the well
+    * asset_number: Well number, e.g. W-21112
+    * asset_name: Well name
+    * asset_category_id: Asset category
+    * description: Free-text description of the well
+    * date_placed_in_service: Date the well was placed in service (ISO-8601 date string)
+    * asset_cost: Acquisition cost
+    * status: Asset status, e.g. ACTIVE
+    * asset_manual: Link to the well's manual
+    * lastUpdated: Time the asset record was last updated */
+CREATE TABLE _Assets_schema (
+    asset_id BIGINT NOT NULL,
+    asset_number STRING NOT NULL,
+    asset_name STRING NOT NULL,
+    asset_category_id BIGINT NOT NULL,
+    description STRING NOT NULL,
+    date_placed_in_service STRING NOT NULL,
+    asset_cost BIGINT NOT NULL,
+    status STRING NOT NULL,
+    asset_manual STRING NOT NULL,
+    lastUpdated TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** A maintenance work order on a well.
+    Grain: one row per work_order_id and lastUpdated.
+
+    # Columns:
+    * work_order_id: Unique identifier of the work order
+    * work_order_num: Work order number, e.g. WO-10457
+    * asset_id: The well the work order is for (references Assets.asset_id)
+    * description: What the work order covers
+    * wo_type: Work order type, e.g. INSPECTION, EQUIP_REPLACE, EMERGENCY_REPAIR
+    * priority: LOW, MEDIUM or HIGH
+    * status: OPEN, SCHEDULED, IN_PROGRESS or CLOSED
+    * request_date: Date the work was requested (ISO-8601 date string)
+    * start_date: Date the work started, empty until it does
+    * completion_date: Date the work completed, empty until it does
+    * lastUpdated: Time the work order was last updated */
+CREATE TABLE _Maintenance_schema (
+    work_order_id BIGINT NOT NULL,
+    work_order_num STRING NOT NULL,
+    asset_id BIGINT NOT NULL,
+    description STRING NOT NULL,
+    wo_type STRING NOT NULL,
+    priority STRING NOT NULL,
+    status STRING NOT NULL,
+    request_date STRING NOT NULL,
+    start_date STRING,
+    completion_date STRING,
+    lastUpdated TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** A flow-rate reading from a well.
+    Grain: one row per assetId and event_time.
+
+    # Columns:
+    * assetId: The well the reading comes from (references Assets.asset_id)
+    * flowrate: Measured flow rate
+    * event_time: Time of the reading */
+CREATE TABLE _FlowRate_schema (
+    assetId BIGINT NOT NULL,
+    flowrate DOUBLE NOT NULL,
+    event_time TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** A pressure and temperature reading from a well.
+    Grain: one row per assetId and timestamp.
+
+    # Columns:
+    * assetId: The well the reading comes from (references Assets.asset_id)
+    * pressure_psi: Pressure in psi
+    * temperature_f: Temperature in °F
+    * timestamp: Time of the reading */
+CREATE TABLE _Measurement_schema (
+    assetId BIGINT NOT NULL,
+    pressure_psi DOUBLE NOT NULL,
+    temperature_f DOUBLE NOT NULL,
+    `timestamp` TIMESTAMP_LTZ(3) NOT NULL
+);

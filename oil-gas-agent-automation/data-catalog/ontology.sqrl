@@ -1,0 +1,65 @@
+IMPORT sources-{{environment}}.*;
+
+-- =====================================================
+-- Relationships
+-- =====================================================
+
+/** Maintenance work orders for this well, most recent first */
+Assets.maintenance := SELECT m.* FROM Maintenance m WHERE this.asset_id = m.asset_id ORDER BY m.lastUpdated DESC;
+
+/** Flow-rate readings of this well, most recent first */
+Assets.flowrates := SELECT f.* FROM FlowRate f WHERE this.asset_id = f.assetId ORDER BY f.event_time DESC;
+
+/** Pressure and temperature readings of this well, most recent first */
+Assets.measurements := SELECT s.* FROM Measurement s WHERE this.asset_id = s.assetId ORDER BY s.`timestamp` DESC;
+
+/** The well a work order belongs to */
+Maintenance.asset := SELECT a.* FROM Assets a WHERE this.asset_id = a.asset_id LIMIT 1;
+
+-- =====================================================
+-- Data Quality & Assertions
+-- =====================================================
+
+/** Every work order must reference an existing well */
+/*+test(no_rows) */
+MaintenanceReferencesAsset_Test := SELECT m.* FROM Maintenance m
+    LEFT JOIN Assets a ON m.asset_id = a.asset_id
+    WHERE a.asset_id IS NULL;
+
+/** Every flow-rate reading must come from an existing well */
+/*+test(no_rows) */
+FlowRateReferencesAsset_Test := SELECT f.* FROM FlowRate f
+    LEFT JOIN Assets a ON f.assetId = a.asset_id
+    WHERE a.asset_id IS NULL;
+
+/** Every pressure/temperature reading must come from an existing well */
+/*+test(no_rows) */
+MeasurementReferencesAsset_Test := SELECT s.* FROM Measurement s
+    LEFT JOIN Assets a ON s.assetId = a.asset_id
+    WHERE a.asset_id IS NULL;
+
+/** Work order priority must be a valid enumeration value */
+/*+test(no_rows) */
+MaintenancePriorityIsValid_Test := SELECT * FROM Maintenance
+    WHERE priority NOT IN ('LOW', 'MEDIUM', 'HIGH');
+
+/** A work order cannot start before it was requested or complete before it started */
+/*+test(no_rows) */
+MaintenanceDatesAreOrdered_Test := SELECT * FROM Maintenance
+    WHERE start_date < request_date OR completion_date < start_date;
+
+-- =====================================================
+-- Import checks: every dataset loads with its test data
+-- =====================================================
+
+/*+test */
+AssetLoads_Test := SELECT asset_id, asset_number, asset_name, status FROM Assets WHERE asset_id = 12221;
+
+/*+test */
+MaintenanceLoads_Test := SELECT work_order_id, work_order_num, asset_id, wo_type, priority FROM Maintenance WHERE work_order_id = 2;
+
+/*+test */
+FlowRateLoads_Test := SELECT COUNT(1) AS num_readings FROM FlowRate;
+
+/*+test */
+MeasurementLoads_Test := SELECT COUNT(1) AS num_readings FROM Measurement;
