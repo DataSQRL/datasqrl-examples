@@ -1,5 +1,5 @@
-IMPORT `data-catalog`.`study-test` AS study_ctl;
-IMPORT `data-catalog`.`metrics-test` AS metrics_ctl;
+IMPORT data_catalog.study_test AS study_ctl;
+IMPORT data_catalog.metrics_test AS metrics_ctl;
 
 _SensorPlacements := DISTINCT study_ctl.SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 _Metadata         := DISTINCT study_ctl.Metadata ON metadataId ORDER BY lastUpdated DESC;

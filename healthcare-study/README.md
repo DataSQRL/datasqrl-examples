@@ -6,11 +6,11 @@ We are ingesting metadata, patient data, sensor placements, and observation grou
 master data systems, and clinical indicator readings (metrics) from sensors.
 
 All three use cases share the [`data-catalog`](data-catalog), which provides every dataset per environment:
-in `test` the master data and the sensor readings come from the sample files (`study-test.sqrl`,
-`metrics-test.sqrl`); in `dev` they come from Kafka — one topic per master dataset (`study-dev.sqrl`) and the
-readings topic `indicators` (`metrics-dev.sqrl`, schema from `schema/clinical_indicator.avsc`). The analytics
+in `test` the master data and the sensor readings come from the sample files (`study_test.sqrl`,
+`metrics_test.sqrl`); in `dev` they come from Kafka — one topic per master dataset (`study_dev.sqrl`) and the
+readings topic `indicators` (`metrics_dev.sqrl`, schema from `schema/clinical_indicator.avsc`). The analytics
 use case reads the sample files in both of its environments.
-The stream use case owns its sink (`study_stream_sinks-<env>.sqrl`): a local directory in `test`, the Kafka
+The stream use case owns its sink (`study_stream_sinks_<env>.sqrl`): a local directory in `test`, the Kafka
 topic `enrichedindicators` in `dev`. Every source and sink is a `CREATE TABLE … LIKE` definition, taking its
 schema from a data file, an Avro schema, or — for the sink — the exported table itself (`LIKE \`*\``).
 

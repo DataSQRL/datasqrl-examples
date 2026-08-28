@@ -1,5 +1,5 @@
 /* Healthcare study master data for the dev environment: change streams on Kafka (one topic per dataset).
-   Same tables and columns as study-test.sqrl; the watermark stays on the record's update time. */
+   Same tables and columns as study_test.sqrl; the watermark stays on the record's update time. */
 
 CREATE TABLE Metadata (
      metadataId BIGINT NOT NULL,

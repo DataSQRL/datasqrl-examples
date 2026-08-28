@@ -1,5 +1,5 @@
-IMPORT study-{{environment}}.*;
-IMPORT metrics-{{environment}}.*;
+IMPORT study_{{environment}}.*;
+IMPORT metrics_{{environment}}.*;
 
 -- =====================================================
 -- Relationships

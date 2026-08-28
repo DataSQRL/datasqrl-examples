@@ -1,5 +1,5 @@
-IMPORT `data-catalog`.`study-{{environment}}` AS study_ctl;
-IMPORT `data-catalog`.`metrics-{{environment}}` AS metrics_ctl;
+IMPORT data_catalog.study_{{environment}} AS study_ctl;
+IMPORT data_catalog.metrics_{{environment}} AS metrics_ctl;
 
 SensorPlacements := DISTINCT study_ctl.SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 Metadata         := DISTINCT study_ctl.Metadata ON metadataId ORDER BY lastUpdated DESC;
@@ -8,7 +8,7 @@ EnrichedIndicators := SELECT * FROM metrics_ctl.ClinicalIndicator m
    JOIN SensorPlacements FOR SYSTEM_TIME AS OF m.`timestamp` p ON m.sensorId = p.sensorId
    JOIN Metadata         FOR SYSTEM_TIME AS OF m.`timestamp` d ON d.metadataId = p.metadataId;
 
-EXPORT EnrichedIndicators TO `study_stream_sinks-{{environment}}`.EnrichedIndicator;
+EXPORT EnrichedIndicators TO study_stream_sinks_{{environment}}.EnrichedIndicator;
 
 /*+test */
 TotalTest := SELECT COUNT(1) AS total_num FROM EnrichedIndicators;

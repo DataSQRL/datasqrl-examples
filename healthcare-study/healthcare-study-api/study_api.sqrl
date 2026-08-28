@@ -1,5 +1,5 @@
-IMPORT `data-catalog`.`study-{{environment}}` AS study_ctl;
-IMPORT `data-catalog`.`metrics-{{environment}}` AS metrics_ctl;
+IMPORT data_catalog.study_{{environment}} AS study_ctl;
+IMPORT data_catalog.metrics_{{environment}} AS metrics_ctl;
 
 _ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM metrics_ctl.ClinicalIndicator;
 

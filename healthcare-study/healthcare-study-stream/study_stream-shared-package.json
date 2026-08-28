@@ -3,7 +3,7 @@
   "script": {
     "main": "study_stream.sqrl",
     "include": {
-      "data-catalog": {
+      "data_catalog": {
         "package": "../data-catalog/ontology-shared-package.json"
       }
     }

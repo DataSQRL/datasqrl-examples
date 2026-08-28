@@ -94,10 +94,10 @@ Sample Data:
 
 | File | Purpose |
 |------|---------|
-| `study-test.sqrl` | The four master datasets above as file sources (`LIKE testdata/*.jsonl`) — the `test` environment |
-| `study-dev.sqrl` | The same four datasets as Kafka change streams (topics `metadata`, `observationgroup`, `patients`, `sensorplacements`) — the `dev` environment |
-| `metrics-test.sqrl` | Sensor readings (`ClinicalIndicator`) from `testdata/clinical_indicator.jsonl` — the `test` environment |
-| `metrics-dev.sqrl` | Sensor readings from the Kafka topic `indicators`, schema from `schema/clinical_indicator.avsc` — the `dev` environment |
+| `study_test.sqrl` | The four master datasets above as file sources (`LIKE testdata/*.jsonl`) — the `test` environment |
+| `study_dev.sqrl` | The same four datasets as Kafka change streams (topics `metadata`, `observationgroup`, `patients`, `sensorplacements`) — the `dev` environment |
+| `metrics_test.sqrl` | Sensor readings (`ClinicalIndicator`) from `testdata/clinical_indicator.jsonl` — the `test` environment |
+| `metrics_dev.sqrl` | Sensor readings from the Kafka topic `indicators`, schema from `schema/clinical_indicator.avsc` — the `dev` environment |
 | `ontology.sqrl` | Relationships between the datasets (patient ↔ sensors ↔ indicator, group ↔ members, sensor ↔ readings) and the data quality assertions that must never be violated; run with `ontology-shared-package.json` + `ontology-test-package.json` |
 
-Projects import the datasets as `` `data-catalog`.`study-{{environment}}` `` and `` `data-catalog`.`metrics-{{environment}}` `` and select the environment in their package configuration.
+Projects import the datasets as `` data_catalog.study_{{environment}} `` and `` data_catalog.metrics_{{environment}} `` and select the environment in their package configuration.
