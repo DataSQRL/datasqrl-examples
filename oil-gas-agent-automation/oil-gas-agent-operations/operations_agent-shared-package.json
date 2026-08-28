@@ -4,7 +4,7 @@
   "script": {
     "main": "operations_agent.sqrl",
     "include": {
-      "data-catalog": {
+      "data_catalog": {
         "package": "../data-catalog/ontology-shared-package.json"
       }
     }

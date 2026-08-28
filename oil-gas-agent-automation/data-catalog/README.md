@@ -12,8 +12,8 @@ Shared by the monitoring and operations projects. Four datasets:
 | File | Purpose |
 |------|---------|
 | `sources.sqrl` | The column definitions of the four tables (`_X_schema`), written once and documented; the environment files extend them with `LIKE _X_schema` |
-| `sources-test.sqrl` | All four tables as file sources (`LIKE testdata/*.jsonl[.gz]`) — the `test` environment |
-| `sources-dev.sqrl` | The same tables as Kafka topics `assets`, `maintenance`, `flowrate`, `measurement`, columns from `sources.sqrl` — the `dev` environment |
+| `sources_test.sqrl` | All four tables as file sources (`LIKE testdata/*.jsonl[.gz]`) — the `test` environment |
+| `sources_dev.sqrl` | The same tables as Kafka topics `assets`, `maintenance`, `flowrate`, `measurement`, columns from `sources.sqrl` — the `dev` environment |
 | `ontology.sqrl` | Relationships (well ↔ work orders, well ↔ readings) and the data quality assertions that must never be violated; run with `ontology-shared-package.json` + `ontology-test-package.json` |
 
-Projects import the catalog as `` `data-catalog`.`sources-{{environment}}` `` and select the environment in their package configuration.
+Projects import the catalog as `` data_catalog.sources_{{environment}} `` and select the environment in their package configuration.

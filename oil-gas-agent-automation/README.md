@@ -10,8 +10,8 @@ orders and their flow-rate and pressure/temperature readings:
   pressure/temperature per well (environments: `test`, `dev`).
 
 Each project keeps its configuration in a base manifest (`<script>-shared-package.json`) plus thin
-per-environment overlays: `test` reads the sample files bundled in the catalog (`sources-test.sqrl`), `dev`
-reads Kafka topics (`sources-dev.sqrl`; the dev overlays list those topics under `test-runner.create-topics`,
+per-environment overlays: `test` reads the sample files bundled in the catalog (`sources_test.sqrl`), `dev`
+reads Kafka topics (`sources_dev.sqrl`; the dev overlays list those topics under `test-runner.create-topics`,
 so a local run starts its own Redpanda and creates them). DataSQRL merges the manifests in the order given —
 later files override earlier ones. Because the projects import the catalog next to them, the commands mount
 this directory at `/workspace` and name the project with `-r`.

@@ -1,4 +1,4 @@
-IMPORT `data-catalog`.`sources-{{environment}}` AS ctl;
+IMPORT data_catalog.sources_{{environment}} AS ctl;
 
 /**
   Returns information about the well/asset including it's maintenance records, manual,

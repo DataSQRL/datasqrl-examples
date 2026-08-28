@@ -1,7 +1,7 @@
 -- ## Oil & Gas Sources - Schemas
 --
 -- The payload columns of every dataset, written once and shared by the environment files
--- (sources-<env>.sqrl), which add the connector and the watermark.
+-- (sources_<env>.sqrl), which add the connector and the watermark.
 
 /** A well (asset) of the field, as maintained in the asset register.
     Grain: one row per asset_id and lastUpdated.

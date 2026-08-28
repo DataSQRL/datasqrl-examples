@@ -1,4 +1,4 @@
-IMPORT sources-{{environment}}.*;
+IMPORT sources_{{environment}}.*;
 
 -- =====================================================
 -- Relationships
