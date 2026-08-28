@@ -1,5 +1,5 @@
 /* Import Data */
-IMPORT `data-catalog`.`sources-{{variant}}` AS ctl;
+IMPORT `data-catalog`.`sources-{{environment}}` AS ctl;
 
 /* Deduplicate CDC Streams */
 _Merchant       := DISTINCT ctl.Merchant ON merchantId ORDER BY updatedTime DESC;

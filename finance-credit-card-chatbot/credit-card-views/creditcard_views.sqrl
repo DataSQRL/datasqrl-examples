@@ -1,5 +1,5 @@
 /* Import Data */
-IMPORT `data-catalog`.`sources-{{variant}}` AS ctl;
+IMPORT `data-catalog`.`sources-{{environment}}` AS ctl;
 
 /* Deduplicate CDC Streams */
 _Merchant       := DISTINCT ctl.Merchant ON merchantId ORDER BY updatedTime DESC;
@@ -22,8 +22,11 @@ SpendingByDay := SELECT customerId, window_time as timeDay, SUM(amount) as spend
                   GROUP BY customerId, window_start, window_end, window_time
                   ORDER BY window_time DESC;
 
+/* `time` stays the authoritative ROWTIME; the merchant's updatedTime is cast to a regular timestamp
+   because a table may carry only one ROWTIME column. */
 CustomerTransactionWithMerchant :=
-                SELECT * FROM _CustomerTransaction t
+                SELECT t.*, m.name, CAST(m.updatedTime AS TIMESTAMP_LTZ(3)) AS updatedTime
+                FROM _CustomerTransaction t
                 INNER JOIN _Merchant m ON t.merchantId = m.merchantId;
 
 

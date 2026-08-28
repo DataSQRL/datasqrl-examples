@@ -1,0 +1,18 @@
+{
+  "script": {
+    "config": {
+      "environment": "test"
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "warehouse",
+      "catalog-type": "hadoop",
+      "catalog-name": "mydatabase"
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots/creditcard_views/",
+    "delay-sec": 120
+  }
+}
