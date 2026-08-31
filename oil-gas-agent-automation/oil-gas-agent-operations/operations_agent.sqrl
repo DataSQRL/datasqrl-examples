@@ -1,4 +1,4 @@
-IMPORT `data-catalog`.{{variant}} AS ctl;
+IMPORT data_catalog.sources_{{environment}} AS ctl;
 
 /*+ no_query, engine(kafka) */
 CREATE TABLE FlowRate (

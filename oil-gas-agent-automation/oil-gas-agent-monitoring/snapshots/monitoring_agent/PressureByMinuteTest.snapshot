@@ -1,0 +1,65 @@
+{
+  "data" : {
+    "PressureByMinuteTest" : [ {
+      "assetId" : 12221,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_pressure_psi" : 3398.4875,
+      "max_pressure_psi" : 3405.6,
+      "avg_temperature_f" : 189.8125
+    }, {
+      "assetId" : 21112,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_pressure_psi" : 1806.3375,
+      "max_pressure_psi" : 1821.1,
+      "avg_temperature_f" : 189.7125
+    }, {
+      "assetId" : 34443,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_pressure_psi" : 3645.18,
+      "max_pressure_psi" : 3808.1,
+      "avg_temperature_f" : 190.1475
+    }, {
+      "assetId" : 45555,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_pressure_psi" : 2102.9925,
+      "max_pressure_psi" : 2208.9,
+      "avg_temperature_f" : 189.8125
+    }, {
+      "assetId" : 59995,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_pressure_psi" : 2999.6525,
+      "max_pressure_psi" : 3005.8,
+      "avg_temperature_f" : 189.92
+    }, {
+      "assetId" : 12221,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_pressure_psi" : 3391.84166667,
+      "max_pressure_psi" : 3402.2,
+      "avg_temperature_f" : 189.81666667
+    }, {
+      "assetId" : 21112,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_pressure_psi" : 1819.06333333,
+      "max_pressure_psi" : 1831.9,
+      "avg_temperature_f" : 190.07
+    }, {
+      "assetId" : 34443,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_pressure_psi" : 3244.245,
+      "max_pressure_psi" : 3480.9,
+      "avg_temperature_f" : 189.89333333
+    }, {
+      "assetId" : 45555,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_pressure_psi" : 2366.44833333,
+      "max_pressure_psi" : 2520.7,
+      "avg_temperature_f" : 189.67666667
+    }, {
+      "assetId" : 59995,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_pressure_psi" : 3000.90833333,
+      "max_pressure_psi" : 3007,
+      "avg_temperature_f" : 189.92833333
+    } ]
+  }
+}

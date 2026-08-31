@@ -1,4 +1,4 @@
-IMPORT `data-catalog`.{{variant}} AS ctl;
+IMPORT data_catalog.sources_{{environment}} AS ctl;
 
 /**
   Returns information about the well/asset including it's maintenance records, manual,
@@ -45,3 +45,14 @@ FlowrateByMinute := SELECT assetId, window_time AS timestamp_min,
 
 Assets.flowrate := SELECT * FROM FlowrateByMinute f WHERE this.asset_id = f.assetId ORDER BY timestamp_min DESC;
 Assets.pressure := SELECT * FROM PressureByMinute p WHERE this.asset_id = p.assetId ORDER BY timestamp_min DESC;
+
+/* ==== TEST CASES ==== */
+
+/*+test */
+AssetsTest := SELECT asset_id, asset_number, asset_name, status FROM Assets ORDER BY asset_id ASC;
+
+/*+test */
+FlowrateByMinuteTest := SELECT * FROM FlowrateByMinute ORDER BY timestamp_min DESC, assetId ASC LIMIT 10;
+
+/*+test */
+PressureByMinuteTest := SELECT * FROM PressureByMinute ORDER BY timestamp_min DESC, assetId ASC LIMIT 10;

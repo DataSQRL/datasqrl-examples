@@ -1,0 +1,50 @@
+-- ## Oil & Gas Sources - dev environment
+--
+-- One Kafka topic per dataset; the columns come from sources.sqrl, this file adds the connector
+-- and the watermark.
+
+IMPORT sources.*;
+
+CREATE TABLE Assets (
+    WATERMARK FOR `lastUpdated` AS `lastUpdated`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'assets',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _Assets_schema;
+
+CREATE TABLE FlowRate (
+    WATERMARK FOR `event_time` AS `event_time`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'flowrate',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _FlowRate_schema;
+
+CREATE TABLE Maintenance (
+    WATERMARK FOR `lastUpdated` AS `lastUpdated`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'maintenance',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _Maintenance_schema;
+
+CREATE TABLE Measurement (
+    WATERMARK FOR `timestamp` AS `timestamp`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'measurement',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _Measurement_schema;

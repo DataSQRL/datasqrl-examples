@@ -1,0 +1,55 @@
+{
+  "data" : {
+    "FlowrateByMinuteTest" : [ {
+      "assetId" : 12221,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_flowrate" : 179.895,
+      "max_flowrate" : 184.5
+    }, {
+      "assetId" : 21112,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_flowrate" : 151.735,
+      "max_flowrate" : 157.2
+    }, {
+      "assetId" : 34443,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_flowrate" : 182.835,
+      "max_flowrate" : 246.2
+    }, {
+      "assetId" : 45555,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_flowrate" : 141.965,
+      "max_flowrate" : 182.7
+    }, {
+      "assetId" : 59995,
+      "timestamp_min" : "2025-02-11T12:21:59.999Z",
+      "avg_flowrate" : 250.165,
+      "max_flowrate" : 253.9
+    }, {
+      "assetId" : 12221,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_flowrate" : 181.415,
+      "max_flowrate" : 185.4
+    }, {
+      "assetId" : 21112,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_flowrate" : 155.03333333,
+      "max_flowrate" : 160.1
+    }, {
+      "assetId" : 34443,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_flowrate" : 250,
+      "max_flowrate" : 254.1
+    }, {
+      "assetId" : 45555,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_flowrate" : 233.23,
+      "max_flowrate" : 256.6
+    }, {
+      "assetId" : 59995,
+      "timestamp_min" : "2025-02-11T12:20:59.999Z",
+      "avg_flowrate" : 249.645,
+      "max_flowrate" : 253.9
+    } ]
+  }
+}

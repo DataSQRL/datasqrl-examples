@@ -116,13 +116,16 @@ jobs:
             path: oil-gas-agent-automation
             tag: oil-gas-agent-monitoring
             test_commands: |
-              compile oil-gas-agent-monitoring/monitoring_agent_package_test.json
+              compile oil-gas-agent-monitoring/monitoring_agent-shared-package.json oil-gas-agent-monitoring/monitoring_agent-test-package.json
+              compile oil-gas-agent-monitoring/monitoring_agent-shared-package.json oil-gas-agent-monitoring/monitoring_agent-dev-package.json
+              test monitoring_agent-shared-package.json monitoring_agent-test-package.json -r oil-gas-agent-monitoring
           - example: oil-gas-operations
             path: oil-gas-agent-automation
             tag: oil-gas-agent-operations
             test_commands: |
-              compile oil-gas-agent-operations/operations_agent_package_test.json
-              test oil-gas-agent-operations/operations_agent_package_test.json
+              compile oil-gas-agent-operations/operations_agent-shared-package.json oil-gas-agent-operations/operations_agent-test-package.json
+              compile oil-gas-agent-operations/operations_agent-shared-package.json oil-gas-agent-operations/operations_agent-dev-package.json
+              test operations_agent-shared-package.json operations_agent-test-package.json -r oil-gas-agent-operations
 
           - example: usage-analytics
             path: usage-analytics

@@ -1,0 +1,30 @@
+{
+  "data" : {
+    "AssetsTest" : [ {
+      "asset_id" : 12221,
+      "asset_number" : "W-12221",
+      "asset_name" : "Well Beta 12221",
+      "status" : "ACTIVE"
+    }, {
+      "asset_id" : 21112,
+      "asset_number" : "W-21112",
+      "asset_name" : "Well Alpha 21112",
+      "status" : "ACTIVE"
+    }, {
+      "asset_id" : 34443,
+      "asset_number" : "W-34443",
+      "asset_name" : "Well Epsilon 34443",
+      "status" : "ACTIVE"
+    }, {
+      "asset_id" : 45555,
+      "asset_number" : "W-45555",
+      "asset_name" : "Well Delta 45555",
+      "status" : "ACTIVE"
+    }, {
+      "asset_id" : 59995,
+      "asset_number" : "W-59995",
+      "asset_name" : "Well Gamma 59995",
+      "status" : "ACTIVE"
+    } ]
+  }
+}

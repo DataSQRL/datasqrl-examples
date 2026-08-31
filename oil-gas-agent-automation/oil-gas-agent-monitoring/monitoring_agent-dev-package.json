@@ -1,0 +1,11 @@
+{
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "config": {
+      "environment": "dev"
+    }
+  },
+  "test-runner": {
+    "create-topics": ["assets", "maintenance", "flowrate", "measurement"]
+  }
+}

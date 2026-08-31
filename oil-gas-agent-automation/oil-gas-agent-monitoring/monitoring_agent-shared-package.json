@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "script": {
+    "main": "monitoring_agent.sqrl",
+    "include": {
+      "data_catalog": {
+        "package": "../data-catalog/ontology-shared-package.json"
+      }
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  }
+}

@@ -3,18 +3,15 @@
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
     "main": "operations_agent.sqrl",
-    "shared": {
-      "data-catalog": {
-        "path": "../data-catalog"
+    "include": {
+      "data_catalog": {
+        "package": "../data-catalog/ontology-shared-package.json"
       }
-    },
-    "config": {
-      "variant": "test"
     }
   },
   "engines": {
-    "flink" : {
-      "config" : {
+    "flink": {
+      "config": {
         "table.exec.source.idle-timeout": "1 s"
       }
     }
