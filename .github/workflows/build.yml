@@ -23,7 +23,7 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: '0.11.2'
+  SQRL_VERSION: '0.11.4'
 
 jobs:
   build-and-push:
@@ -40,8 +40,8 @@ jobs:
           - example: recommendation
             path: clickstream-ai-recommendation
             test_commands: |
-              compile recommendation_package_api.json
-              compile recommendation_package_kafka.json
+              compile recommendation_api_package.json
+              compile recommendation_kafka_package.json
 
           - example: credit-card-analytics
             path: finance-credit-card-chatbot
@@ -103,14 +103,14 @@ jobs:
           - example: law-enforcement
             path: law-enforcement
             test_commands: |
-              compile baseball_card_package_test.json
-              test baseball_card_package_test.json
+              compile baseball_card_test_package.json
+              test baseball_card_test_package.json
 
           - example: logistics
             path: logistics-shipping-geodata
             test_commands: |
-              compile logistics_package_test.json
-              test logistics_package_test.json
+              compile logistics_test_package.json
+              test logistics_test_package.json
 
           - example: oil-gas-monitoring
             path: oil-gas-agent-automation
@@ -130,8 +130,8 @@ jobs:
           - example: usage-analytics
             path: usage-analytics
             test_commands: |
-              compile usertokens_package_test.json
-              test usertokens_package_test.json
+              compile usertokens_test_package.json
+              test usertokens_test_package.json
 
           - example: canary-aggregation
             path: test-jobs/aggregation-tests

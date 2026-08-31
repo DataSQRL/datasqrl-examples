@@ -21,9 +21,7 @@ Aggregation := SELECT
   window_time AS windowTime,
   SUM(measure) AS totalMeasure,
   COUNT(*) AS recordCount
-FROM TABLE(
-  TUMBLE(TABLE InputData, DESCRIPTOR(eventTime), INTERVAL '10' SECOND)
-)
+FROM TUMBLE(TABLE InputData, DESCRIPTOR(eventTime), INTERVAL '10' SECOND)
 GROUP BY partitionId, window_start, window_end, window_time;
 
 Measurement := SELECT uniqueId, partitionId, measure, eventTime
@@ -36,7 +34,5 @@ Activity := SELECT
   window_end AS windowEnd,
   window_time AS windowTime,
   COUNT(*) AS recordCount
-FROM TABLE(
-  TUMBLE(TABLE InputData, DESCRIPTOR(eventTime), INTERVAL '30' SECOND)
-)
+FROM TUMBLE(TABLE InputData, DESCRIPTOR(eventTime), INTERVAL '30' SECOND)
 GROUP BY partitionId, window_start, window_end, window_time;

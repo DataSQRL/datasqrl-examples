@@ -28,7 +28,7 @@ PressureByMinute := SELECT assetId, window_time AS timestamp_min,
                              AVG(pressure_psi) AS avg_pressure_psi,
                              MAX(pressure_psi) AS max_pressure_psi,
                              AVG(temperature_f) AS avg_temperature_f
-                    FROM TABLE(TUMBLE(TABLE ctl.Measurement, DESCRIPTOR(`timestamp`), INTERVAL '1' MINUTE))
+                    FROM TUMBLE(TABLE ctl.Measurement, DESCRIPTOR(`timestamp`), INTERVAL '1' MINUTE)
                     GROUP BY assetId, window_start, window_end, window_time
                     ORDER BY window_time DESC;
 
@@ -39,7 +39,7 @@ PressureByMinute := SELECT assetId, window_time AS timestamp_min,
 FlowrateByMinute := SELECT assetId, window_time AS timestamp_min,
                            AVG(flowrate) AS avg_flowrate,
                            MAX(flowrate) AS max_flowrate
-                    FROM TABLE(TUMBLE(TABLE ctl.FlowRate, DESCRIPTOR(`event_time`), INTERVAL '1' MINUTE))
+                    FROM TUMBLE(TABLE ctl.FlowRate, DESCRIPTOR(`event_time`), INTERVAL '1' MINUTE)
                     GROUP BY assetId, window_start, window_end, window_time
                     ORDER BY window_time DESC;
 

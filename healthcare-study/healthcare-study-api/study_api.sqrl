@@ -22,7 +22,7 @@ EXPORT IndicatorAlerts TO logger.Alert;
 
 /*+no_query */
 PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, name, AVG(metric) as avgMetric
-            FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
+            FROM TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR)
             GROUP BY patientId, metadataId, name, window_start, window_end, window_time;
 
 /*+test */
