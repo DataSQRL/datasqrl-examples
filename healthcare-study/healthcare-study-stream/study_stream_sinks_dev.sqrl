@@ -1,4 +1,5 @@
-CREATE TABLE EnrichedIndicators (
+/* Enriched readings sink for the dev environment: the Kafka topic `enrichedindicators`, keyed by patient. */
+CREATE TABLE EnrichedIndicator (
      WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '5' SECOND
 ) WITH (
       'connector' = 'kafka',

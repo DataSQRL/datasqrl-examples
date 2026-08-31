@@ -1,19 +1,8 @@
 {
-  "version": "1",
   "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
   "script": {
-    "main": "study_analytics.sqrl",
-    "shared": {
-      "data-catalog": {
-        "path": "../data-catalog"
-      }
-    }
-  },
-  "engines": {
-    "flink": {
-      "config": {
-        "table.exec.source.idle-timeout": "500 ms"
-      }
+    "config": {
+      "environment": "test"
     }
   },
   "connectors": {
@@ -24,6 +13,7 @@
     }
   },
   "test-runner": {
+    "snapshot-folder": "snapshots/study_analytics/",
     "delay-sec": -1,
     "required-checkpoints": 2
   }

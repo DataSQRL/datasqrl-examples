@@ -1,0 +1,21 @@
+{
+  "enabled-engines": [
+    "kafka",
+    "flink"
+  ],
+  "script": {
+    "config": {
+      "environment": "dev"
+    }
+  },
+  "test-runner": {
+    "create-topics": [
+      "indicators",
+      "enrichedindicators",
+      "metadata",
+      "observationgroup",
+      "patients",
+      "sensorplacements"
+    ]
+  }
+}

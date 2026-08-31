@@ -68,22 +68,22 @@ jobs:
             path: healthcare-study
             tag: healthcare-study-analytics
             test_commands: |
-              compile healthcare-study-analytics/study_analytics_package_test.json
-              test healthcare-study-analytics/study_analytics_package_test.json
+              compile healthcare-study-analytics/study_analytics-shared-package.json healthcare-study-analytics/study_analytics-test-package.json
+              test study_analytics-shared-package.json study_analytics-test-package.json -r healthcare-study-analytics
           - example: healthcare-study-api
             path: healthcare-study
             tag: healthcare-study-api
             test_commands: |
-              compile healthcare-study-api/study_api_package_api.json
-              compile healthcare-study-api/study_api_package_test.json
-              test healthcare-study-api/study_api_package_test.json
+              compile healthcare-study-api/study_api-shared-package.json healthcare-study-api/study_api-test-package.json
+              compile healthcare-study-api/study_api-shared-package.json healthcare-study-api/study_api-dev-package.json
+              test study_api-shared-package.json study_api-test-package.json -r healthcare-study-api
           - example: healthcare-study-stream
             path: healthcare-study
             tag: healthcare-study-stream
             test_commands: |
-              compile healthcare-study-stream/study_stream_package_kafka.json
-              compile healthcare-study-stream/study_stream_package_test.json
-              test healthcare-study-stream/study_stream_package_test.json
+              compile healthcare-study-stream/study_stream-shared-package.json healthcare-study-stream/study_stream-test-package.json
+              compile healthcare-study-stream/study_stream-shared-package.json healthcare-study-stream/study_stream-dev-package.json
+              test study_stream-shared-package.json study_stream-test-package.json -r healthcare-study-stream
 
           - example: iceberg-dedup
             path: iceberg-data-deduplication

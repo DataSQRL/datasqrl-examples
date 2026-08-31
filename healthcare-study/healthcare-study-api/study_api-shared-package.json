@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
+  "script": {
+    "main": "study_api.sqrl",
+    "include": {
+      "data_catalog": {
+        "package": "../data-catalog/ontology-shared-package.json"
+      }
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "1 s"
+      }
+    }
+  }
+}

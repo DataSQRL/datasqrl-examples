@@ -1,0 +1,82 @@
+IMPORT study_{{environment}}.*;
+IMPORT metrics_{{environment}}.*;
+
+-- =====================================================
+-- Relationships
+-- =====================================================
+
+/** Sensors placed on this patient, most recent placement first */
+Patients.sensors := SELECT s.* FROM SensorPlacements s WHERE this.patientId = s.patientId
+                    ORDER BY s.placedTimestamp DESC;
+
+/** The patient this sensor is placed on */
+SensorPlacements.patient := SELECT p.* FROM Patients p WHERE this.patientId = p.patientId LIMIT 1;
+
+/** The clinical indicator this sensor measures */
+SensorPlacements.marker := SELECT m.* FROM Metadata m WHERE this.metadataId = m.metadataId LIMIT 1;
+
+/** Readings recorded by this sensor, most recent first */
+SensorPlacements.readings := SELECT c.* FROM ClinicalIndicator c WHERE this.sensorId = c.sensorId
+                             ORDER BY c.`timestamp` DESC;
+
+/** Sensors measuring this clinical indicator */
+Metadata.sensors := SELECT s.* FROM SensorPlacements s WHERE this.metadataId = s.metadataId;
+
+/** One row per observation group member, flattened from the group's patient list */
+_GroupMembership := SELECT g.groupId, g.studyId, m.patientId
+                    FROM ObservationGroup g CROSS JOIN UNNEST(g.patients) m(patientId);
+
+/** Patients assigned to this observation group */
+ObservationGroup.members := SELECT p.* FROM _GroupMembership gm JOIN Patients p ON gm.patientId = p.patientId
+                            WHERE this.groupId = gm.groupId;
+
+-- =====================================================
+-- Data Quality & Assertions
+-- =====================================================
+
+/** Every sensor placement must reference an existing patient */
+/*+test(no_rows) */
+SensorReferencesPatient_Test := SELECT s.* FROM SensorPlacements s
+    LEFT JOIN Patients p ON s.patientId = p.patientId
+    WHERE p.patientId IS NULL;
+
+/** Every sensor placement must reference an existing clinical indicator */
+/*+test(no_rows) */
+SensorReferencesMetadata_Test := SELECT s.* FROM SensorPlacements s
+    LEFT JOIN Metadata m ON s.metadataId = m.metadataId
+    WHERE m.metadataId IS NULL;
+
+/** Every reading must come from a placed sensor */
+/*+test(no_rows) */
+ReadingReferencesSensor_Test := SELECT c.* FROM ClinicalIndicator c
+    LEFT JOIN SensorPlacements s ON c.sensorId = s.sensorId
+    WHERE s.sensorId IS NULL;
+
+/** Every observation group member must be an existing patient */
+/*+test(no_rows) */
+GroupMemberReferencesPatient_Test := SELECT gm.groupId, gm.patientId FROM _GroupMembership gm
+    LEFT JOIN Patients p ON gm.patientId = p.patientId
+    WHERE p.patientId IS NULL;
+
+/** A clinical indicator's healthy range must be well-formed */
+/*+test(no_rows) */
+MetadataRangeIsValid_Test := SELECT * FROM Metadata WHERE lowRange > highRange;
+
+-- =====================================================
+-- Import checks: every dataset loads with its test data
+-- =====================================================
+
+/*+test */
+MetadataLoads_Test := SELECT metadataId, name, lowRange, highRange FROM Metadata WHERE metadataId = 8;
+
+/*+test */
+PatientLoads_Test := SELECT patientId, studyId, name, bloodGroup FROM Patients WHERE patientId = 5;
+
+/*+test */
+ObservationGroupLoads_Test := SELECT groupId, studyId, groupName FROM ObservationGroup WHERE groupId = 3;
+
+/*+test */
+SensorPlacementLoads_Test := SELECT sensorId, patientId, metadataId FROM SensorPlacements WHERE sensorId = 1;
+
+/*+test */
+ClinicalIndicatorLoads_Test := SELECT COUNT(1) AS num_readings FROM ClinicalIndicator;
