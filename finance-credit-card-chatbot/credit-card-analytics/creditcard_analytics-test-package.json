@@ -5,6 +5,11 @@
     }
   },
   "engines": {
+    "flink": {
+      "deployment": {
+        "taskmanager-dedicated-nodes": ["nvme"]
+      }
+    },
     "vertx": {
       "authKind": ["JWT"],
       "config": {
