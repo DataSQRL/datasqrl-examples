@@ -1,6 +1,7 @@
 .idea
 *.iml
 */build
+*/node_modules
 target
 h2.db.mv.db
 cache
