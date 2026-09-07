@@ -1,5 +1,5 @@
 /*+no_query*/
-IMPORT connectors.{{variant}}.*;
+IMPORT connectors.sources_{{environment}}.*;
 
 /**
  Returns all sensor temperature readings above the given temperature
