@@ -103,8 +103,9 @@ jobs:
           - example: law-enforcement
             path: law-enforcement
             test_commands: |
-              compile baseball_card_test_package.json
-              test baseball_card_test_package.json
+              compile baseball_card-shared-package.json baseball_card-test-package.json
+              compile baseball_card-shared-package.json baseball_card-dev-package.json
+              test baseball_card-shared-package.json baseball_card-test-package.json
 
           - example: logistics
             path: logistics-shipping-geodata
