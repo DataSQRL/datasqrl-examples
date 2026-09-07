@@ -2,19 +2,13 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "sensors.sqrl",
-    "config": {
-      "variant": "test"
-    }
+    "main": "sensors.sqrl"
   },
   "engines": {
-    "flink" : {
-      "config" : {
+    "flink": {
+      "config": {
         "table.exec.source.idle-timeout": "1 s"
       }
     }
-  },
-  "test-runner": {
-    "snapshot-folder": "snapshots-testdata"
   }
 }
