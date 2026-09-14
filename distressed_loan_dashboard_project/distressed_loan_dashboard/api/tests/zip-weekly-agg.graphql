@@ -1,0 +1,19 @@
+query ZipWeeklyAggFor98101 {
+  ZipWeeklyAgg(zip_code: "98101", limit: 100) {
+    week_start
+    zip_code
+    state
+    due_count
+    due_amount_cents
+    on_time_count
+    on_time_amount_cents
+    late_count
+    late_amount_cents
+    not_posted_count
+    not_posted_amount_cents
+    distressed_count
+    distressed_amount_cents
+    percent_distressed
+    avg_days_late
+  }
+}

@@ -1,0 +1,76 @@
+IMPORT customer.customer_ontology.*;
+IMPORT lending.lending-ontology.*;
+
+-- =====================================================
+-- Customer to Credit Card Relationships
+-- =====================================================
+
+/** Credit card accounts where customer is the primary account holder */
+Customer.credit_card_accounts := SELECT * FROM Credit_Card_Account a WHERE this.customer_id = a.primary_customer_id;
+
+/** Open credit card accounts for this customer */
+Customer.open_credit_card_accounts := SELECT * FROM Credit_Card_Account a WHERE this.customer_id = a.primary_customer_id
+                                                                      AND account_status = 'OPEN';
+
+/** Credit cards where customer is the cardholder (including authorized user cards) */
+Customer.credit_cards := SELECT * FROM Credit_Card c WHERE this.customer_id = c.cardholder_customer_id;
+
+/** Card delinquency events for this customer */
+Customer.card_delinquency_events := SELECT * FROM Card_Delinquency_Event d WHERE this.customer_id = d.customer_id
+                                                                       ORDER BY event_date DESC;
+
+-- =====================================================
+-- Customer to Consumer Loan Relationships
+-- =====================================================
+
+/** Personal loans where customer is the primary borrower */
+Customer.personal_loans := SELECT * FROM Personal_Loan l WHERE this.customer_id = l.primary_borrower_customer_id;
+
+/** Active personal loans for this customer */
+Customer.active_personal_loans := SELECT * FROM Personal_Loan l WHERE this.customer_id = l.primary_borrower_customer_id
+                                                            AND loan_status = 'ACTIVE';
+
+/** Auto loans where customer is the primary borrower */
+Customer.auto_loans := SELECT * FROM Auto_Loan l WHERE this.customer_id = l.primary_borrower_customer_id;
+
+/** Active auto loans for this customer */
+Customer.active_auto_loans := SELECT * FROM Auto_Loan l WHERE this.customer_id = l.primary_borrower_customer_id
+                                                    AND loan_status = 'ACTIVE';
+
+/** Loan applications where customer is the primary applicant */
+Customer.loan_applications := SELECT * FROM Loan_Application a WHERE this.customer_id = a.primary_applicant_customer_id
+                                                           ORDER BY submitted_at DESC;
+
+/** Loan applications where customer is a co-applicant */
+Customer.loan_applications_as_coapplicant := SELECT * FROM Loan_Application a WHERE this.customer_id = a.co_applicant_customer_id
+                                                                          ORDER BY submitted_at DESC;
+
+/** Consumer loan delinquency events for this customer */
+Customer.consumer_loan_delinquency_events := SELECT * FROM Consumer_Loan_Delinquency_Event d WHERE this.customer_id = d.customer_id
+                                                                                         ORDER BY event_date DESC;
+
+-- =====================================================
+-- Customer to Mortgage Relationships
+-- =====================================================
+
+/** Mortgage applications where customer is the primary borrower */
+Customer.mortgage_applications := SELECT * FROM Mortgage_Application a WHERE this.customer_id = a.primary_borrower_customer_id
+                                                                   ORDER BY submitted_at DESC;
+
+/** Mortgage loans where customer is the primary borrower */
+Customer.mortgage_loans := SELECT * FROM Mortgage_Loan l WHERE this.customer_id = l.primary_borrower_customer_id;
+
+/** Active mortgage loans for this customer */
+Customer.active_mortgage_loans := SELECT * FROM Mortgage_Loan l WHERE this.customer_id = l.primary_borrower_customer_id
+                                                            AND loan_status = 'ACTIVE';
+
+/** All mortgages where customer is a borrower (primary, co-borrower, or guarantor) */
+Customer.mortgage_borrower_records := SELECT * FROM Mortgage_Borrower b WHERE this.customer_id = b.customer_id;
+
+/** Mortgage delinquency events for this customer */
+Customer.mortgage_delinquency_events := SELECT * FROM Delinquency_Event d WHERE this.customer_id = d.customer_id
+                                                                      ORDER BY event_date DESC;
+
+/** Mortgage loan modifications for this customer */
+Customer.mortgage_modifications := SELECT * FROM Loan_Modification m WHERE this.customer_id = m.customer_id
+                                                                 ORDER BY request_date DESC;

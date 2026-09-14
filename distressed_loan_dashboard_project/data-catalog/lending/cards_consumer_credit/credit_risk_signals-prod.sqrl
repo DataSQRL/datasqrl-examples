@@ -1,0 +1,65 @@
+-- ## Credit Risk Signals - Production
+--
+-- Writes analytics data to Apache Iceberg tables
+
+IMPORT credit_risk_signals.*;
+
+CREATE TABLE Customer_Credit_Exposure (
+  /** Timestamp when exposure was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL,
+  PRIMARY KEY (customer_id, snapshot_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'lending',
+    'catalog-database' = 'cards_consumer_credit',
+    'catalog-table' = 'customer_credit_exposure',
+    'warehouse' = '${LENDING_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Customer_Credit_Exposure_schema;
+
+CREATE TABLE Payment_Behavior (
+  /** Timestamp when behavior was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL,
+  PRIMARY KEY (customer_id, analysis_month) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'lending',
+    'catalog-database' = 'cards_consumer_credit',
+    'catalog-table' = 'payment_behavior',
+    'warehouse' = '${LENDING_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Payment_Behavior_schema;
+
+CREATE TABLE Delinquency_Rollforward (
+  /** Timestamp when rollforward was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL,
+  PRIMARY KEY (loan_id, loan_type, from_month, to_month) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'lending',
+    'catalog-database' = 'cards_consumer_credit',
+    'catalog-table' = 'delinquency_rollforward',
+    'warehouse' = '${LENDING_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Delinquency_Rollforward_schema;
+
+CREATE TABLE Credit_Utilization (
+  /** Timestamp when utilization was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL,
+  PRIMARY KEY (credit_card_account_id, utilization_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'lending',
+    'catalog-database' = 'cards_consumer_credit',
+    'catalog-table' = 'credit_utilization',
+    'warehouse' = '${LENDING_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Credit_Utilization_schema;

@@ -1,0 +1,9 @@
+query ZipHistoryFor98101 {
+  ZipHistory(zip_code: "98101", limit: 100) {
+    week_start
+    on_time_amount_cents
+    distressed_amount_cents
+    percent_distressed
+    avg_days_late
+  }
+}

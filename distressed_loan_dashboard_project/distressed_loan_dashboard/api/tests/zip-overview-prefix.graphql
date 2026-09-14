@@ -1,0 +1,11 @@
+query ZipOverviewByPrefix981 {
+  ZipOverviewByPrefix(zip_prefix: "981%", limit: 100) {
+    zip_code
+    state
+    cur_distressed_amount_cents
+    prev_distressed_amount_cents
+    distressed_amount_trend_pct
+    cur_percent_distressed
+    prev_percent_distressed
+  }
+}

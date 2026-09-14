@@ -1,0 +1,14 @@
+query DistressedCustomersFor98101 {
+  DistressedCustomers(zip_code: "98101", limit: 100) {
+    customer_id
+    full_name
+    zip_code
+    state
+    due_count
+    due_amount_cents
+    distressed_count
+    distressed_amount_cents
+    avg_days_late
+    percent_distressed
+  }
+}

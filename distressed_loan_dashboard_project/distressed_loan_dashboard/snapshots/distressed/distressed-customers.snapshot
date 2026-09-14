@@ -1,0 +1,16 @@
+{
+  "data" : {
+    "DistressedCustomers" : [ {
+      "customer_id" : "CUST-0001",
+      "full_name" : "John Doe",
+      "zip_code" : "98101",
+      "state" : "WA",
+      "due_count" : 5,
+      "due_amount_cents" : 10200000,
+      "distressed_count" : 3,
+      "distressed_amount_cents" : 700000,
+      "avg_days_late" : 5,
+      "percent_distressed" : 6.86274509803922
+    } ]
+  }
+}

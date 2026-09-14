@@ -1,0 +1,171 @@
+-- ## KYC and AML Compliance Data
+--
+-- Know Your Customer (KYC) verification records and Anti-Money Laundering (AML)
+-- screening data required for regulatory compliance. Includes identity verification
+-- results, sanctions and PEP screening outcomes, and customer risk ratings used
+-- for ongoing monitoring and due diligence.
+-- Data is a CDC stream from source system.
+--
+-- Layer:            bronze
+-- Classification:   Restricted
+-- Regulatory scope: BSA, USA PATRIOT Act, OFAC, GLBA, GDPR
+
+/** KYC verification records documenting customer identity verification events.
+    Grain: one row per verification_id.
+
+    # Columns:
+    * verification_id: Unique identifier for the verification event
+    * customer_id: Reference to customer being verified @pii
+    * verification_type: Type of verification: INITIAL, PERIODIC_REVIEW, ENHANCED_DUE_DILIGENCE, TRIGGER_EVENT
+    * verification_method: Verification method: DOCUMENTARY, NON_DOCUMENTARY, ELECTRONIC, IN_PERSON
+    * document_type: Document type used: PASSPORT, DRIVERS_LICENSE, STATE_ID, UTILITY_BILL, BANK_STATEMENT
+    * document_number: Document number @spii @tokenize
+    * document_issuer: Document issuing country or state
+    * document_expiration_date: Document expiration date
+    * verification_result: Verification result: PASS, FAIL, PENDING, REVIEW_REQUIRED
+    * verification_score: Verification score from identity provider (0-100)
+    * verified_at: Date and time verification was performed
+    * verification_provider: Identity verification provider used
+    * provider_reference_id: Reference ID from verification provider
+    * verified_by: Employee ID who performed or approved verification @pii
+    * notes: Additional notes or comments @confidential
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Kyc_Verification_schema (
+  verification_id STRING NOT NULL,
+  customer_id STRING NOT NULL,
+  verification_type STRING NOT NULL,
+  verification_method STRING NOT NULL,
+  document_type STRING,
+  document_number STRING,
+  document_issuer STRING,
+  document_expiration_date DATE,
+  verification_result STRING NOT NULL,
+  verification_score INT,
+  verified_at TIMESTAMP_LTZ(3) NOT NULL,
+  verification_provider STRING,
+  provider_reference_id STRING,
+  verified_by STRING,
+  notes STRING,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Sanctions screening results against OFAC and other watchlists.
+    Grain: one row per screening_id.
+
+    # Columns:
+    * screening_id: Unique identifier for the screening event
+    * customer_id: Reference to customer being screened @pii
+    * screening_type: Screening type: ONBOARDING, PERIODIC, REAL_TIME, AD_HOC
+    * lists_screened: Lists screened against: OFAC_SDN, OFAC_CONSOLIDATED, UN_SANCTIONS, EU_SANCTIONS, PEP, ADVERSE_MEDIA
+    * screening_result: Screening result: CLEAR, POTENTIAL_MATCH, CONFIRMED_MATCH
+    * match_count: Number of potential matches found
+    * highest_match_score: Match score for highest-scoring hit (0-100)
+    * disposition: Disposition after review: FALSE_POSITIVE, TRUE_MATCH, PENDING_REVIEW
+    * screened_at: Date and time screening was performed
+    * screening_provider: Screening vendor or system used
+    * provider_reference_id: Reference ID from screening provider
+    * reviewed_by: Employee ID who reviewed screening results @pii
+    * reviewed_at: Date and time review was completed
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Sanctions_Screening_schema (
+  screening_id STRING NOT NULL,
+  customer_id STRING NOT NULL,
+  screening_type STRING NOT NULL,
+  lists_screened STRING NOT NULL,
+  screening_result STRING NOT NULL,
+  match_count INT,
+  highest_match_score INT,
+  disposition STRING,
+  screened_at TIMESTAMP_LTZ(3) NOT NULL,
+  screening_provider STRING,
+  provider_reference_id STRING,
+  reviewed_by STRING,
+  reviewed_at TIMESTAMP_LTZ(3),
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Politically Exposed Person (PEP) screening and monitoring results.
+    Grain: one row per screening_id.
+
+    # Columns:
+    * screening_id: Unique identifier for the PEP screening event
+    * customer_id: Reference to customer being screened @pii
+    * screening_type: Screening type: ONBOARDING, PERIODIC, TRIGGER_EVENT
+    * is_pep: Whether customer is identified as a PEP
+    * pep_category: PEP category: FOREIGN_OFFICIAL, DOMESTIC_OFFICIAL, INTERNATIONAL_ORG, STATE_OWNED_ENTERPRISE, FAMILY_MEMBER, CLOSE_ASSOCIATE
+    * pep_level: Level of PEP: SENIOR, MID_LEVEL, JUNIOR
+    * pep_country: Country associated with PEP status
+    * pep_position: Position or role that qualifies as PEP @pii
+    * identified_at: Date PEP status was identified
+    * pep_ended_at: Date PEP status ended (if applicable)
+    * edd_required: Enhanced due diligence required flag
+    * pep_source: Source of PEP identification
+    * provider_reference_id: Screening provider reference ID
+    * screened_at: Date and time screening was performed
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Pep_Screening_schema (
+  screening_id STRING NOT NULL,
+  customer_id STRING NOT NULL,
+  screening_type STRING NOT NULL,
+  is_pep BOOLEAN NOT NULL,
+  pep_category STRING,
+  pep_level STRING,
+  pep_country STRING,
+  pep_position STRING,
+  identified_at TIMESTAMP_LTZ(3),
+  pep_ended_at TIMESTAMP_LTZ(3),
+  edd_required BOOLEAN NOT NULL,
+  pep_source STRING,
+  provider_reference_id STRING,
+  screened_at TIMESTAMP_LTZ(3) NOT NULL,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Customer risk ratings for AML and compliance monitoring purposes.
+    Grain: one row per customer_id, effective_from combination (SCD Type 2).
+
+    # Columns:
+    * customer_id: Reference to customer @pii
+    * risk_rating: Overall risk rating: LOW, MEDIUM, HIGH, PROHIBITED
+    * risk_score: Numeric risk score (0-100)
+    * geographic_risk_score: Geographic risk component score (0-100)
+    * product_risk_score: Product risk component score (0-100)
+    * customer_type_risk_score: Customer type risk component score (0-100)
+    * transaction_risk_score: Transaction behavior risk component score (0-100)
+    * model_version: Risk rating model version used
+    * reason_codes: Reason codes contributing to rating @confidential
+    * effective_from: Date this rating became effective
+    * effective_to: Date this rating was superseded
+    * is_current: Whether this is the current active rating
+    * is_override: Whether rating was manually overridden
+    * override_approved_by: Employee ID who approved override @pii
+    * override_reason: Reason for manual override @confidential
+    * next_review_date: Next scheduled review date
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Customer_Risk_Rating_schema (
+  customer_id STRING NOT NULL,
+  risk_rating STRING NOT NULL,
+  risk_score INT NOT NULL,
+  geographic_risk_score INT,
+  product_risk_score INT,
+  customer_type_risk_score INT,
+  transaction_risk_score INT,
+  model_version STRING,
+  reason_codes STRING,
+  effective_from DATE NOT NULL,
+  effective_to DATE,
+  is_current BOOLEAN NOT NULL,
+  is_override BOOLEAN NOT NULL,
+  override_approved_by STRING,
+  override_reason STRING,
+  next_review_date DATE,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);

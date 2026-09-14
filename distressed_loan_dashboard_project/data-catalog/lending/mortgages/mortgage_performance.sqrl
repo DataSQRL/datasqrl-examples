@@ -1,0 +1,172 @@
+-- ## Mortgage Performance
+--
+-- Silver-layer analytics datasets for mortgage portfolio performance monitoring
+-- including monthly loan-level performance snapshots, prepayment signal detection,
+-- and vintage cohort analysis. Supports portfolio management, investor reporting,
+-- and risk assessment.
+--
+-- Layer:            silver
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA
+-- Upstream:         mortgage_originations.sqrl, mortgage_servicing.sqrl
+
+/** Monthly loan-level performance snapshot for portfolio monitoring.
+    Grain: one row per loan_id, reporting_month combination.
+
+    # Columns:
+    * loan_id: Reference to loan
+    * reporting_month: Reporting month (first day of month)
+    * loan_status: Loan status as of month end: CURRENT, DQ_30, DQ_60, DQ_90, DQ_120_PLUS, FORECLOSURE, REO, PAID_OFF, MODIFIED
+    * days_past_due: Days past due as of month end
+    * current_upb_cents: Current principal balance in cents @npi @confidential
+    * scheduled_upb_cents: Scheduled principal balance in cents @npi @confidential
+    * principal_paid_cents: Principal paid down this month in cents @npi @confidential
+    * interest_paid_cents: Interest paid this month in cents @npi @confidential
+    * prepaid_principal_cents: Prepaid principal this month in cents @npi @confidential
+    * curtailment_cents: Curtailment amount this month in cents
+    * current_rate: Current interest rate
+    * current_payment_cents: Current monthly payment in cents @npi @confidential
+    * payments_made: Number of payments made this month
+    * lifetime_payments_made: Total payments made lifetime
+    * lifetime_payments_due: Total payments scheduled lifetime
+    * current_credit_score: Current credit score (if refreshed) @npi @confidential
+    * current_ltv: Current LTV based on AVM
+    * current_property_value_cents: Current property value in cents @npi @confidential
+    * is_modified: Whether loan was modified
+    * modification_date: Modification effective date
+    * in_forbearance: Whether in forbearance
+    * in_foreclosure: Whether in foreclosure
+    * loan_age_months: Loan age in months
+    * remaining_term_months: Remaining term in months
+    * months_to_maturity: Months to maturity
+    * servicer_id: Servicer ID
+    * investor_id: Investor ID
+    * pool_id: Pool ID */
+CREATE TABLE Loan_Performance_Monthly_schema (
+  loan_id STRING NOT NULL,
+  reporting_month DATE NOT NULL,
+  loan_status STRING NOT NULL,
+  days_past_due INT,
+  current_upb_cents BIGINT NOT NULL,
+  scheduled_upb_cents BIGINT,
+  principal_paid_cents BIGINT,
+  interest_paid_cents BIGINT,
+  prepaid_principal_cents BIGINT,
+  curtailment_cents BIGINT,
+  current_rate DECIMAL(6, 4) NOT NULL,
+  current_payment_cents BIGINT NOT NULL,
+  payments_made INT,
+  lifetime_payments_made INT,
+  lifetime_payments_due INT,
+  current_credit_score INT,
+  current_ltv DECIMAL(5, 2),
+  current_property_value_cents BIGINT,
+  is_modified BOOLEAN,
+  modification_date DATE,
+  in_forbearance BOOLEAN,
+  in_foreclosure BOOLEAN,
+  loan_age_months INT,
+  remaining_term_months INT,
+  months_to_maturity INT,
+  servicer_id STRING,
+  investor_id STRING,
+  pool_id STRING
+);
+
+/** Prepayment risk signals and prediction features.
+    Grain: one row per loan_id, signal_date combination.
+
+    # Columns:
+    * loan_id: Reference to loan
+    * signal_date: Date of signal calculation
+    * prepayment_probability: Overall prepayment probability (0-1)
+    * prepayment_risk_tier: Prepayment risk tier: LOW, MEDIUM, HIGH, VERY_HIGH
+    * rate_incentive_bps: Rate incentive (market rate - loan rate) in basis points
+    * market_rate: Current market rate for similar loans
+    * loan_rate: Loan current rate
+    * burnout_factor: Burnout factor (0-1, higher = more burnout)
+    * seasoning_months: Seasoning in months
+    * current_ltv: Current LTV
+    * hpa_since_origination: Home price appreciation since origination
+    * local_unemployment_rate: Local unemployment rate
+    * credit_score_change: Credit score change since origination
+    * months_since_refi: Months since last refinance
+    * is_assumable: Whether loan is assumable
+    * has_prepay_penalty: Whether loan has prepayment penalty
+    * penalty_months_remaining: Prepayment penalty months remaining
+    * primary_driver: Primary driver: RATE, EQUITY, RELOCATION, CASHOUT
+    * model_version: Model version used */
+CREATE TABLE Prepayment_Signal_schema (
+  loan_id STRING NOT NULL,
+  signal_date DATE NOT NULL,
+  prepayment_probability DOUBLE,
+  prepayment_risk_tier STRING,
+  rate_incentive_bps INT,
+  market_rate DECIMAL(6, 4),
+  loan_rate DECIMAL(6, 4) NOT NULL,
+  burnout_factor DOUBLE,
+  seasoning_months INT,
+  current_ltv DECIMAL(5, 2),
+  hpa_since_origination DECIMAL(6, 2),
+  local_unemployment_rate DECIMAL(4, 2),
+  credit_score_change INT,
+  months_since_refi INT,
+  is_assumable BOOLEAN,
+  has_prepay_penalty BOOLEAN,
+  penalty_months_remaining INT,
+  primary_driver STRING,
+  model_version STRING
+);
+
+/** Vintage cohort performance analysis for portfolio comparison.
+    Grain: one row per vintage_month, age_months, loan_program, property_state combination.
+
+    # Columns:
+    * vintage_month: Origination vintage (month loans were funded)
+    * age_months: Age in months since origination
+    * loan_program: Loan program: CONVENTIONAL, FHA, VA, USDA, JUMBO
+    * property_state: Property state
+    * loan_count: Number of loans in cohort
+    * original_upb_cents: Original UPB in cents @npi @confidential
+    * current_upb_cents: Current UPB in cents @npi @confidential
+    * upb_remaining_pct: UPB remaining percentage
+    * cumulative_default_rate: Cumulative default rate
+    * cumulative_prepay_rate: Cumulative prepayment rate
+    * current_dq_30_rate: Current 30+ DPD rate
+    * current_dq_60_rate: Current 60+ DPD rate
+    * current_dq_90_rate: Current 90+ DPD rate
+    * smm: Single month mortality (SMM)
+    * cpr: Conditional prepayment rate (CPR)
+    * cdr: Conditional default rate (CDR)
+    * loss_severity: Loss severity rate
+    * cumulative_loss_cents: Cumulative loss in cents @confidential
+    * avg_original_credit_score: Average original credit score @confidential
+    * avg_original_ltv: Average original LTV
+    * avg_original_dti: Average original DTI @confidential
+    * avg_note_rate: Average note rate
+    * first_time_buyer_pct: Percentage first-time homebuyers */
+CREATE TABLE Vintage_Performance_schema (
+  vintage_month DATE NOT NULL,
+  age_months INT NOT NULL,
+  loan_program STRING NOT NULL,
+  property_state STRING NOT NULL,
+  loan_count INT NOT NULL,
+  original_upb_cents BIGINT NOT NULL,
+  current_upb_cents BIGINT,
+  upb_remaining_pct DECIMAL(6, 4),
+  cumulative_default_rate DECIMAL(6, 4),
+  cumulative_prepay_rate DECIMAL(6, 4),
+  current_dq_30_rate DECIMAL(6, 4),
+  current_dq_60_rate DECIMAL(6, 4),
+  current_dq_90_rate DECIMAL(6, 4),
+  smm DECIMAL(6, 4),
+  cpr DECIMAL(6, 4),
+  cdr DECIMAL(6, 4),
+  loss_severity DECIMAL(6, 4),
+  cumulative_loss_cents BIGINT,
+  avg_original_credit_score INT,
+  avg_original_ltv DECIMAL(5, 2),
+  avg_original_dti DECIMAL(5, 2),
+  avg_note_rate DECIMAL(6, 4),
+  first_time_buyer_pct DECIMAL(5, 2)
+);

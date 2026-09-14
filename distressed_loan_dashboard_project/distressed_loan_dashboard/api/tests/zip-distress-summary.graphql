@@ -1,0 +1,11 @@
+query ZipDistressSummaryFor98101 {
+  ZipDistressSummary(zip_code: "98101", limit: 10) {
+    zip_code
+    cur_distressed_count
+    prev_distressed_count
+    distressed_count_trend_pct
+    cur_distressed_amount_cents
+    prev_distressed_amount_cents
+    distressed_amount_trend_pct
+  }
+}

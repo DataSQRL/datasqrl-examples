@@ -1,0 +1,29 @@
+{
+  "data" : {
+    "OB_SourceIngestionStats_Test" : [ {
+      "source_name" : "Card_Delinquency_Event",
+      "ingestion_date" : "2026-09-13",
+      "record_count" : 5
+    }, {
+      "source_name" : "Consumer_Loan_Delinquency_Event",
+      "ingestion_date" : "2026-09-13",
+      "record_count" : 5
+    }, {
+      "source_name" : "Credit_Card_Payment",
+      "ingestion_date" : "2026-09-13",
+      "record_count" : 5
+    }, {
+      "source_name" : "Delinquency_Event",
+      "ingestion_date" : "2026-09-13",
+      "record_count" : 5
+    }, {
+      "source_name" : "Loan_Payment",
+      "ingestion_date" : "2026-09-13",
+      "record_count" : 9
+    }, {
+      "source_name" : "Mortgage_Payment",
+      "ingestion_date" : "2026-09-13",
+      "record_count" : 5
+    } ]
+  }
+}

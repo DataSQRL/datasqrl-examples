@@ -1,0 +1,8 @@
+build/
+sqrl_warehouse/
+sqrl_iceberg_data/
+
+# IDE
+.idea/
+*.iml
+

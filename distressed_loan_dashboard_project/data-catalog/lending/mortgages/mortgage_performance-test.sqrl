@@ -1,0 +1,44 @@
+-- ## Mortgage Performance - Test Data
+--
+-- Use local filesystem data for testing
+
+IMPORT mortgage_performance.*;
+
+CREATE TABLE Loan_Performance_Monthly (
+  /** Timestamp when snapshot was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_performance-loan_performance_monthly.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Loan_Performance_Monthly_schema;
+
+CREATE TABLE Prepayment_Signal (
+  /** Timestamp when signal was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_performance-prepayment_signal.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Prepayment_Signal_schema;
+
+CREATE TABLE Vintage_Performance (
+  /** Timestamp when vintage analysis was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_performance-vintage_performance.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Vintage_Performance_schema;

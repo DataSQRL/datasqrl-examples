@@ -1,0 +1,173 @@
+-- ## Customer Master Data
+--
+-- Core customer identity and demographic information representing the bank's
+-- customer base. Contains foundational customer records, addresses, contact
+-- information, employment details, and relationship linkages between customers.
+-- This dataset serves as the authoritative source for customer identity across
+-- all lines of business.
+-- Data is a CDC stream from source system.
+--
+-- Layer:            bronze
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA, FCRA
+
+/** Primary customer record containing core identity and demographic attributes.
+    Grain: one row per customer_id.
+
+    # Columns:
+    * customer_id: Unique identifier for the customer @pii
+    * first_name: Legal first name @pii @encrypt
+    * middle_name: Legal middle name @pii @encrypt
+    * last_name: Legal last name @pii @encrypt
+    * name_suffix: Name suffix (Jr., Sr., III, etc.)
+    * date_of_birth: Date of birth @spii @encrypt
+    * ssn: Social Security Number @spii @tokenize @glba
+    * tin: Tax Identification Number @spii @tokenize
+    * customer_type: Customer type: INDIVIDUAL, JOINT, TRUST, BUSINESS
+    * customer_status: Customer status: ACTIVE, INACTIVE, CLOSED, DECEASED
+    * relationship_start_date: Date customer relationship was established
+    * relationship_end_date: Date customer relationship ended (if applicable)
+    * citizenship_country: Primary citizenship country code (ISO 3166-1 alpha-2)
+    * residency_country: Residency country code (ISO 3166-1 alpha-2)
+    * preferred_language: Preferred language code (ISO 639-1)
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Customer_schema (
+  customer_id STRING NOT NULL,
+  first_name STRING NOT NULL,
+  middle_name STRING,
+  last_name STRING NOT NULL,
+  name_suffix STRING,
+  date_of_birth DATE,
+  ssn STRING,
+  tin STRING,
+  customer_type STRING NOT NULL,
+  customer_status STRING NOT NULL,
+  relationship_start_date DATE NOT NULL,
+  relationship_end_date DATE,
+  citizenship_country STRING,
+  residency_country STRING,
+  preferred_language STRING,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Customer address records supporting multiple address types per customer.
+    Grain: one row per customer_id, address_type, effective_from combination.
+
+    # Columns:
+    * customer_id: Reference to customer @pii
+    * address_type: Address type: PRIMARY, MAILING, BILLING, WORK, SECONDARY
+    * address_line_1: Street address line 1 @pii @encrypt
+    * address_line_2: Street address line 2 @pii @encrypt
+    * city: City name @pii
+    * state_province: State or province code
+    * postal_code: Postal or ZIP code @pii
+    * country_code: Country code (ISO 3166-1 alpha-2)
+    * effective_from: Date this address became effective
+    * effective_to: Date this address was superseded
+    * is_current: Whether this is the current active address for this type
+    * verification_status: Address verification status: VERIFIED, UNVERIFIED, INVALID
+    * verified_at: Date address was last verified
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Customer_Address_schema (
+  customer_id STRING NOT NULL,
+  address_type STRING NOT NULL,
+  address_line_1 STRING NOT NULL,
+  address_line_2 STRING,
+  city STRING NOT NULL,
+  state_province STRING,
+  postal_code STRING NOT NULL,
+  country_code STRING NOT NULL,
+  effective_from DATE NOT NULL,
+  effective_to DATE,
+  is_current BOOLEAN NOT NULL,
+  verification_status STRING NOT NULL,
+  verified_at TIMESTAMP_LTZ(3),
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Customer contact information including phone numbers and email addresses.
+    Grain: one row per customer_id, contact_type, contact_value combination.
+
+    # Columns:
+    * customer_id: Reference to customer @pii
+    * contact_type: Contact type: MOBILE, HOME_PHONE, WORK_PHONE, EMAIL, FAX
+    * contact_value: Contact value (phone number or email address) @pii @encrypt
+    * is_primary: Whether this is the primary contact for this type
+    * verification_status: Contact verification status: VERIFIED, UNVERIFIED, INVALID
+    * verified_at: Date contact was last verified
+    * marketing_opt_in: Whether customer has opted in for marketing via this contact
+    * transactional_opt_in: Whether customer consents to transactional communications
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Customer_Contact_schema (
+  customer_id STRING NOT NULL,
+  contact_type STRING NOT NULL,
+  contact_value STRING NOT NULL,
+  is_primary BOOLEAN NOT NULL,
+  verification_status STRING NOT NULL,
+  verified_at TIMESTAMP_LTZ(3),
+  marketing_opt_in BOOLEAN,
+  transactional_opt_in BOOLEAN,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Customer employment and income information used for credit decisions.
+    Grain: one row per customer_id, employer_name, employment_start_date combination.
+
+    # Columns:
+    * customer_id: Reference to customer @pii
+    * employer_name: Name of employer @pii
+    * job_title: Job title or position @pii
+    * employment_type: Employment type: FULL_TIME, PART_TIME, SELF_EMPLOYED, RETIRED, UNEMPLOYED
+    * employment_status: Employment status: CURRENT, FORMER
+    * employment_start_date: Date employment began
+    * employment_end_date: Date employment ended (if applicable)
+    * annual_income_cents: Annual income in cents @npi @confidential
+    * income_currency: Currency code for income (ISO 4217)
+    * income_verification_status: Income verification status: VERIFIED, STATED, UNVERIFIED
+    * income_verified_at: Date income was last verified
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Customer_Employment_schema (
+  customer_id STRING NOT NULL,
+  employer_name STRING NOT NULL,
+  job_title STRING,
+  employment_type STRING NOT NULL,
+  employment_status STRING NOT NULL,
+  employment_start_date DATE NOT NULL,
+  employment_end_date DATE,
+  annual_income_cents BIGINT,
+  income_currency STRING,
+  income_verification_status STRING,
+  income_verified_at TIMESTAMP_LTZ(3),
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Relationships between customers (household members, authorized users, etc.).
+    Grain: one row per primary_customer_id, related_customer_id, relationship_type combination.
+
+    # Columns:
+    * primary_customer_id: Primary customer in the relationship @pii
+    * related_customer_id: Related customer @pii
+    * relationship_type: Relationship type: SPOUSE, DEPENDENT, AUTHORIZED_USER, POWER_OF_ATTORNEY, BENEFICIARY, JOINT_OWNER
+    * relationship_start_date: Date relationship was established
+    * relationship_end_date: Date relationship ended (if applicable)
+    * is_active: Whether this relationship is currently active
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Customer_Relationship_schema (
+  primary_customer_id STRING NOT NULL,
+  related_customer_id STRING NOT NULL,
+  relationship_type STRING NOT NULL,
+  relationship_start_date DATE NOT NULL,
+  relationship_end_date DATE,
+  is_active BOOLEAN NOT NULL,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);

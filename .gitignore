@@ -230,3 +230,6 @@ Temporary Items
 
 py-venv
 # End of https://www.toptal.com/developers/gitignore/api/macos
+
+# Agent related files (logs, distelled logs etc.)
+.claude/

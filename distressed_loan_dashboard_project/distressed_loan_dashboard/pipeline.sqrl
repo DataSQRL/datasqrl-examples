@@ -1,0 +1,512 @@
+-- Distressed Loan Dashboard
+--
+-- Nightly batch pipeline that reconciles loan-payment and delinquency-event
+-- sources into exactly-once "payment obligation" records and computes weekly
+-- distress aggregations keyed by (week, zip code) and (week, customer). The
+-- results are served over GraphQL + MCP from materialized Postgres tables.
+--
+-- Week convention: FLOOR(<date> TO WEEK). The `as_of_date` config value is a
+-- fixed Monday in test and the run date in production; the window covers the
+-- 13 weeks preceding it and the "last two complete weeks" are the two weeks
+-- immediately before the week containing `as_of_date`.
+
+IMPORT connectors.sources-{{environment}} AS sources;
+
+-- ============================================================
+-- Reference tables (primary borrower + current geography)
+-- ============================================================
+
+-- Customer full name, derived from the customer master (primary lookup key).
+_CustomerName := SELECT customer_id, CONCAT(first_name, ' ', last_name) AS full_name
+                 FROM sources.Customer;
+
+-- The customer's current zip code and state. Geography is "as it stands at
+-- computation time": we take the current (is_current) PRIMARY address and apply
+-- it to the entire window, which is what R5 requires for a customer who moves.
+_CustomerZip := SELECT customer_id, state_province AS state, postal_code AS zip_code
+                FROM sources.Customer_Address
+                WHERE is_current = true AND address_type = 'PRIMARY';
+
+-- Primary borrower lookup for consumer loans (personal + auto).
+_LoanLookup := SELECT loan_id, primary_borrower_customer_id AS customer_id
+               FROM sources.Personal_Loan
+               UNION ALL
+               SELECT loan_id, primary_borrower_customer_id AS customer_id
+               FROM sources.Auto_Loan;
+
+-- Primary borrower for mortgages.
+_PrimaryMortgageBorrower := SELECT loan_id, customer_id
+                            FROM sources.Mortgage_Borrower
+                            WHERE borrower_type = 'PRIMARY';
+
+-- ============================================================
+-- Normalization: unify payments into the obligation grain
+-- (account_id, loan_vehicle, customer_id, due_date, amount_cents,
+--  posted_date, days_late). Only posted payments (APPLIED / POSTED) count.
+-- ============================================================
+
+_LoanPaymentObligations := SELECT lp.loan_id AS account_id,
+                                  lp.loan_type AS loan_vehicle,
+                                  ll.customer_id AS customer_id,
+                                  lp.due_date AS due_date,
+                                  lp.payment_amount_cents AS amount_cents,
+                                  COALESCE(lp.applied_date, lp.received_date) AS posted_date,
+                                  lp.days_past_due_at_payment AS days_late
+                           FROM sources.Loan_Payment lp
+                           LEFT JOIN _LoanLookup ll ON lp.loan_id = ll.loan_id
+                           WHERE lp.payment_status = 'APPLIED'
+                             AND lp.payment_amount_cents > 0;
+
+_CardPaymentObligations := SELECT ccp.credit_card_account_id AS account_id,
+                                  'CREDIT_CARD' AS loan_vehicle,
+                                  cca.primary_customer_id AS customer_id,
+                                  ccp.due_date AS due_date,
+                                  ccp.payment_amount_cents AS amount_cents,
+                                  ccp.posted_date AS posted_date,
+                                  ccp.days_from_due AS days_late
+                           FROM sources.Credit_Card_Payment ccp
+                           LEFT JOIN sources.Credit_Card_Account cca
+                             ON ccp.credit_card_account_id = cca.credit_card_account_id
+                           WHERE ccp.payment_status = 'POSTED'
+                             AND ccp.payment_amount_cents > 0;
+
+_MortgagePaymentObligations := SELECT mp.loan_id AS account_id,
+                                      'MORTGAGE' AS loan_vehicle,
+                                      mb.customer_id AS customer_id,
+                                      mp.due_date AS due_date,
+                                      mp.payment_amount_cents AS amount_cents,
+                                      COALESCE(mp.applied_date, mp.received_date) AS posted_date,
+                                      mp.days_past_due_at_payment AS days_late
+                               FROM sources.Mortgage_Payment mp
+                               LEFT JOIN _PrimaryMortgageBorrower mb ON mp.loan_id = mb.loan_id
+                               WHERE mp.payment_status = 'APPLIED'
+                                 AND mp.payment_amount_cents > 0;
+
+_PaymentObligations := SELECT * FROM _LoanPaymentObligations
+                       UNION ALL SELECT * FROM _CardPaymentObligations
+                       UNION ALL SELECT * FROM _MortgagePaymentObligations;
+
+-- ============================================================
+-- Normalization: delinquency events describe payments NOT made. Only
+-- MISSED_PAYMENT events count; a delinquency event's implied due date is its
+-- event_date (per business assumption). These carry no posted_date / days_late.
+-- ============================================================
+
+_ConsumerLoanDelinquencyObligations := SELECT de.loan_id AS account_id,
+                                              de.loan_type AS loan_vehicle,
+                                              de.customer_id AS customer_id,
+                                              de.event_date AS due_date,
+                                              de.amount_past_due_cents AS amount_cents,
+                                              CAST(NULL AS DATE) AS posted_date,
+                                              CAST(NULL AS INT) AS days_late
+                                       FROM sources.Consumer_Loan_Delinquency_Event de
+                                       WHERE de.event_type = 'MISSED_PAYMENT'
+                                         AND de.amount_past_due_cents > 0;
+
+_CardDelinquencyObligations := SELECT de.credit_card_account_id AS account_id,
+                                      'CREDIT_CARD' AS loan_vehicle,
+                                      de.customer_id AS customer_id,
+                                      de.event_date AS due_date,
+                                      de.amount_past_due_cents AS amount_cents,
+                                      CAST(NULL AS DATE) AS posted_date,
+                                      CAST(NULL AS INT) AS days_late
+                               FROM sources.Card_Delinquency_Event de
+                               WHERE de.event_type = 'MISSED_PAYMENT'
+                                 AND de.amount_past_due_cents > 0;
+
+_MortgageDelinquencyObligations := SELECT de.loan_id AS account_id,
+                                          'MORTGAGE' AS loan_vehicle,
+                                          de.customer_id AS customer_id,
+                                          de.event_date AS due_date,
+                                          de.amount_past_due_cents AS amount_cents,
+                                          CAST(NULL AS DATE) AS posted_date,
+                                          CAST(NULL AS INT) AS days_late
+                                   FROM sources.Delinquency_Event de
+                                   WHERE de.event_type = 'MISSED_PAYMENT'
+                                     AND de.amount_past_due_cents > 0;
+
+_DelinquencyObligations := SELECT * FROM _ConsumerLoanDelinquencyObligations
+                           UNION ALL SELECT * FROM _CardDelinquencyObligations
+                           UNION ALL SELECT * FROM _MortgageDelinquencyObligations;
+
+-- ============================================================
+-- Exactly-once reconciliation: a delinquency event whose (account_id, due_date)
+-- also has a posted payment collapses to that payment (→ posted late), so a
+-- distressed payment is never counted in both "not posted" and "posted late".
+-- ============================================================
+
+_UnpostedObligations := SELECT d.account_id, d.loan_vehicle, d.customer_id, d.due_date,
+                               d.amount_cents, d.posted_date, d.days_late
+                        FROM _DelinquencyObligations d
+                        LEFT JOIN _PaymentObligations p
+                          ON d.account_id = p.account_id AND d.due_date = p.due_date
+                        WHERE p.account_id IS NULL;
+
+_Obligations := SELECT * FROM _PaymentObligations
+                UNION ALL
+                SELECT * FROM _UnpostedObligations;
+
+-- ============================================================
+-- Classify each obligation into a bucket and attach geography + week keys.
+-- ============================================================
+
+/*+engine(flink), primary_key(account_id, due_date)*/
+_ClassifiedObligations := SELECT o.*,
+                                 FLOOR(o.due_date TO WEEK) AS week_due,
+                                 FLOOR(o.posted_date TO WEEK) AS week_posted,
+                                 CASE
+                                   WHEN o.posted_date IS NULL THEN 'NOT_POSTED'
+                                   WHEN o.posted_date <= o.due_date THEN 'ON_TIME'
+                                   ELSE 'LATE'
+                                 END AS bucket
+                          FROM _Obligations o;
+
+_ObligationsWithZip := SELECT o.*, z.zip_code AS zip_code, z.state AS state, n.full_name AS full_name
+                       FROM _ClassifiedObligations o
+                       LEFT JOIN _CustomerZip z ON o.customer_id = z.customer_id
+                       LEFT JOIN _CustomerName n ON o.customer_id = n.customer_id;
+
+-- Only obligations whose account/customer/geography all resolve enter the
+-- aggregations; the rest surface in DQ_UnresolvedObligation below.
+_ResolvedObligations := SELECT * FROM _ObligationsWithZip
+                        WHERE customer_id IS NOT NULL AND zip_code IS NOT NULL;
+
+-- ============================================================
+-- Bucket aggregation: by week due (counts + amounts per bucket).
+-- ============================================================
+
+_WindowObligations := SELECT * FROM _ResolvedObligations
+                      WHERE week_due >= DATE '{{window_start}}'
+                        AND week_due < DATE '{{as_of_date}}';
+
+_ZipDueWeekAgg := SELECT week_due AS week_start, zip_code, state,
+                         COUNT(*) AS due_count,
+                         SUM(amount_cents) AS due_amount_cents,
+                         COUNT(CASE WHEN bucket = 'ON_TIME' THEN 1 END) AS on_time_count,
+                         SUM(CASE WHEN bucket = 'ON_TIME' THEN amount_cents ELSE 0 END) AS on_time_amount_cents,
+                         COUNT(CASE WHEN bucket = 'LATE' THEN 1 END) AS late_count,
+                         SUM(CASE WHEN bucket = 'LATE' THEN amount_cents ELSE 0 END) AS late_amount_cents,
+                         COUNT(CASE WHEN bucket = 'NOT_POSTED' THEN 1 END) AS not_posted_count,
+                         SUM(CASE WHEN bucket = 'NOT_POSTED' THEN amount_cents ELSE 0 END) AS not_posted_amount_cents,
+                         COUNT(CASE WHEN bucket IN ('LATE', 'NOT_POSTED') THEN 1 END) AS distressed_count,
+                         SUM(CASE WHEN bucket IN ('LATE', 'NOT_POSTED') THEN amount_cents ELSE 0 END) AS distressed_amount_cents
+                  FROM _WindowObligations
+                  GROUP BY week_due, zip_code, state;
+
+-- ============================================================
+-- Average days late: by week posted (late payments only, regardless of due).
+-- ============================================================
+
+_LatePostedObligations := SELECT * FROM _ResolvedObligations
+                          WHERE bucket = 'LATE'
+                            AND week_posted >= DATE '{{window_start}}'
+                            AND week_posted < DATE '{{as_of_date}}';
+
+_ZipPostedWeekAgg := SELECT week_posted AS week_start, zip_code, state,
+                            CAST(AVG(days_late) AS DOUBLE) AS avg_days_late
+                     FROM _LatePostedObligations
+                     GROUP BY week_posted, zip_code, state;
+
+-- ============================================================
+-- ZipWeeklyAgg: per (week, zip) with bucket columns (by due week) and
+-- avg_days_late (by posted week), full-outer-joined.
+-- ============================================================
+
+_ZipWeeklyJoined := SELECT COALESCE(d.week_start, p.week_start) AS week_start,
+                           COALESCE(d.zip_code, p.zip_code) AS zip_code,
+                           COALESCE(d.state, p.state) AS state,
+                           COALESCE(d.due_count, 0) AS due_count,
+                           COALESCE(d.due_amount_cents, 0) AS due_amount_cents,
+                           COALESCE(d.on_time_count, 0) AS on_time_count,
+                           COALESCE(d.on_time_amount_cents, 0) AS on_time_amount_cents,
+                           COALESCE(d.late_count, 0) AS late_count,
+                           COALESCE(d.late_amount_cents, 0) AS late_amount_cents,
+                           COALESCE(d.not_posted_count, 0) AS not_posted_count,
+                           COALESCE(d.not_posted_amount_cents, 0) AS not_posted_amount_cents,
+                           COALESCE(d.distressed_count, 0) AS distressed_count,
+                           COALESCE(d.distressed_amount_cents, 0) AS distressed_amount_cents,
+                           p.avg_days_late AS avg_days_late
+                    FROM _ZipDueWeekAgg d
+                    FULL OUTER JOIN _ZipPostedWeekAgg p
+                      ON d.week_start = p.week_start AND d.zip_code = p.zip_code;
+
+/** Weekly distress measures per zip code (R1). Bucket columns are by week due;
+    avg_days_late is by week posted. */
+/*+query_by_any(week_start, zip_code, state) */
+ZipWeeklyAgg := SELECT *,
+                       CASE
+                         WHEN due_amount_cents = 0 THEN CAST(NULL AS DECIMAL(5, 2))
+                         ELSE CAST(CAST(distressed_amount_cents AS DOUBLE) * 100.0 / due_amount_cents AS DECIMAL(5, 2))
+                       END AS percent_distressed
+                FROM _ZipWeeklyJoined
+                ORDER BY week_start ASC, zip_code ASC;
+
+-- ============================================================
+-- CustomerWeeklyAgg: the same measures per (week, customer).
+-- ============================================================
+
+_CustomerDueWeekAgg := SELECT week_due AS week_start, customer_id, full_name, zip_code, state,
+                              COUNT(*) AS due_count,
+                              SUM(amount_cents) AS due_amount_cents,
+                              COUNT(CASE WHEN bucket = 'ON_TIME' THEN 1 END) AS on_time_count,
+                              SUM(CASE WHEN bucket = 'ON_TIME' THEN amount_cents ELSE 0 END) AS on_time_amount_cents,
+                              COUNT(CASE WHEN bucket = 'LATE' THEN 1 END) AS late_count,
+                              SUM(CASE WHEN bucket = 'LATE' THEN amount_cents ELSE 0 END) AS late_amount_cents,
+                              COUNT(CASE WHEN bucket = 'NOT_POSTED' THEN 1 END) AS not_posted_count,
+                              SUM(CASE WHEN bucket = 'NOT_POSTED' THEN amount_cents ELSE 0 END) AS not_posted_amount_cents,
+                              COUNT(CASE WHEN bucket IN ('LATE', 'NOT_POSTED') THEN 1 END) AS distressed_count,
+                              SUM(CASE WHEN bucket IN ('LATE', 'NOT_POSTED') THEN amount_cents ELSE 0 END) AS distressed_amount_cents
+                       FROM _WindowObligations
+                       GROUP BY week_due, customer_id, full_name, zip_code, state;
+
+_CustomerPostedWeekAgg := SELECT week_posted AS week_start, customer_id, full_name, zip_code, state,
+                                 CAST(AVG(days_late) AS DOUBLE) AS avg_days_late
+                          FROM _LatePostedObligations
+                          GROUP BY week_posted, customer_id, full_name, zip_code, state;
+
+_CustomerWeeklyJoined := SELECT COALESCE(d.week_start, p.week_start) AS week_start,
+                                COALESCE(d.customer_id, p.customer_id) AS customer_id,
+                                COALESCE(d.full_name, p.full_name) AS full_name,
+                                COALESCE(d.zip_code, p.zip_code) AS zip_code,
+                                COALESCE(d.state, p.state) AS state,
+                                COALESCE(d.due_count, 0) AS due_count,
+                                COALESCE(d.due_amount_cents, 0) AS due_amount_cents,
+                                COALESCE(d.on_time_count, 0) AS on_time_count,
+                                COALESCE(d.on_time_amount_cents, 0) AS on_time_amount_cents,
+                                COALESCE(d.late_count, 0) AS late_count,
+                                COALESCE(d.late_amount_cents, 0) AS late_amount_cents,
+                                COALESCE(d.not_posted_count, 0) AS not_posted_count,
+                                COALESCE(d.not_posted_amount_cents, 0) AS not_posted_amount_cents,
+                                COALESCE(d.distressed_count, 0) AS distressed_count,
+                                COALESCE(d.distressed_amount_cents, 0) AS distressed_amount_cents,
+                                p.avg_days_late AS avg_days_late
+                         FROM _CustomerDueWeekAgg d
+                         FULL OUTER JOIN _CustomerPostedWeekAgg p
+                           ON d.week_start = p.week_start AND d.customer_id = p.customer_id;
+
+/** Weekly distress measures per customer (R2). Bucket columns are by week due;
+    avg_days_late is by week posted. */
+/*+query_by_any(week_start, customer_id, zip_code) */
+CustomerWeeklyAgg := SELECT *,
+                            CASE
+                              WHEN due_amount_cents = 0 THEN CAST(NULL AS DECIMAL(5, 2))
+                              ELSE CAST(CAST(distressed_amount_cents AS DOUBLE) * 100.0 / due_amount_cents AS DECIMAL(5, 2))
+                            END AS percent_distressed
+                     FROM _CustomerWeeklyJoined
+                     ORDER BY week_start ASC, customer_id ASC;
+
+-- ============================================================
+-- ZipOverview: one row per zip over the last two complete weeks, with trends.
+-- ============================================================
+
+_CurZipWeek := SELECT * FROM ZipWeeklyAgg
+               WHERE week_start = DATE '{{cur_week_start}}';
+_PrevZipWeek := SELECT * FROM ZipWeeklyAgg
+                WHERE week_start = DATE '{{prev_week_start}}';
+
+/** Two-week overview per zip code, with week-over-week trends (R7, R8). */
+/*+query_by_any(zip_code, state) */
+ZipOverview := SELECT COALESCE(c.zip_code, p.zip_code) AS zip_code,
+                       COALESCE(c.state, p.state) AS state,
+                       c.week_start AS cur_week_start,
+                       p.week_start AS prev_week_start,
+                       c.due_amount_cents AS cur_due_amount_cents,
+                       p.due_amount_cents AS prev_due_amount_cents,
+                       CASE WHEN p.due_amount_cents IS NULL OR p.due_amount_cents = 0 THEN CAST(NULL AS DECIMAL(9, 2))
+                            ELSE CAST((c.due_amount_cents - p.due_amount_cents) * 100.0 / p.due_amount_cents AS DECIMAL(9, 2)) END AS due_amount_trend_pct,
+                       c.late_amount_cents AS cur_late_amount_cents,
+                       p.late_amount_cents AS prev_late_amount_cents,
+                       CASE WHEN p.late_amount_cents IS NULL OR p.late_amount_cents = 0 THEN CAST(NULL AS DECIMAL(9, 2))
+                            ELSE CAST((c.late_amount_cents - p.late_amount_cents) * 100.0 / p.late_amount_cents AS DECIMAL(9, 2)) END AS late_amount_trend_pct,
+                       c.not_posted_amount_cents AS cur_not_posted_amount_cents,
+                       p.not_posted_amount_cents AS prev_not_posted_amount_cents,
+                       CASE WHEN p.not_posted_amount_cents IS NULL OR p.not_posted_amount_cents = 0 THEN CAST(NULL AS DECIMAL(9, 2))
+                            ELSE CAST((c.not_posted_amount_cents - p.not_posted_amount_cents) * 100.0 / p.not_posted_amount_cents AS DECIMAL(9, 2)) END AS not_posted_amount_trend_pct,
+                       c.distressed_amount_cents AS cur_distressed_amount_cents,
+                       p.distressed_amount_cents AS prev_distressed_amount_cents,
+                       CASE WHEN p.distressed_amount_cents IS NULL OR p.distressed_amount_cents = 0 THEN CAST(NULL AS DECIMAL(9, 2))
+                            ELSE CAST((c.distressed_amount_cents - p.distressed_amount_cents) * 100.0 / p.distressed_amount_cents AS DECIMAL(9, 2)) END AS distressed_amount_trend_pct,
+                       c.distressed_count AS cur_distressed_count,
+                       p.distressed_count AS prev_distressed_count,
+                       CASE WHEN p.distressed_count IS NULL OR p.distressed_count = 0 THEN CAST(NULL AS DECIMAL(9, 2))
+                            ELSE CAST((c.distressed_count - p.distressed_count) * 100.0 / p.distressed_count AS DECIMAL(9, 2)) END AS distressed_count_trend_pct,
+                       c.percent_distressed AS cur_percent_distressed,
+                       p.percent_distressed AS prev_percent_distressed,
+                       CASE WHEN p.percent_distressed IS NULL THEN CAST(NULL AS DECIMAL(9, 2))
+                            ELSE CAST(c.percent_distressed - p.percent_distressed AS DECIMAL(9, 2)) END AS percent_distressed_trend_pp,
+                       c.avg_days_late AS cur_avg_days_late,
+                       p.avg_days_late AS prev_avg_days_late,
+                       CASE WHEN p.avg_days_late IS NULL OR p.avg_days_late = 0 THEN CAST(NULL AS DECIMAL(9, 2))
+                            ELSE CAST((c.avg_days_late - p.avg_days_late) * 100.0 / p.avg_days_late AS DECIMAL(9, 2)) END AS avg_days_late_trend_pct
+                FROM _CurZipWeek c
+                FULL OUTER JOIN _PrevZipWeek p ON c.zip_code = p.zip_code
+                ORDER BY zip_code ASC;
+
+/** Zip codes whose code matches a LIKE pattern (e.g. pass '981%' to match every
+    zip starting with 981) — the numeric-prefix search (R9, R16). */
+ZipOverviewByPrefix(zip_prefix STRING) :=
+  SELECT * FROM ZipOverview
+  WHERE zip_code LIKE :zip_prefix
+  ORDER BY zip_code ASC;
+
+-- ============================================================
+-- Zip drill-down (R11, R12): 12-week chart + two-week distress summary.
+-- ============================================================
+
+/** 12 most recent complete weeks for a zip code, for the drill-down chart (R12). */
+ZipHistory(zip_code STRING) :=
+  SELECT week_start, on_time_amount_cents, distressed_amount_cents, percent_distressed, avg_days_late
+  FROM ZipWeeklyAgg
+  WHERE zip_code = :zip_code
+    AND week_start >= DATE '{{history_start}}'
+    AND week_start < DATE '{{as_of_date}}'
+  ORDER BY week_start ASC;
+
+/** A zip code's distressed count and amount for the last two weeks, with
+    week-over-week percentage change (R11). */
+ZipDistressSummary(zip_code STRING) :=
+  SELECT zip_code,
+         cur_distressed_count,
+         prev_distressed_count,
+         distressed_count_trend_pct,
+         cur_distressed_amount_cents,
+         prev_distressed_amount_cents,
+         distressed_amount_trend_pct
+  FROM ZipOverview
+  WHERE zip_code = :zip_code
+  ORDER BY zip_code ASC;
+
+-- ============================================================
+-- Customer drill-down (R11, R13, R14): distressed customers in a zip.
+-- ============================================================
+
+_CustomerDistressRollup := SELECT customer_id, full_name, zip_code, state,
+                                  COUNT(*) AS due_count,
+                                  SUM(amount_cents) AS due_amount_cents,
+                                  COUNT(CASE WHEN bucket IN ('LATE', 'NOT_POSTED') THEN 1 END) AS distressed_count,
+                                  SUM(CASE WHEN bucket IN ('LATE', 'NOT_POSTED') THEN amount_cents ELSE 0 END) AS distressed_amount_cents,
+                                  CAST(AVG(CASE WHEN bucket = 'LATE' THEN days_late END) AS DOUBLE) AS avg_days_late
+                           FROM _ResolvedObligations
+                           WHERE week_due >= DATE '{{prev_week_start}}'
+                             AND week_due < DATE '{{as_of_date}}'
+                           GROUP BY customer_id, full_name, zip_code, state;
+
+/** Customers in a zip code with at least one distressed payment over the last
+    two weeks, most-distressed first (R13, R14). */
+DistressedCustomers(zip_code STRING) :=
+  SELECT customer_id, full_name, zip_code, state,
+         due_count, due_amount_cents,
+         distressed_count, distressed_amount_cents,
+         avg_days_late,
+         CASE
+           WHEN due_amount_cents = 0 THEN CAST(NULL AS DECIMAL(5, 2))
+           ELSE CAST(CAST(distressed_amount_cents AS DOUBLE) * 100.0 / due_amount_cents AS DECIMAL(5, 2))
+         END AS percent_distressed
+  FROM _CustomerDistressRollup
+  WHERE zip_code = :zip_code AND distressed_count > 0
+  ORDER BY distressed_amount_cents DESC, customer_id ASC;
+
+-- ============================================================
+-- DATA QUALITY TABLES
+-- ============================================================
+
+/** DQ: Obligations whose account, customer, or geography did not resolve.
+    A row names the unresolved obligation key and the missing reference so it
+    can be investigated; these records are excluded from the aggregations. */
+/*+query_by_any(reason) */
+DQ_UnresolvedObligation := SELECT account_id, loan_vehicle, customer_id, due_date, amount_cents,
+                                  CASE
+                                    WHEN customer_id IS NULL THEN 'missing_account'
+                                    WHEN zip_code IS NULL THEN 'missing_address'
+                                    ELSE 'unresolved'
+                                  END AS reason
+                           FROM _ObligationsWithZip
+                           WHERE customer_id IS NULL OR zip_code IS NULL
+                           ORDER BY due_date ASC, account_id ASC;
+
+/** DQ: Payment or delinquency records with a non-positive amount. These are
+    excluded from the buckets so percent-distressed stays within 0–100%. */
+/*+query_by_any(source_name) */
+DQ_NegativeAmount := SELECT 'Loan_Payment' AS source_name, payment_id AS record_id, loan_id AS account_id, payment_amount_cents AS amount_cents FROM sources.Loan_Payment WHERE payment_amount_cents <= 0
+                     UNION ALL
+                     SELECT 'Credit_Card_Payment' AS source_name, payment_id AS record_id, credit_card_account_id AS account_id, payment_amount_cents AS amount_cents FROM sources.Credit_Card_Payment WHERE payment_amount_cents <= 0
+                     UNION ALL
+                     SELECT 'Mortgage_Payment' AS source_name, payment_id AS record_id, loan_id AS account_id, payment_amount_cents AS amount_cents FROM sources.Mortgage_Payment WHERE payment_amount_cents <= 0
+                     UNION ALL
+                     SELECT 'Consumer_Loan_Delinquency_Event' AS source_name, delinquency_event_id AS record_id, loan_id AS account_id, amount_past_due_cents AS amount_cents FROM sources.Consumer_Loan_Delinquency_Event WHERE amount_past_due_cents <= 0
+                     UNION ALL
+                     SELECT 'Card_Delinquency_Event' AS source_name, delinquency_event_id AS record_id, credit_card_account_id AS account_id, amount_past_due_cents AS amount_cents FROM sources.Card_Delinquency_Event WHERE amount_past_due_cents <= 0
+                     UNION ALL
+                     SELECT 'Delinquency_Event' AS source_name, delinquency_event_id AS record_id, loan_id AS account_id, amount_past_due_cents AS amount_cents FROM sources.Delinquency_Event WHERE amount_past_due_cents <= 0
+                     ORDER BY source_name ASC, record_id ASC;
+
+-- ============================================================
+-- OBSERVABILITY
+-- ============================================================
+
+_SourceRecords := SELECT 'Loan_Payment' AS source_name, ingested_at FROM sources.Loan_Payment
+                  UNION ALL SELECT 'Credit_Card_Payment' AS source_name, ingested_at FROM sources.Credit_Card_Payment
+                  UNION ALL SELECT 'Mortgage_Payment' AS source_name, ingested_at FROM sources.Mortgage_Payment
+                  UNION ALL SELECT 'Consumer_Loan_Delinquency_Event' AS source_name, ingested_at FROM sources.Consumer_Loan_Delinquency_Event
+                  UNION ALL SELECT 'Card_Delinquency_Event' AS source_name, ingested_at FROM sources.Card_Delinquency_Event
+                  UNION ALL SELECT 'Delinquency_Event' AS source_name, ingested_at FROM sources.Delinquency_Event;
+
+/** OB: Records ingested per source per run. A missing source row, or a count
+    that drops unexpectedly, makes an input problem visible. (Nightly batch, so
+    counts are per-run/day rather than per-hour.) */
+/*+query_by_any(source_name) */
+OB_SourceIngestionStats := SELECT source_name, CAST(ingested_at AS DATE) AS ingestion_date, COUNT(*) AS record_count
+                           FROM _SourceRecords
+                           GROUP BY source_name, CAST(ingested_at AS DATE)
+                           ORDER BY source_name ASC;
+
+-- ============================================================
+-- TEST QUERIES
+-- ============================================================
+
+/*+test */
+ZipWeeklyAgg_Test := SELECT week_start, zip_code, state, due_count, due_amount_cents,
+                            on_time_count, on_time_amount_cents, late_count, late_amount_cents,
+                            not_posted_count, not_posted_amount_cents, distressed_count,
+                            distressed_amount_cents, percent_distressed, avg_days_late
+                     FROM ZipWeeklyAgg
+                     WHERE zip_code IN ('98101', '98103', '19103')
+                     ORDER BY week_start ASC, zip_code ASC;
+
+/*+test */
+CustomerWeeklyAgg_Test := SELECT week_start, customer_id, full_name, zip_code, state,
+                                 due_count, due_amount_cents, late_count, late_amount_cents,
+                                 not_posted_count, not_posted_amount_cents, distressed_count,
+                                 distressed_amount_cents, percent_distressed, avg_days_late
+                          FROM CustomerWeeklyAgg
+                          WHERE customer_id IN ('CUST-0001', 'CUST-0002', 'CUST-0003')
+                          ORDER BY week_start ASC, customer_id ASC;
+
+/*+test */
+ZipOverview_Test := SELECT * FROM ZipOverview WHERE zip_code IN ('98101', '98103', '19103') ORDER BY zip_code ASC;
+
+/*+test */
+DistressedCustomers_98101_Test := SELECT customer_id, full_name, distressed_count, distressed_amount_cents
+                                  FROM _CustomerDistressRollup
+                                  WHERE zip_code = '98101' AND distressed_count > 0
+                                  ORDER BY distressed_amount_cents DESC, customer_id ASC;
+
+/*+test */
+DistressedCustomers_19103_Test := SELECT customer_id, full_name, distressed_count, distressed_amount_cents
+                                  FROM _CustomerDistressRollup
+                                  WHERE zip_code = '19103' AND distressed_count > 0
+                                  ORDER BY customer_id ASC;
+
+/*+test(no_rows) */
+OnTimePlusDistressedEqualsDue_Test := SELECT * FROM ZipWeeklyAgg
+                                      WHERE on_time_count + distressed_count <> due_count
+                                         OR on_time_amount_cents + distressed_amount_cents <> due_amount_cents;
+
+/*+test */
+DQ_UnresolvedObligation_Test := SELECT * FROM DQ_UnresolvedObligation ORDER BY account_id ASC;
+
+/*+test */
+DQ_NegativeAmount_Test := SELECT * FROM DQ_NegativeAmount ORDER BY source_name ASC, record_id ASC;
+
+/*+test */
+OB_SourceIngestionStats_Test := SELECT * FROM OB_SourceIngestionStats ORDER BY source_name ASC;

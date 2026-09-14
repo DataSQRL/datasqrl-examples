@@ -1,0 +1,55 @@
+{
+  "data" : {
+    "DQ_NegativeAmount_Test" : [ {
+      "source_name" : "Card_Delinquency_Event",
+      "record_id" : "DE-F5",
+      "account_id" : "CC-301",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Card_Delinquency_Event",
+      "record_id" : "DE-F6",
+      "account_id" : "CC-302",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Card_Delinquency_Event",
+      "record_id" : "DE-F7",
+      "account_id" : "CC-303",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Card_Delinquency_Event",
+      "record_id" : "DE-F8",
+      "account_id" : "CC-304",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Consumer_Loan_Delinquency_Event",
+      "record_id" : "DE-F2",
+      "account_id" : "LN-100",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Consumer_Loan_Delinquency_Event",
+      "record_id" : "DE-F3",
+      "account_id" : "LN-500",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Consumer_Loan_Delinquency_Event",
+      "record_id" : "DE-F4",
+      "account_id" : "LN-200",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Delinquency_Event",
+      "record_id" : "DE-F10",
+      "account_id" : "LN-401",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Delinquency_Event",
+      "record_id" : "DE-F11",
+      "account_id" : "LN-402",
+      "amount_cents" : 0
+    }, {
+      "source_name" : "Delinquency_Event",
+      "record_id" : "DE-F12",
+      "account_id" : "LN-403",
+      "amount_cents" : 0
+    } ]
+  }
+}

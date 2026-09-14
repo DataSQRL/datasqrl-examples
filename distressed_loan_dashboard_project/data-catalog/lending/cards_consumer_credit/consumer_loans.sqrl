@@ -1,0 +1,319 @@
+-- ## Consumer Loans
+--
+-- Personal and auto loan data including loan applications, funded loans,
+-- payment history, and delinquency tracking. Supports the full consumer
+-- lending lifecycle from application through payoff or charge-off.
+-- Data is a CDC stream from source system.
+--
+-- Layer:            bronze
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA, FCRA, TILA, ECOA, SCRA
+
+/** Personal/unsecured loan records.
+    Grain: one row per loan_id.
+
+    # Columns:
+    * loan_id: Unique identifier for the loan
+    * application_id: Reference to application
+    * primary_borrower_customer_id: Reference to primary borrower @pii
+    * loan_number: Loan number displayed to customer @npi @mask
+    * loan_status: Loan status: ACTIVE, PAID_OFF, CHARGED_OFF, SETTLED
+    * loan_purpose: Loan purpose: DEBT_CONSOLIDATION, HOME_IMPROVEMENT, MAJOR_PURCHASE, MEDICAL, VACATION, OTHER
+    * original_amount_cents: Original loan amount in cents @npi @confidential
+    * current_balance_cents: Current principal balance in cents @npi @confidential
+    * interest_rate: Interest rate (APR) @confidential
+    * rate_type: Rate type: FIXED, VARIABLE
+    * original_term_months: Original term in months
+    * remaining_term_months: Remaining term in months
+    * monthly_payment_cents: Monthly payment amount in cents @npi @confidential
+    * funding_date: Date loan was funded
+    * first_payment_date: First payment due date
+    * maturity_date: Maturity date
+    * next_payment_due_date: Next payment due date
+    * paid_off_date: Date loan was paid off
+    * origination_fee_cents: Origination fee in cents
+    * credit_score_at_origination: Credit score at origination @npi @confidential
+    * dti_at_origination: DTI ratio at origination @npi @confidential
+    * autopay_enrolled: Autopay enrolled
+    * disbursement_account_id: Disbursement account @npi
+    * payment_account_id: Payment account @npi
+    * origination_channel: Origination channel: ONLINE, BRANCH, PHONE, PARTNER
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Personal_Loan_schema (
+  loan_id STRING NOT NULL,
+  application_id STRING,
+  primary_borrower_customer_id STRING NOT NULL,
+  loan_number STRING NOT NULL,
+  loan_status STRING NOT NULL,
+  loan_purpose STRING,
+  original_amount_cents BIGINT NOT NULL,
+  current_balance_cents BIGINT NOT NULL,
+  interest_rate DECIMAL(6, 4) NOT NULL,
+  rate_type STRING NOT NULL,
+  original_term_months INT NOT NULL,
+  remaining_term_months INT,
+  monthly_payment_cents BIGINT NOT NULL,
+  funding_date DATE NOT NULL,
+  first_payment_date DATE NOT NULL,
+  maturity_date DATE NOT NULL,
+  next_payment_due_date DATE,
+  paid_off_date DATE,
+  origination_fee_cents BIGINT,
+  credit_score_at_origination INT,
+  dti_at_origination DECIMAL(5, 2),
+  autopay_enrolled BOOLEAN NOT NULL,
+  disbursement_account_id STRING,
+  payment_account_id STRING,
+  origination_channel STRING,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Auto loan records with vehicle collateral information.
+    Grain: one row per loan_id.
+
+    # Columns:
+    * loan_id: Unique identifier for the loan
+    * application_id: Reference to application
+    * primary_borrower_customer_id: Reference to primary borrower @pii
+    * loan_number: Loan number displayed to customer @npi @mask
+    * loan_status: Loan status: ACTIVE, PAID_OFF, CHARGED_OFF, REPOSSESSED
+    * loan_type: Loan type: NEW_VEHICLE, USED_VEHICLE, REFINANCE, LEASE_BUYOUT
+    * original_amount_cents: Original loan amount in cents @npi @confidential
+    * current_balance_cents: Current principal balance in cents @npi @confidential
+    * interest_rate: Interest rate (APR) @confidential
+    * rate_type: Rate type: FIXED, VARIABLE
+    * original_term_months: Original term in months
+    * remaining_term_months: Remaining term in months
+    * monthly_payment_cents: Monthly payment amount in cents @npi @confidential
+    * funding_date: Date loan was funded
+    * first_payment_date: First payment due date
+    * maturity_date: Maturity date
+    * next_payment_due_date: Next payment due date
+    * paid_off_date: Date loan was paid off
+    * vehicle_vin: Vehicle VIN @pii
+    * vehicle_year: Vehicle year
+    * vehicle_make: Vehicle make
+    * vehicle_model: Vehicle model
+    * vehicle_trim: Vehicle trim
+    * mileage_at_origination: Vehicle mileage at origination
+    * vehicle_condition: Vehicle condition: NEW, USED, CERTIFIED
+    * vehicle_value_at_origination_cents: Vehicle value at origination in cents @npi @confidential
+    * current_vehicle_value_cents: Current estimated vehicle value in cents @npi @confidential
+    * ltv_at_origination: Loan-to-value ratio at origination
+    * current_ltv: Current LTV
+    * dealer_name: Dealer name @pii
+    * dealer_id: Dealer ID
+    * gap_insurance: GAP insurance included
+    * extended_warranty: Extended warranty included
+    * credit_score_at_origination: Credit score at origination @npi @confidential
+    * dti_at_origination: DTI ratio at origination @npi @confidential
+    * title_status: Title status: HELD, RELEASED, DEFECTIVE
+    * lien_state: Lien holder state
+    * autopay_enrolled: Autopay enrolled
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Auto_Loan_schema (
+  loan_id STRING NOT NULL,
+  application_id STRING,
+  primary_borrower_customer_id STRING NOT NULL,
+  loan_number STRING NOT NULL,
+  loan_status STRING NOT NULL,
+  loan_type STRING NOT NULL,
+  original_amount_cents BIGINT NOT NULL,
+  current_balance_cents BIGINT NOT NULL,
+  interest_rate DECIMAL(6, 4) NOT NULL,
+  rate_type STRING NOT NULL,
+  original_term_months INT NOT NULL,
+  remaining_term_months INT,
+  monthly_payment_cents BIGINT NOT NULL,
+  funding_date DATE NOT NULL,
+  first_payment_date DATE NOT NULL,
+  maturity_date DATE NOT NULL,
+  next_payment_due_date DATE,
+  paid_off_date DATE,
+  vehicle_vin STRING NOT NULL,
+  vehicle_year INT NOT NULL,
+  vehicle_make STRING NOT NULL,
+  vehicle_model STRING NOT NULL,
+  vehicle_trim STRING,
+  mileage_at_origination INT,
+  vehicle_condition STRING NOT NULL,
+  vehicle_value_at_origination_cents BIGINT,
+  current_vehicle_value_cents BIGINT,
+  ltv_at_origination DECIMAL(5, 2),
+  current_ltv DECIMAL(5, 2),
+  dealer_name STRING,
+  dealer_id STRING,
+  gap_insurance BOOLEAN,
+  extended_warranty BOOLEAN,
+  credit_score_at_origination INT,
+  dti_at_origination DECIMAL(5, 2),
+  title_status STRING,
+  lien_state STRING,
+  autopay_enrolled BOOLEAN NOT NULL,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Consumer loan payment records (personal and auto).
+    Grain: one row per payment_id.
+
+    # Columns:
+    * payment_id: Unique identifier for the payment
+    * loan_id: Reference to loan
+    * loan_type: Loan type: PERSONAL, AUTO
+    * payment_amount_cents: Payment amount in cents @npi @confidential
+    * principal_cents: Principal portion in cents @npi @confidential
+    * interest_cents: Interest portion in cents @npi @confidential
+    * late_fee_cents: Late fee amount in cents
+    * other_fees_cents: Other fees in cents
+    * payment_type: Payment type: REGULAR, EXTRA_PRINCIPAL, PAYOFF, PARTIAL
+    * payment_status: Payment status: APPLIED, PENDING, RETURNED, REVERSED
+    * due_date: Date payment was due
+    * received_date: Date payment was received
+    * applied_date: Date payment was applied
+    * payment_method: Payment method: ACH, CHECK, DEBIT_CARD, ONLINE
+    * principal_balance_after_cents: Principal balance after payment in cents @npi @confidential
+    * days_past_due_at_payment: Days past due at time of payment
+    * confirmation_number: Confirmation number
+    * return_reason_code: Return reason code (if returned)
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Loan_Payment_schema (
+  payment_id STRING NOT NULL,
+  loan_id STRING NOT NULL,
+  loan_type STRING NOT NULL,
+  payment_amount_cents BIGINT NOT NULL,
+  principal_cents BIGINT,
+  interest_cents BIGINT,
+  late_fee_cents BIGINT,
+  other_fees_cents BIGINT,
+  payment_type STRING NOT NULL,
+  payment_status STRING NOT NULL,
+  due_date DATE NOT NULL,
+  received_date DATE,
+  applied_date DATE,
+  payment_method STRING,
+  principal_balance_after_cents BIGINT,
+  days_past_due_at_payment INT,
+  confirmation_number STRING,
+  return_reason_code STRING,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Consumer loan application records.
+    Grain: one row per application_id.
+
+    # Columns:
+    * application_id: Unique identifier for the application
+    * primary_applicant_customer_id: Reference to primary applicant @pii
+    * co_applicant_customer_id: Reference to co-applicant (if applicable) @pii
+    * loan_type: Loan type: PERSONAL, AUTO
+    * loan_purpose: Loan purpose: DEBT_CONSOLIDATION, HOME_IMPROVEMENT, VEHICLE_PURCHASE, REFINANCE, OTHER
+    * requested_amount_cents: Requested loan amount in cents @npi @confidential
+    * requested_term_months: Requested term in months
+    * application_status: Application status: SUBMITTED, IN_REVIEW, APPROVED, COUNTER_OFFER, DENIED, WITHDRAWN, FUNDED
+    * submitted_at: Date application was submitted
+    * decision_date: Date decision was made
+    * decision_type: Decision type: APPROVED, DENIED, COUNTER_OFFER
+    * approved_amount_cents: Approved amount in cents @npi @confidential
+    * approved_rate: Approved rate @confidential
+    * approved_term_months: Approved term in months
+    * denial_reasons: Denial reason codes (if denied) @confidential
+    * credit_score: Credit score at application @npi @confidential
+    * annual_income_cents: Annual income stated @npi @confidential
+    * monthly_debt_cents: Monthly debt obligations @npi @confidential
+    * dti_ratio: DTI ratio calculated @npi @confidential
+    * employment_status: Employment status: EMPLOYED, SELF_EMPLOYED, RETIRED, OTHER
+    * employer_name: Employer name @pii
+    * years_employed: Years at current employer
+    * origination_channel: Origination channel: ONLINE, BRANCH, PHONE, DEALER, PARTNER
+    * promo_code: Promo code applied
+    * funded_date: Date application was funded
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Loan_Application_schema (
+  application_id STRING NOT NULL,
+  primary_applicant_customer_id STRING NOT NULL,
+  co_applicant_customer_id STRING,
+  loan_type STRING NOT NULL,
+  loan_purpose STRING,
+  requested_amount_cents BIGINT NOT NULL,
+  requested_term_months INT,
+  application_status STRING NOT NULL,
+  submitted_at TIMESTAMP_LTZ(3) NOT NULL,
+  decision_date DATE,
+  decision_type STRING,
+  approved_amount_cents BIGINT,
+  approved_rate DECIMAL(6, 4),
+  approved_term_months INT,
+  denial_reasons STRING,
+  credit_score INT,
+  annual_income_cents BIGINT,
+  monthly_debt_cents BIGINT,
+  dti_ratio DECIMAL(5, 2),
+  employment_status STRING,
+  employer_name STRING,
+  years_employed INT,
+  origination_channel STRING,
+  promo_code STRING,
+  funded_date DATE,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Consumer loan delinquency events.
+    Grain: one row per delinquency_event_id.
+
+    # Columns:
+    * delinquency_event_id: Unique identifier for the delinquency event
+    * loan_id: Reference to loan
+    * loan_type: Loan type: PERSONAL, AUTO
+    * customer_id: Reference to customer @pii
+    * event_type: Event type: MISSED_PAYMENT, DELINQUENCY_START, DELINQUENCY_CURED, CHARGE_OFF, REPOSSESSION, COLLECTION_ASSIGNED, RECOVERY
+    * days_past_due: Days past due at event
+    * delinquency_bucket: Delinquency bucket: CURRENT, 30_DAY, 60_DAY, 90_DAY, 120_PLUS
+    * amount_past_due_cents: Amount past due in cents @npi @confidential
+    * total_balance_cents: Total balance at event in cents @npi @confidential
+    * event_date: Event date
+    * cured_date: Date cured (if applicable)
+    * collection_action: Collection action taken @confidential
+    * collection_agency: Collection agency assigned
+    * repossession_date: Repossession date (for auto)
+    * repossession_agency: Repossession agency
+    * sale_date: Sale date (for repo)
+    * sale_amount_cents: Sale amount in cents
+    * deficiency_balance_cents: Deficiency balance in cents @npi @confidential
+    * charge_off_date: Charge-off date
+    * charge_off_amount_cents: Charge-off amount in cents @npi @confidential
+    * recovery_amount_cents: Recovery amount in cents
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Consumer_Loan_Delinquency_Event_schema (
+  delinquency_event_id STRING NOT NULL,
+  loan_id STRING NOT NULL,
+  loan_type STRING NOT NULL,
+  customer_id STRING NOT NULL,
+  event_type STRING NOT NULL,
+  days_past_due INT NOT NULL,
+  delinquency_bucket STRING NOT NULL,
+  amount_past_due_cents BIGINT,
+  total_balance_cents BIGINT,
+  event_date DATE NOT NULL,
+  cured_date DATE,
+  collection_action STRING,
+  collection_agency STRING,
+  repossession_date DATE,
+  repossession_agency STRING,
+  sale_date DATE,
+  sale_amount_cents BIGINT,
+  deficiency_balance_cents BIGINT,
+  charge_off_date DATE,
+  charge_off_amount_cents BIGINT,
+  recovery_amount_cents BIGINT,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);

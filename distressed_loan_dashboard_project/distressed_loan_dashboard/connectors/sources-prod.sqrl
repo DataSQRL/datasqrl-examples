@@ -1,0 +1,210 @@
+-- Production connectors: bounded Kafka reads for the nightly batch.
+-- Each table mirrors the test connector's shape; `ingested_at` comes from the
+-- Kafka record timestamp (metadata) and the source is bounded to latest-offset
+-- so the batch job reads the current snapshot and finishes.
+
+IMPORT sources.*;
+
+CREATE TABLE Loan_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'consumer_loans.loan_payment',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Loan_Payment_schema;
+
+CREATE TABLE Credit_Card_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'credit_cards.credit_card_payment',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE card_schema.Credit_Card_Payment_schema;
+
+CREATE TABLE Mortgage_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_servicing.mortgage_payment',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_schema.Mortgage_Payment_schema;
+
+CREATE TABLE Consumer_Loan_Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'consumer_loans.consumer_loan_delinquency_event',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Consumer_Loan_Delinquency_Event_schema;
+
+CREATE TABLE Card_Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'credit_cards.card_delinquency_event',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE card_schema.Card_Delinquency_Event_schema;
+
+CREATE TABLE Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_servicing.delinquency_event',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_schema.Delinquency_Event_schema;
+
+CREATE TABLE Personal_Loan (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'consumer_loans.personal_loan',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Personal_Loan_schema;
+
+CREATE TABLE Auto_Loan (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'consumer_loans.auto_loan',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Auto_Loan_schema;
+
+CREATE TABLE Credit_Card_Account (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'credit_cards.credit_card_account',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE card_schema.Credit_Card_Account_schema;
+
+CREATE TABLE Mortgage_Borrower (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_originations.mortgage_borrower',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_origin_schema.Mortgage_Borrower_schema;
+
+CREATE TABLE Customer (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${CUSTOMER_DATA_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'customer_master.customer',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE customer_schema.Customer_schema;
+
+CREATE TABLE Customer_Address (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka-safe',
+    'properties.bootstrap.servers' = '${CUSTOMER_DATA_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'customer_master.customer_address',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE customer_schema.Customer_Address_schema;

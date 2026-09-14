@@ -1,0 +1,10 @@
+{
+  "data" : {
+    "DistressedCustomers_98101_Test" : [ {
+      "customer_id" : "CUST-0001",
+      "full_name" : "John Doe",
+      "distressed_count" : 3,
+      "distressed_amount_cents" : 700000
+    } ]
+  }
+}

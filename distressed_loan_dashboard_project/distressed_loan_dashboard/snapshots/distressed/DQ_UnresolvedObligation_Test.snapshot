@@ -1,0 +1,12 @@
+{
+  "data" : {
+    "DQ_UnresolvedObligation_Test" : [ {
+      "account_id" : "LN-999",
+      "loan_vehicle" : "PERSONAL",
+      "customer_id" : null,
+      "due_date" : "2026-09-08",
+      "amount_cents" : 100000,
+      "reason" : "missing_account"
+    } ]
+  }
+}

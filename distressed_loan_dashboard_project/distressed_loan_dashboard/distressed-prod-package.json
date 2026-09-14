@@ -1,0 +1,22 @@
+{
+  "script": {
+    "config": {
+      "environment": "prod",
+      "as_of_date": "2026-09-14",
+      "window_start": "2026-06-14",
+      "cur_week_start": "2026-09-06",
+      "prev_week_start": "2026-08-30",
+      "history_start": "2026-06-21",
+      "is_batch": true
+    }
+  },
+  "engines": {
+    "flink": {
+      "deployment": {
+        "jobmanager-size": "small",
+        "taskmanager-size": "large.mem",
+        "taskmanager-count": 3
+      }
+    }
+  }
+}

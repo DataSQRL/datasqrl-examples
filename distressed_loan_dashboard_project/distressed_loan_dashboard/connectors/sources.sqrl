@@ -1,0 +1,16 @@
+-- Shared schema imports for every environment.
+--
+-- The data catalog is the authoritative source of the physical source schemas.
+-- We import its environment-agnostic schema-only scripts (the plain `*.sqrl`
+-- files, not the `-test` / `-prod` connector variants) under private namespaces
+-- so their `_schema` tables stay out of this project's API. Each environment's
+-- connector file then declares its own table via `LIKE <alias>.<Name>_schema`.
+--
+-- From this subfolder the included catalog namespace is reached through the
+-- `root.` prefix, which resolves against the build root of this project.
+
+IMPORT root.data_catalog.lending.cards_consumer_credit.consumer_loans AS loan_schema;
+IMPORT root.data_catalog.lending.cards_consumer_credit.credit_cards AS card_schema;
+IMPORT root.data_catalog.lending.mortgages.mortgage_servicing AS mortgage_schema;
+IMPORT root.data_catalog.lending.mortgages.mortgage_originations AS mortgage_origin_schema;
+IMPORT root.data_catalog.customer.customer_data.customer_master AS customer_schema;

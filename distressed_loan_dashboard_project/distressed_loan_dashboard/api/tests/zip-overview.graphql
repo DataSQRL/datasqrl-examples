@@ -1,0 +1,29 @@
+query ZipOverviewForPA {
+  ZipOverview(state: "PA", limit: 100) {
+    zip_code
+    state
+    cur_week_start
+    prev_week_start
+    cur_due_amount_cents
+    prev_due_amount_cents
+    due_amount_trend_pct
+    cur_late_amount_cents
+    prev_late_amount_cents
+    late_amount_trend_pct
+    cur_not_posted_amount_cents
+    prev_not_posted_amount_cents
+    not_posted_amount_trend_pct
+    cur_distressed_amount_cents
+    prev_distressed_amount_cents
+    distressed_amount_trend_pct
+    cur_distressed_count
+    prev_distressed_count
+    distressed_count_trend_pct
+    cur_percent_distressed
+    prev_percent_distressed
+    percent_distressed_trend_pp
+    cur_avg_days_late
+    prev_avg_days_late
+    avg_days_late_trend_pct
+  }
+}

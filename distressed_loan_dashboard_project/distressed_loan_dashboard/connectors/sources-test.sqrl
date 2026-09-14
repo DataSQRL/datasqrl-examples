@@ -1,0 +1,137 @@
+-- Test connectors: filesystem over this project's controlled test data.
+-- Each table mirrors the production connector's shape (same names, same
+-- physical payload via `LIKE <alias>.<Name>_schema`), reading static JSONL.
+
+IMPORT sources.*;
+
+CREATE TABLE Loan_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/loan_payment.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Loan_Payment_schema;
+
+CREATE TABLE Credit_Card_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_card_payment.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE card_schema.Credit_Card_Payment_schema;
+
+CREATE TABLE Mortgage_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_payment.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_schema.Mortgage_Payment_schema;
+
+CREATE TABLE Consumer_Loan_Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/consumer_loan_delinquency_event.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Consumer_Loan_Delinquency_Event_schema;
+
+CREATE TABLE Card_Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/card_delinquency_event.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE card_schema.Card_Delinquency_Event_schema;
+
+CREATE TABLE Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/delinquency_event.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_schema.Delinquency_Event_schema;
+
+CREATE TABLE Personal_Loan (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/personal_loan.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Personal_Loan_schema;
+
+CREATE TABLE Auto_Loan (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/auto_loan.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE loan_schema.Auto_Loan_schema;
+
+CREATE TABLE Credit_Card_Account (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_card_account.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE card_schema.Credit_Card_Account_schema;
+
+CREATE TABLE Mortgage_Borrower (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_borrower.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_origin_schema.Mortgage_Borrower_schema;
+
+CREATE TABLE Customer (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE customer_schema.Customer_schema;
+
+CREATE TABLE Customer_Address (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer_address.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE customer_schema.Customer_Address_schema;

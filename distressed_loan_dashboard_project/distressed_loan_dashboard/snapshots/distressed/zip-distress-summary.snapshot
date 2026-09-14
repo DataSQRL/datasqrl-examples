@@ -1,0 +1,13 @@
+{
+  "data" : {
+    "ZipDistressSummary" : [ {
+      "zip_code" : "98101",
+      "cur_distressed_count" : 2,
+      "prev_distressed_count" : 1,
+      "distressed_count_trend_pct" : 100.0,
+      "cur_distressed_amount_cents" : 500000,
+      "prev_distressed_amount_cents" : 200000,
+      "distressed_amount_trend_pct" : 150.0
+    } ]
+  }
+}

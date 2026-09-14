@@ -1,0 +1,50 @@
+-- ## Mortgage Performance - Production
+--
+-- Writes analytics data to Apache Iceberg tables
+
+IMPORT mortgage_performance.*;
+
+CREATE TABLE Loan_Performance_Monthly (
+  /** Timestamp when snapshot was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL,
+  PRIMARY KEY (loan_id, reporting_month) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'lending',
+    'catalog-database' = 'mortgages',
+    'catalog-table' = 'loan_performance_monthly',
+    'warehouse' = '${LENDING_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Loan_Performance_Monthly_schema;
+
+CREATE TABLE Prepayment_Signal (
+  /** Timestamp when signal was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL,
+  PRIMARY KEY (loan_id, signal_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'lending',
+    'catalog-database' = 'mortgages',
+    'catalog-table' = 'prepayment_signal',
+    'warehouse' = '${LENDING_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Prepayment_Signal_schema;
+
+CREATE TABLE Vintage_Performance (
+  /** Timestamp when vintage analysis was computed */
+  computed_at TIMESTAMP_LTZ(3) NOT NULL,
+  PRIMARY KEY (vintage_month, age_months, loan_program, property_state) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'lending',
+    'catalog-database' = 'mortgages',
+    'catalog-table' = 'vintage_performance',
+    'warehouse' = '${LENDING_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Vintage_Performance_schema;

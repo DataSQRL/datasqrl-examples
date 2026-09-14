@@ -1,0 +1,143 @@
+IMPORT cards_consumer_credit.credit_cards-{{environment}}.*;
+IMPORT cards_consumer_credit.consumer_loans-{{environment}}.*;
+IMPORT mortgages.mortgage_originations-{{environment}}.*;
+IMPORT mortgages.mortgage_servicing-{{environment}}.*;
+
+-- =====================================================
+-- Credit Card Account Relationships
+-- =====================================================
+
+/** All credit cards associated with this account */
+Credit_Card_Account.cards := SELECT * FROM Credit_Card c WHERE this.credit_card_account_id = c.credit_card_account_id;
+
+/** Active credit cards for this account */
+Credit_Card_Account.active_cards := SELECT * FROM Credit_Card c WHERE this.credit_card_account_id = c.credit_card_account_id
+                                                            AND card_status = 'ACTIVE';
+
+/** Billing statements for this account */
+Credit_Card_Account.statements := SELECT * FROM Credit_Card_Statement s WHERE this.credit_card_account_id = s.credit_card_account_id
+                                                                    ORDER BY statement_date DESC;
+
+/** Payments made to this account */
+Credit_Card_Account.payments := SELECT * FROM Credit_Card_Payment p WHERE this.credit_card_account_id = p.credit_card_account_id
+                                                                ORDER BY received_date DESC;
+
+/** Credit limit change history for this account */
+Credit_Card_Account.credit_limit_history := SELECT * FROM Credit_Limit_History h WHERE this.credit_card_account_id = h.credit_card_account_id
+                                                                             ORDER BY effective_date DESC;
+
+/** Delinquency events for this account */
+Credit_Card_Account.delinquency_events := SELECT * FROM Card_Delinquency_Event d WHERE this.credit_card_account_id = d.credit_card_account_id
+                                                                             ORDER BY event_date DESC;
+
+-- =====================================================
+-- Credit Card Statement Relationships
+-- =====================================================
+
+/** Payments applied to this statement */
+Credit_Card_Statement.payments := SELECT * FROM Credit_Card_Payment p WHERE this.statement_id = p.statement_id
+                                                                  ORDER BY received_date DESC;
+
+-- =====================================================
+-- Personal Loan Relationships
+-- =====================================================
+
+/** Application that originated this loan */
+Personal_Loan.application := SELECT * FROM Loan_Application a WHERE this.application_id = a.application_id;
+
+/** Payments made on this loan */
+Personal_Loan.payments := SELECT * FROM Loan_Payment p WHERE this.loan_id = p.loan_id
+                                                   AND loan_type = 'PERSONAL'
+                                                   ORDER BY due_date DESC;
+
+/** Delinquency events for this loan */
+Personal_Loan.delinquency_events := SELECT * FROM Consumer_Loan_Delinquency_Event d WHERE this.loan_id = d.loan_id
+                                                                                AND loan_type = 'PERSONAL'
+                                                                                ORDER BY event_date DESC;
+
+-- =====================================================
+-- Auto Loan Relationships
+-- =====================================================
+
+/** Application that originated this loan */
+Auto_Loan.application := SELECT * FROM Loan_Application a WHERE this.application_id = a.application_id;
+
+/** Payments made on this loan */
+Auto_Loan.payments := SELECT * FROM Loan_Payment p WHERE this.loan_id = p.loan_id
+                                               AND loan_type = 'AUTO'
+                                               ORDER BY due_date DESC;
+
+/** Delinquency events for this loan */
+Auto_Loan.delinquency_events := SELECT * FROM Consumer_Loan_Delinquency_Event d WHERE this.loan_id = d.loan_id
+                                                                            AND loan_type = 'AUTO'
+                                                                            ORDER BY event_date DESC;
+
+-- =====================================================
+-- Loan Application Relationships
+-- =====================================================
+
+/** Personal loan funded from this application */
+Loan_Application.personal_loan := SELECT * FROM Personal_Loan l WHERE this.application_id = l.application_id;
+
+/** Auto loan funded from this application */
+Loan_Application.auto_loan := SELECT * FROM Auto_Loan l WHERE this.application_id = l.application_id;
+
+-- =====================================================
+-- Mortgage Loan Relationships
+-- =====================================================
+
+/** Application that originated this mortgage */
+Mortgage_Loan.application := SELECT * FROM Mortgage_Application a WHERE this.application_id = a.application_id;
+
+/** Property collateral securing this mortgage */
+Mortgage_Loan.property := SELECT * FROM Property_Collateral p WHERE this.loan_id = p.loan_id;
+
+/** All borrowers on this mortgage */
+Mortgage_Loan.borrowers := SELECT * FROM Mortgage_Borrower b WHERE this.loan_id = b.loan_id;
+
+/** Primary borrower on this mortgage */
+Mortgage_Loan.primary_borrower := SELECT * FROM Mortgage_Borrower b WHERE this.loan_id = b.loan_id
+                                                                AND borrower_type = 'PRIMARY';
+
+/** Payments made on this mortgage */
+Mortgage_Loan.payments := SELECT * FROM Mortgage_Payment p WHERE this.loan_id = p.loan_id
+                                                       ORDER BY due_date DESC;
+
+/** Escrow account records for this mortgage */
+Mortgage_Loan.escrow_account := SELECT * FROM Escrow_Account e WHERE this.loan_id = e.loan_id
+                                                           ORDER BY as_of_date DESC;
+
+/** Current escrow account balance */
+Mortgage_Loan.current_escrow := SELECT * FROM Escrow_Account e WHERE this.loan_id = e.loan_id
+                                                           ORDER BY as_of_date DESC LIMIT 1;
+
+/** Delinquency events for this mortgage */
+Mortgage_Loan.delinquency_events := SELECT * FROM Delinquency_Event d WHERE this.loan_id = d.loan_id
+                                                                  ORDER BY event_date DESC;
+
+/** Loan modifications for this mortgage */
+Mortgage_Loan.modifications := SELECT * FROM Loan_Modification m WHERE this.loan_id = m.loan_id
+                                                             ORDER BY request_date DESC;
+
+/** Property valuations for this mortgage */
+Mortgage_Loan.property_valuations := SELECT * FROM Property_Valuation v WHERE this.loan_id = v.loan_id
+                                                                    ORDER BY valuation_date DESC;
+
+-- =====================================================
+-- Mortgage Application Relationships
+-- =====================================================
+
+/** Funded mortgage loan from this application */
+Mortgage_Application.mortgage_loan := SELECT * FROM Mortgage_Loan l WHERE this.application_id = l.application_id;
+
+-- =====================================================
+-- Property Collateral Relationships
+-- =====================================================
+
+/** All valuations for this property */
+Property_Collateral.valuations := SELECT * FROM Property_Valuation v WHERE this.property_id = v.property_id
+                                                                 ORDER BY valuation_date DESC;
+
+/** Most recent valuation for this property */
+Property_Collateral.current_valuation := SELECT * FROM Property_Valuation v WHERE this.property_id = v.property_id
+                                                                        ORDER BY valuation_date DESC LIMIT 1;

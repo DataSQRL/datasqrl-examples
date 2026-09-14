@@ -1,0 +1,135 @@
+-- ## Core Transactions
+--
+-- Foundation transaction data capturing all monetary movements across accounts.
+-- Includes the primary transaction ledger, transaction type reference data,
+-- and reversal/correction records. This dataset serves as the authoritative
+-- source for all account-level transaction activity.
+--
+-- Layer:            bronze
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA, Regulation E, BSA
+
+/** Primary transaction ledger recording all account monetary movements.
+    Grain: one row per transaction_id. */
+CREATE TABLE Transaction (
+  /** Unique identifier for the transaction */
+  transaction_id STRING,
+  /** Reference to account @npi */
+  account_id STRING,
+  /** Transaction type code reference */
+  transaction_type_code STRING,
+  /** Transaction category: DEBIT, CREDIT */
+  transaction_category STRING,
+  /** Transaction amount in cents @npi @confidential */
+  amount_cents BIGINT,
+  /** Currency code (ISO 4217) */
+  currency_code STRING,
+  /** Transaction status: PENDING, POSTED, REVERSED, RETURNED */
+  transaction_status STRING,
+  /** Date transaction was posted to account */
+  posted_date DATE,
+  /** Date and time transaction occurred */
+  transaction_at TIMESTAMP,
+  /** Effective date for interest calculation */
+  effective_date DATE,
+  /** Transaction description @pii */
+  description STRING,
+  /** Memo or reference text @pii */
+  memo STRING,
+  /** Running balance after transaction in cents @npi @confidential */
+  running_balance_cents BIGINT,
+  /** Channel: BRANCH, ATM, ONLINE, MOBILE, ACH, WIRE, CHECK, POS, INTERNAL */
+  channel STRING,
+  /** Reference number for external transactions */
+  external_reference STRING,
+  /** Trace number for ACH transactions */
+  trace_number STRING,
+  /** Check number if applicable */
+  check_number STRING,
+  /** Branch ID where transaction occurred */
+  branch_id STRING,
+  /** Terminal or device ID */
+  terminal_id STRING,
+  /** Employee ID if branch transaction @pii */
+  teller_id STRING,
+  /** Counterparty account reference @npi */
+  counterparty_account_id STRING,
+  /** Counterparty name @pii */
+  counterparty_name STRING,
+  /** Whether transaction has been reconciled */
+  is_reconciled BOOLEAN,
+  /** Source system identifier */
+  source_system STRING,
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP,
+  /** Timestamp when record was last updated in source system */
+  source_updated_at TIMESTAMP
+);
+
+/** Transaction type reference data defining transaction classifications.
+    Grain: one row per transaction_type_code. */
+CREATE TABLE Transaction_Type (
+  /** Unique transaction type code */
+  transaction_type_code STRING,
+  /** Transaction type name */
+  transaction_type_name STRING,
+  /** Transaction type description */
+  description STRING,
+  /** Category: DEBIT, CREDIT */
+  category STRING,
+  /** Subcategory for reporting */
+  subcategory STRING,
+  /** Whether this type is customer-initiated */
+  is_customer_initiated BOOLEAN,
+  /** Whether this type affects available balance */
+  affects_available_balance BOOLEAN,
+  /** Whether this type is fee-related */
+  is_fee BOOLEAN,
+  /** Whether this type is interest-related */
+  is_interest BOOLEAN,
+  /** GL account code for posting */
+  gl_account_code STRING,
+  /** Whether type is currently active */
+  is_active BOOLEAN,
+  /** Source system identifier */
+  source_system STRING,
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP,
+  /** Timestamp when record was last updated in source system */
+  source_updated_at TIMESTAMP
+);
+
+/** Transaction reversals and corrections linking to original transactions.
+    Grain: one row per reversal_id. */
+CREATE TABLE Transaction_Reversal (
+  /** Unique identifier for the reversal */
+  reversal_id STRING,
+  /** Reference to original transaction being reversed */
+  original_transaction_id STRING,
+  /** Reference to the reversing transaction */
+  reversing_transaction_id STRING,
+  /** Reversal type: FULL, PARTIAL, CORRECTION */
+  reversal_type STRING,
+  /** Amount reversed in cents @npi @confidential */
+  reversal_amount_cents BIGINT,
+  /** Reason code for reversal */
+  reason_code STRING,
+  /** Reason description @confidential */
+  reason_description STRING,
+  /** Date and time reversal was initiated */
+  reversed_at TIMESTAMP,
+  /** Date reversal was posted */
+  posted_date DATE,
+  /** Employee or system initiating reversal */
+  reversed_by STRING,
+  /** Supervisor approval if required @pii */
+  approved_by STRING,
+  /** Channel through which reversal was made */
+  channel STRING,
+  /** Source system identifier */
+  source_system STRING,
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP,
+  /** Timestamp when record was last updated in source system */
+  source_updated_at TIMESTAMP
+);

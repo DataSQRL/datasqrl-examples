@@ -1,0 +1,41 @@
+{
+  "data" : {
+    "ZipHistory" : [ {
+      "week_start" : "2026-07-05",
+      "on_time_amount_cents" : 60000,
+      "distressed_amount_cents" : 0,
+      "percent_distressed" : 0.0,
+      "avg_days_late" : null
+    }, {
+      "week_start" : "2026-07-12",
+      "on_time_amount_cents" : 10000,
+      "distressed_amount_cents" : 0,
+      "percent_distressed" : 0.0,
+      "avg_days_late" : null
+    }, {
+      "week_start" : "2026-07-19",
+      "on_time_amount_cents" : 10000,
+      "distressed_amount_cents" : 0,
+      "percent_distressed" : 0.0,
+      "avg_days_late" : null
+    }, {
+      "week_start" : "2026-07-26",
+      "on_time_amount_cents" : 0,
+      "distressed_amount_cents" : 30000,
+      "percent_distressed" : 100.0,
+      "avg_days_late" : null
+    }, {
+      "week_start" : "2026-08-30",
+      "on_time_amount_cents" : 0,
+      "distressed_amount_cents" : 200000,
+      "percent_distressed" : 100.0,
+      "avg_days_late" : null
+    }, {
+      "week_start" : "2026-09-06",
+      "on_time_amount_cents" : 9500000,
+      "distressed_amount_cents" : 500000,
+      "percent_distressed" : 5.0,
+      "avg_days_late" : 53.33333333
+    } ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "data" : {
+    "ZipOverview" : [ {
+      "zip_code" : "19103",
+      "state" : "PA",
+      "cur_week_start" : "2026-09-06",
+      "prev_week_start" : null,
+      "cur_due_amount_cents" : 20000,
+      "prev_due_amount_cents" : null,
+      "due_amount_trend_pct" : null,
+      "cur_late_amount_cents" : 0,
+      "prev_late_amount_cents" : null,
+      "late_amount_trend_pct" : null,
+      "cur_not_posted_amount_cents" : 0,
+      "prev_not_posted_amount_cents" : null,
+      "not_posted_amount_trend_pct" : null,
+      "cur_distressed_amount_cents" : 0,
+      "prev_distressed_amount_cents" : null,
+      "distressed_amount_trend_pct" : null,
+      "cur_distressed_count" : 0,
+      "prev_distressed_count" : null,
+      "distressed_count_trend_pct" : null,
+      "cur_percent_distressed" : 0.0,
+      "prev_percent_distressed" : null,
+      "percent_distressed_trend_pp" : null,
+      "cur_avg_days_late" : null,
+      "prev_avg_days_late" : null,
+      "avg_days_late_trend_pct" : null
+    } ]
+  }
+}
