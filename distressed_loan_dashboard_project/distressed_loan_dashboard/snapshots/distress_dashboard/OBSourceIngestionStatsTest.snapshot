@@ -1,0 +1,81 @@
+{
+  "data" : {
+    "OBSourceIngestionStatsTest" : [ {
+      "source_name" : "Auto_Loan",
+      "window_start" : "2026-06-01T08:00:00.000Z",
+      "record_count" : 5
+    }, {
+      "source_name" : "Card_Delinquency_Event",
+      "window_start" : "2026-09-13T07:00:00.000Z",
+      "record_count" : 5
+    }, {
+      "source_name" : "Consumer_Loan_Delinquency_Event",
+      "window_start" : "2026-09-13T08:00:00.000Z",
+      "record_count" : 3
+    }, {
+      "source_name" : "Consumer_Loan_Delinquency_Event",
+      "window_start" : "2026-09-13T07:00:00.000Z",
+      "record_count" : 6
+    }, {
+      "source_name" : "Credit_Card_Account",
+      "window_start" : "2026-06-01T08:00:00.000Z",
+      "record_count" : 5
+    }, {
+      "source_name" : "Credit_Card_Payment",
+      "window_start" : "2026-09-13T07:00:00.000Z",
+      "record_count" : 6
+    }, {
+      "source_name" : "Customer",
+      "window_start" : "2026-06-01T08:00:00.000Z",
+      "record_count" : 12
+    }, {
+      "source_name" : "Customer_Address",
+      "window_start" : "2026-06-01T08:00:00.000Z",
+      "record_count" : 12
+    }, {
+      "source_name" : "Customer_Address",
+      "window_start" : "2023-12-31T09:00:00.000Z",
+      "record_count" : 1
+    }, {
+      "source_name" : "Delinquency_Event",
+      "window_start" : "2026-09-13T07:00:00.000Z",
+      "record_count" : 5
+    }, {
+      "source_name" : "Loan_Payment",
+      "window_start" : "2026-09-13T11:00:00.000Z",
+      "record_count" : 1
+    }, {
+      "source_name" : "Loan_Payment",
+      "window_start" : "2026-09-13T10:00:00.000Z",
+      "record_count" : 6
+    }, {
+      "source_name" : "Loan_Payment",
+      "window_start" : "2026-09-13T09:00:00.000Z",
+      "record_count" : 6
+    }, {
+      "source_name" : "Loan_Payment",
+      "window_start" : "2026-09-13T08:00:00.000Z",
+      "record_count" : 6
+    }, {
+      "source_name" : "Loan_Payment",
+      "window_start" : "2026-09-13T07:00:00.000Z",
+      "record_count" : 6
+    }, {
+      "source_name" : "Mortgage_Loan",
+      "window_start" : "2026-06-01T08:00:00.000Z",
+      "record_count" : 5
+    }, {
+      "source_name" : "Mortgage_Payment",
+      "window_start" : "2026-09-13T08:00:00.000Z",
+      "record_count" : 4
+    }, {
+      "source_name" : "Mortgage_Payment",
+      "window_start" : "2026-09-13T07:00:00.000Z",
+      "record_count" : 6
+    }, {
+      "source_name" : "Personal_Loan",
+      "window_start" : "2026-06-01T08:00:00.000Z",
+      "record_count" : 5
+    } ]
+  }
+}

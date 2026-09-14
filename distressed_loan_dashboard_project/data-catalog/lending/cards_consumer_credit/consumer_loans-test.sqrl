@@ -1,0 +1,75 @@
+-- ## Consumer Loans - Test Data
+--
+-- Use local filesystem data for testing
+
+IMPORT consumer_loans.*;
+
+CREATE TABLE Personal_Loan (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/consumer_loans-personal_loan.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Personal_Loan_schema;
+
+CREATE TABLE Auto_Loan (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/consumer_loans-auto_loan.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Auto_Loan_schema;
+
+CREATE TABLE Loan_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/consumer_loans-loan_payment.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Loan_Payment_schema;
+
+CREATE TABLE Loan_Application (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/consumer_loans-loan_application.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Loan_Application_schema;
+
+CREATE TABLE Consumer_Loan_Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/consumer_loans-consumer_loan_delinquency_event.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Consumer_Loan_Delinquency_Event_schema;

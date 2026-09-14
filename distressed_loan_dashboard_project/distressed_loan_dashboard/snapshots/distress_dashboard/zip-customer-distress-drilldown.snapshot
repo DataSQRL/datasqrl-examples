@@ -1,0 +1,25 @@
+{
+  "data" : {
+    "ZipCustomerDistress" : [ {
+      "zip_code" : "19147",
+      "customer_id" : "CUST-107",
+      "first_name" : "Gina",
+      "last_name" : "Hayes",
+      "customer_status" : "ACTIVE",
+      "distressed_amount_cents_current" : 400000,
+      "distressed_amount_cents_prior" : 500000,
+      "distressed_count_current" : 1,
+      "distressed_amount_pct_change" : -20.0
+    }, {
+      "zip_code" : "19147",
+      "customer_id" : "CUST-108",
+      "first_name" : "Hugo",
+      "last_name" : "Ibarra",
+      "customer_status" : "ACTIVE",
+      "distressed_amount_cents_current" : 200000,
+      "distressed_amount_cents_prior" : 400000,
+      "distressed_count_current" : 1,
+      "distressed_amount_pct_change" : -50.0
+    } ]
+  }
+}

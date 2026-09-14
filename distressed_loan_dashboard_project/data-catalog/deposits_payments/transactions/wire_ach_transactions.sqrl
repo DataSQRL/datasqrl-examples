@@ -1,0 +1,204 @@
+-- ## Wire and ACH Transactions
+--
+-- Electronic funds transfer data including ACH transactions, domestic and
+-- international wire transfers, and payment returns. Supports regulatory
+-- reporting requirements and fraud monitoring for high-value transfers.
+--
+-- Layer:            bronze
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA, BSA, OFAC, Regulation E
+
+/** ACH transaction records for direct deposits, bill payments, and transfers.
+    Grain: one row per ach_transaction_id. */
+CREATE TABLE Ach_Transaction (
+  /** Unique identifier for the ACH transaction */
+  ach_transaction_id STRING,
+  /** Reference to posted transaction */
+  transaction_id STRING,
+  /** Reference to account @npi */
+  account_id STRING,
+  /** Direction: INBOUND, OUTBOUND */
+  direction STRING,
+  /** ACH transaction type: CREDIT, DEBIT */
+  ach_type STRING,
+  /** SEC code: PPD, CCD, WEB, TEL, etc. */
+  sec_code STRING,
+  /** Transaction amount in cents @npi @confidential */
+  amount_cents BIGINT,
+  /** Currency code (ISO 4217) */
+  currency_code STRING,
+  /** Transaction status: ORIGINATED, PENDING, POSTED, RETURNED, REJECTED */
+  transaction_status STRING,
+  /** Originating DFI routing number */
+  odfi_routing_number STRING,
+  /** Originating DFI name */
+  odfi_name STRING,
+  /** Receiving DFI routing number */
+  rdfi_routing_number STRING,
+  /** Receiving DFI name */
+  rdfi_name STRING,
+  /** Company/batch ID */
+  company_id STRING,
+  /** Company name @pii */
+  company_name STRING,
+  /** Company entry description */
+  entry_description STRING,
+  /** Individual/account name @pii @encrypt */
+  individual_name STRING,
+  /** Individual identification number @pii @tokenize */
+  individual_id STRING,
+  /** Trace number */
+  trace_number STRING,
+  /** Addenda records (JSON) @pii */
+  addenda STRING,
+  /** Effective entry date */
+  effective_date DATE,
+  /** Settlement date */
+  settlement_date DATE,
+  /** Date and time transaction was processed */
+  processed_at TIMESTAMP,
+  /** Whether transaction is same-day ACH */
+  is_same_day BOOLEAN,
+  /** Batch reference number */
+  batch_number STRING,
+  /** File ID from ACH file */
+  file_id STRING,
+  /** Source system identifier */
+  source_system STRING,
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP,
+  /** Timestamp when record was last updated in source system */
+  source_updated_at TIMESTAMP
+);
+
+/** Wire transfer records for domestic and international transfers.
+    Grain: one row per wire_transfer_id. */
+CREATE TABLE Wire_Transfer (
+  /** Unique identifier for the wire transfer */
+  wire_transfer_id STRING,
+  /** Reference to posted transaction */
+  transaction_id STRING,
+  /** Reference to account @npi */
+  account_id STRING,
+  /** Reference to customer @pii */
+  customer_id STRING,
+  /** Direction: INBOUND, OUTBOUND */
+  direction STRING,
+  /** Wire type: DOMESTIC, INTERNATIONAL */
+  wire_type STRING,
+  /** Transfer amount in cents @npi @confidential */
+  amount_cents BIGINT,
+  /** Currency code (ISO 4217) */
+  currency_code STRING,
+  /** Fee amount in cents */
+  fee_cents BIGINT,
+  /** Total amount debited/credited in cents @npi @confidential */
+  total_amount_cents BIGINT,
+  /** Wire status: INITIATED, PENDING, SENT, RECEIVED, COMPLETED, RETURNED, CANCELLED */
+  wire_status STRING,
+  /** Originator name @pii @encrypt */
+  originator_name STRING,
+  /** Originator address @pii @encrypt */
+  originator_address STRING,
+  /** Originator account number @npi @mask */
+  originator_account STRING,
+  /** Originator bank name */
+  originator_bank_name STRING,
+  /** Originator bank routing/SWIFT @bsa */
+  originator_bank_id STRING,
+  /** Beneficiary name @pii @encrypt */
+  beneficiary_name STRING,
+  /** Beneficiary address @pii @encrypt */
+  beneficiary_address STRING,
+  /** Beneficiary account number @npi @mask */
+  beneficiary_account STRING,
+  /** Beneficiary bank name */
+  beneficiary_bank_name STRING,
+  /** Beneficiary bank routing/SWIFT @bsa */
+  beneficiary_bank_id STRING,
+  /** Beneficiary bank country */
+  beneficiary_country STRING,
+  /** Intermediary bank name (for international) */
+  intermediary_bank_name STRING,
+  /** Intermediary bank SWIFT */
+  intermediary_bank_id STRING,
+  /** Purpose of wire transfer @confidential */
+  purpose STRING,
+  /** Reference for beneficiary */
+  reference_for_beneficiary STRING,
+  /** OMAD/IMAD reference number */
+  fed_reference STRING,
+  /** SWIFT reference (for international) */
+  swift_reference STRING,
+  /** OFAC screening result: CLEAR, HOLD, BLOCKED */
+  ofac_status STRING,
+  /** Date and time wire was initiated */
+  initiated_at TIMESTAMP,
+  /** Date and time wire was sent */
+  sent_at TIMESTAMP,
+  /** Date and time wire was completed */
+  completed_at TIMESTAMP,
+  /** Employee or system initiating wire @pii */
+  initiated_by STRING,
+  /** Approval status: PENDING, APPROVED, REJECTED */
+  approval_status STRING,
+  /** Employee approving wire @pii */
+  approved_by STRING,
+  /** Date and time of approval */
+  approved_at TIMESTAMP,
+  /** Source system identifier */
+  source_system STRING,
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP,
+  /** Timestamp when record was last updated in source system */
+  source_updated_at TIMESTAMP
+);
+
+/** Payment return records for ACH returns and wire rejects.
+    Grain: one row per return_id. */
+CREATE TABLE Payment_Return (
+  /** Unique identifier for the return */
+  return_id STRING,
+  /** Reference to original ACH transaction */
+  ach_transaction_id STRING,
+  /** Reference to original wire transfer */
+  wire_transfer_id STRING,
+  /** Reference to original transaction */
+  original_transaction_id STRING,
+  /** Reference to return transaction */
+  return_transaction_id STRING,
+  /** Reference to account @npi */
+  account_id STRING,
+  /** Return type: ACH_RETURN, ACH_NOC, WIRE_RETURN, WIRE_REJECT */
+  return_type STRING,
+  /** Return amount in cents @npi @confidential */
+  return_amount_cents BIGINT,
+  /** Currency code (ISO 4217) */
+  currency_code STRING,
+  /** Return status: PENDING, PROCESSED, DISPUTED */
+  return_status STRING,
+  /** Return reason code (R01-R85 for ACH) */
+  return_reason_code STRING,
+  /** Return reason description @confidential */
+  return_reason_description STRING,
+  /** Original effective date */
+  original_effective_date DATE,
+  /** Return effective date */
+  return_effective_date DATE,
+  /** Date and time return was processed */
+  processed_at TIMESTAMP,
+  /** Trace number of original transaction */
+  original_trace_number STRING,
+  /** Trace number of return */
+  return_trace_number STRING,
+  /** Addenda information (JSON) */
+  addenda STRING,
+  /** Whether return was dishonored */
+  is_dishonored BOOLEAN,
+  /** Source system identifier */
+  source_system STRING,
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP,
+  /** Timestamp when record was last updated in source system */
+  source_updated_at TIMESTAMP
+);

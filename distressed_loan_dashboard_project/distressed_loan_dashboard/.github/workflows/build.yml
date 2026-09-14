@@ -1,0 +1,26 @@
+name: Build and test distress_dashboard
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+env:
+  TZ: 'America/Los_Angeles'
+  SQRL_VERSION: '0.11.2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile distress_dashboard
+        working-directory: distressed_loan_dashboard
+        run: ./run-tests.sh --compile --env prod
+
+      - name: Test distress_dashboard
+        working-directory: distressed_loan_dashboard
+        run: ./run-tests.sh

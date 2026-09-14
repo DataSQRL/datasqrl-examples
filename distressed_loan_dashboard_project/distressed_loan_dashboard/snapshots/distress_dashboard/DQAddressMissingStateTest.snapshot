@@ -1,0 +1,10 @@
+{
+  "data" : {
+    "DQAddressMissingStateTest" : [ {
+      "customer_id" : "CUST-110",
+      "zip_code" : "30301",
+      "city" : "Atlanta",
+      "source_updated_at" : "2026-06-01T07:00:00.000Z"
+    } ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "postgres", "vertx"],
+  "script": {
+    "main": "distress_dashboard.sqrl",
+    "include": {
+      "data_catalog": {
+        "package": "../data-catalog/ontology-test-package.json",
+        "config": {
+          "is_batch": true
+        }
+      }
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH"
+      }
+    }
+  },
+  "compiler": {
+    "compile-flink-plan": false,
+    "predicate-pushdown-rules": "LIMITED_RULES",
+    "api": {
+      "protocols": ["GRAPHQL", "REST", "MCP"],
+      "endpoints": "FULL",
+      "add-prefix": true,
+      "max-result-depth": 1,
+      "default-limit": 1000
+    }
+  }
+}

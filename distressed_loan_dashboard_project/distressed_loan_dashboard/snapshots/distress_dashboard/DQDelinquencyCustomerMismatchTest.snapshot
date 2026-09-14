@@ -1,0 +1,11 @@
+{
+  "data" : {
+    "DQDelinquencyCustomerMismatchTest" : [ {
+      "delinquency_event_id" : "CLDE-205",
+      "instrument_type" : "PERSONAL_LOAN",
+      "instrument_id" : "PL-101",
+      "event_customer_id" : "CUST-102",
+      "resolved_customer_id" : "CUST-101"
+    } ]
+  }
+}

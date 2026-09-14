@@ -1,0 +1,12 @@
+query DashboardRunRefreshMetadata {
+  DashboardRun {
+    run_scope
+    as_of_date
+    current_week_start
+    current_week_end
+    prior_week_start
+    chart_window_start
+    window_start_date
+    window_end_date
+  }
+}

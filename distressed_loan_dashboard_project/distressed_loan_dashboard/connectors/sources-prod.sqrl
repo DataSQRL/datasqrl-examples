@@ -1,0 +1,8 @@
+-- Production sources: wildcard-import the catalog's Kafka connector scripts
+-- so the tables carry the same bare names the test connectors declare.
+
+IMPORT root.data_catalog.customer.customer_data.customer_master-prod.*;
+IMPORT root.data_catalog.lending.cards_consumer_credit.consumer_loans-prod.*;
+IMPORT root.data_catalog.lending.cards_consumer_credit.credit_cards-prod.*;
+IMPORT root.data_catalog.lending.mortgages.mortgage_originations-prod.*;
+IMPORT root.data_catalog.lending.mortgages.mortgage_servicing-prod.*;

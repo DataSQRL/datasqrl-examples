@@ -1,0 +1,15 @@
+query ZipOverviewUnfiltered {
+  ZipOverview {
+    zip_code
+    state
+    current_week_start
+    prior_week_start
+    payments_due_amount_cents_current
+    distressed_amount_cents_current
+    distressed_amount_cents_prior
+    pct_distressed_current
+    pct_distressed_prior
+    distressed_amount_pct_change
+    pct_distressed_point_change
+  }
+}

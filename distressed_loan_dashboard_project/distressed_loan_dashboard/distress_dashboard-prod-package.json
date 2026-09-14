@@ -1,0 +1,9 @@
+{
+  "script": {
+    "config": {
+      "environment": "prod",
+      "pinned_anchor": false,
+      "anchor_date": "1970-01-01"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "data" : {
+    "DQCustomerMissingZipTest" : [ {
+      "customer_id" : "CUST-111",
+      "first_name" : "Kara",
+      "last_name" : "Lindqvist",
+      "customer_status" : "ACTIVE",
+      "payments_due_count" : 1,
+      "payments_due_amount_cents" : 50000
+    } ]
+  }
+}

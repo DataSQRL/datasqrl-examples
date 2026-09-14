@@ -1,0 +1,13 @@
+{
+  "data" : {
+    "ZipOverviewByPrefix" : [ {
+      "zip_code" : "98101",
+      "state" : "WA",
+      "distressed_amount_cents_current" : 260000
+    }, {
+      "zip_code" : "98109",
+      "state" : "WA",
+      "distressed_amount_cents_current" : 0
+    } ]
+  }
+}

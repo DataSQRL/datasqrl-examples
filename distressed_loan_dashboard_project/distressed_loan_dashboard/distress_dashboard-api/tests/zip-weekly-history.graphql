@@ -1,0 +1,10 @@
+query ZipWeeklyHistoryChart {
+  ZipWeeklyHistory(zip_code: "98101") {
+    zip_code
+    week_start_date
+    posted_on_time_amount_cents
+    distressed_amount_cents
+    pct_distressed
+    avg_days_late
+  }
+}

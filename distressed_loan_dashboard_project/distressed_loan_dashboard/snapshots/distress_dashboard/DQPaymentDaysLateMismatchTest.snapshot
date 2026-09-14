@@ -1,0 +1,21 @@
+{
+  "data" : {
+    "DQPaymentDaysLateMismatchTest" : [ {
+      "payment_id" : "LPMT-204",
+      "instrument_type" : "PERSONAL_LOAN",
+      "instrument_id" : "PL-102",
+      "due_date" : "2026-09-03",
+      "posted_date" : "2026-09-01",
+      "derived_days_late" : -2,
+      "source_days_late" : 0
+    }, {
+      "payment_id" : "LPMT-219",
+      "instrument_type" : "PERSONAL_LOAN",
+      "instrument_id" : "PL-102",
+      "due_date" : "2026-09-07",
+      "posted_date" : "2026-09-10",
+      "derived_days_late" : 3,
+      "source_days_late" : 0
+    } ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "data" : {
+    "DQPaymentMissingDatesTest" : [ {
+      "payment_id" : "CPMT-204",
+      "instrument_type" : "CREDIT_CARD",
+      "instrument_id" : "CCA-105",
+      "payment_amount_cents" : 410000,
+      "due_date" : "2026-09-09",
+      "posted_date" : null,
+      "issue" : "MISSING_POSTED_DATE"
+    }, {
+      "payment_id" : "MPMT-210",
+      "instrument_type" : "MORTGAGE",
+      "instrument_id" : "ML-105",
+      "payment_amount_cents" : 320000,
+      "due_date" : null,
+      "posted_date" : "2026-09-08",
+      "issue" : "MISSING_DUE_DATE"
+    } ]
+  }
+}

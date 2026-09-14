@@ -1,0 +1,309 @@
+-- ## Credit Cards
+--
+-- Credit card account and transaction data including account details, physical
+-- and virtual cards, statements, payments, credit limit changes, and delinquency
+-- events. Supports credit card portfolio management, billing, collections, and
+-- regulatory compliance.
+-- Data is a CDC stream from source system.
+--
+-- Layer:            bronze
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA, FCRA, TILA, CARD Act, Regulation Z, PCI-DSS
+
+/** Credit card account records with credit terms and status.
+    Grain: one row per credit_card_account_id.
+
+    # Columns:
+    * credit_card_account_id: Unique identifier for the credit card account @npi
+    * account_number: Account number displayed to customer @npi @mask
+    * primary_customer_id: Reference to primary customer @pii
+    * product_code: Product code reference
+    * product_name: Product name (Rewards, Platinum, etc.)
+    * account_status: Account status: OPEN, CLOSED, SUSPENDED, CHARGED_OFF
+    * credit_limit_cents: Credit limit in cents @npi @confidential
+    * available_credit_cents: Available credit in cents @npi @confidential
+    * current_balance_cents: Current balance in cents @npi @confidential
+    * statement_balance_cents: Statement balance in cents @npi @confidential
+    * minimum_payment_due_cents: Minimum payment due in cents @npi @confidential
+    * payment_due_date: Payment due date
+    * purchase_apr: Purchase APR
+    * cash_advance_apr: Cash advance APR
+    * balance_transfer_apr: Balance transfer APR
+    * penalty_apr: Penalty APR
+    * penalty_apr_active: Whether penalty APR is currently applied
+    * intro_apr: Introductory APR (if active)
+    * intro_apr_end_date: Introductory APR expiration date
+    * annual_fee_cents: Annual fee in cents
+    * opened_date: Date account was opened
+    * closed_date: Date account was closed (if applicable)
+    * closure_reason: Closure reason
+    * last_activity_date: Last activity date
+    * statement_cycle_day: Statement cycle day (1-28)
+    * autopay_enrolled: Whether account is enrolled in autopay
+    * autopay_type: Autopay type: MINIMUM, STATEMENT_BALANCE, FULL_BALANCE, FIXED_AMOUNT
+    * rewards_program: Rewards program enrolled
+    * rewards_balance: Current rewards balance (points/miles/cashback cents)
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Credit_Card_Account_schema (
+  credit_card_account_id STRING NOT NULL,
+  account_number STRING NOT NULL,
+  primary_customer_id STRING NOT NULL,
+  product_code STRING NOT NULL,
+  product_name STRING,
+  account_status STRING NOT NULL,
+  credit_limit_cents BIGINT NOT NULL,
+  available_credit_cents BIGINT,
+  current_balance_cents BIGINT NOT NULL,
+  statement_balance_cents BIGINT,
+  minimum_payment_due_cents BIGINT,
+  payment_due_date DATE,
+  purchase_apr DECIMAL(6, 4) NOT NULL,
+  cash_advance_apr DECIMAL(6, 4),
+  balance_transfer_apr DECIMAL(6, 4),
+  penalty_apr DECIMAL(6, 4),
+  penalty_apr_active BOOLEAN NOT NULL,
+  intro_apr DECIMAL(6, 4),
+  intro_apr_end_date DATE,
+  annual_fee_cents BIGINT,
+  opened_date DATE NOT NULL,
+  closed_date DATE,
+  closure_reason STRING,
+  last_activity_date DATE,
+  statement_cycle_day INT NOT NULL,
+  autopay_enrolled BOOLEAN NOT NULL,
+  autopay_type STRING,
+  rewards_program STRING,
+  rewards_balance BIGINT,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Physical and virtual credit cards associated with accounts.
+    Grain: one row per card_id.
+
+    # Columns:
+    * card_id: Unique identifier for the card @pci @tokenize
+    * credit_card_account_id: Reference to credit card account @npi
+    * cardholder_customer_id: Reference to cardholder @pii
+    * card_last_four: Last four digits of card number
+    * card_type: Card type: PRIMARY, AUTHORIZED_USER, EMPLOYEE, VIRTUAL
+    * card_status: Card status: ACTIVE, INACTIVE, LOST, STOLEN, EXPIRED, REPLACED, CLOSED
+    * embossed_name: Name embossed on card @pii @encrypt
+    * expiration_date: Card expiration date @pci
+    * issued_date: Date card was issued
+    * activated_date: Date card was activated
+    * status_changed_date: Date card status changed
+    * network: Card network: VISA, MASTERCARD, AMEX, DISCOVER
+    * card_tier: Card tier: STANDARD, GOLD, PLATINUM, SIGNATURE, INFINITE
+    * contactless_enabled: Whether contactless enabled
+    * is_virtual: Whether card is virtual only
+    * has_chip: Whether card has chip
+    * pin_status: PIN status: SET, NOT_SET, LOCKED
+    * spending_limit_cents: Individual card spending limit in cents (if set)
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Credit_Card_schema (
+  card_id STRING NOT NULL,
+  credit_card_account_id STRING NOT NULL,
+  cardholder_customer_id STRING NOT NULL,
+  card_last_four STRING NOT NULL,
+  card_type STRING NOT NULL,
+  card_status STRING NOT NULL,
+  embossed_name STRING,
+  expiration_date DATE NOT NULL,
+  issued_date DATE NOT NULL,
+  activated_date DATE,
+  status_changed_date DATE,
+  network STRING NOT NULL,
+  card_tier STRING,
+  contactless_enabled BOOLEAN NOT NULL,
+  is_virtual BOOLEAN NOT NULL,
+  has_chip BOOLEAN NOT NULL,
+  pin_status STRING,
+  spending_limit_cents BIGINT,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Credit card statement records with billing cycle summaries.
+    Grain: one row per statement_id.
+
+    # Columns:
+    * statement_id: Unique identifier for the statement
+    * credit_card_account_id: Reference to credit card account @npi
+    * statement_date: Statement date
+    * period_start_date: Statement period start date
+    * period_end_date: Statement period end date
+    * previous_balance_cents: Previous statement balance in cents @npi @confidential
+    * payments_cents: Payments received in cents @npi @confidential
+    * credits_cents: Credits/refunds in cents
+    * purchases_cents: Purchases in cents @npi @confidential
+    * cash_advances_cents: Cash advances in cents @npi @confidential
+    * balance_transfers_cents: Balance transfers in cents @npi @confidential
+    * fees_cents: Fees charged in cents
+    * interest_cents: Interest charged in cents @npi @confidential
+    * new_balance_cents: New statement balance in cents @npi @confidential
+    * minimum_payment_cents: Minimum payment due in cents @npi @confidential
+    * payment_due_date: Payment due date
+    * credit_limit_cents: Credit limit at statement in cents @npi @confidential
+    * available_credit_cents: Available credit at statement in cents @npi @confidential
+    * transaction_count: Number of transactions this cycle
+    * days_in_cycle: Days in billing cycle
+    * avg_daily_balance_cents: Average daily balance in cents @npi @confidential
+    * rewards_earned: Points/rewards earned this cycle
+    * rewards_redeemed: Points/rewards redeemed this cycle
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Credit_Card_Statement_schema (
+  statement_id STRING NOT NULL,
+  credit_card_account_id STRING NOT NULL,
+  statement_date DATE NOT NULL,
+  period_start_date DATE NOT NULL,
+  period_end_date DATE NOT NULL,
+  previous_balance_cents BIGINT,
+  payments_cents BIGINT,
+  credits_cents BIGINT,
+  purchases_cents BIGINT,
+  cash_advances_cents BIGINT,
+  balance_transfers_cents BIGINT,
+  fees_cents BIGINT,
+  interest_cents BIGINT,
+  new_balance_cents BIGINT NOT NULL,
+  minimum_payment_cents BIGINT NOT NULL,
+  payment_due_date DATE NOT NULL,
+  credit_limit_cents BIGINT,
+  available_credit_cents BIGINT,
+  transaction_count INT,
+  days_in_cycle INT NOT NULL,
+  avg_daily_balance_cents BIGINT,
+  rewards_earned BIGINT,
+  rewards_redeemed BIGINT,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Credit card payment records.
+    Grain: one row per payment_id.
+
+    # Columns:
+    * payment_id: Unique identifier for the payment
+    * credit_card_account_id: Reference to credit card account @npi
+    * statement_id: Reference to statement being paid
+    * payment_amount_cents: Payment amount in cents @npi @confidential
+    * payment_type: Payment type: REGULAR, AUTOPAY, PAYOFF
+    * payment_status: Payment status: PENDING, POSTED, RETURNED, REVERSED
+    * payment_method: Payment method: ACH, CHECK, DEBIT_CARD, TRANSFER
+    * source_account: Source account for payment @npi
+    * source_routing: Source routing number
+    * received_date: Date payment was received
+    * posted_date: Date payment was posted
+    * due_date: Due date for this payment cycle
+    * days_from_due: Days before/after due date (negative = early)
+    * balance_after_cents: Balance after payment in cents @npi @confidential
+    * confirmation_number: Confirmation number
+    * return_reason_code: Return reason code (if returned)
+    * return_reason: Return reason description @confidential
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Credit_Card_Payment_schema (
+  payment_id STRING NOT NULL,
+  credit_card_account_id STRING NOT NULL,
+  statement_id STRING,
+  payment_amount_cents BIGINT NOT NULL,
+  payment_type STRING NOT NULL,
+  payment_status STRING NOT NULL,
+  payment_method STRING,
+  source_account STRING,
+  source_routing STRING,
+  received_date DATE,
+  posted_date DATE,
+  due_date DATE,
+  days_from_due INT,
+  balance_after_cents BIGINT,
+  confirmation_number STRING,
+  return_reason_code STRING,
+  return_reason STRING,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Credit limit change history for accounts.
+    Grain: one row per limit_change_id.
+
+    # Columns:
+    * limit_change_id: Unique identifier for the limit change
+    * credit_card_account_id: Reference to credit card account @npi
+    * change_type: Change type: INCREASE, DECREASE, INITIAL
+    * previous_limit_cents: Previous credit limit in cents @npi @confidential
+    * new_limit_cents: New credit limit in cents @npi @confidential
+    * change_amount_cents: Change amount in cents
+    * change_reason: Reason for change: CUSTOMER_REQUEST, PROACTIVE, RISK_REVIEW, NEW_ACCOUNT
+    * initiated_by: Initiated by: CUSTOMER, BANK, SYSTEM
+    * effective_date: Date change was effective
+    * credit_score_at_change: Credit score at time of change @npi @confidential
+    * customer_notified: Whether customer was notified
+    * notification_date: Date customer was notified
+    * adverse_action_required: Adverse action required (for decreases)
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Credit_Limit_History_schema (
+  limit_change_id STRING NOT NULL,
+  credit_card_account_id STRING NOT NULL,
+  change_type STRING NOT NULL,
+  previous_limit_cents BIGINT,
+  new_limit_cents BIGINT NOT NULL,
+  change_amount_cents BIGINT,
+  change_reason STRING,
+  initiated_by STRING NOT NULL,
+  effective_date DATE NOT NULL,
+  credit_score_at_change INT,
+  customer_notified BOOLEAN NOT NULL,
+  notification_date DATE,
+  adverse_action_required BOOLEAN NOT NULL,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** Credit card delinquency events and collections.
+    Grain: one row per delinquency_event_id.
+
+    # Columns:
+    * delinquency_event_id: Unique identifier for the delinquency event
+    * credit_card_account_id: Reference to credit card account @npi
+    * customer_id: Reference to customer @pii
+    * event_type: Event type: MISSED_PAYMENT, DELINQUENCY_START, DELINQUENCY_CURED, CHARGE_OFF, COLLECTION_ASSIGNED, RECOVERY
+    * days_past_due: Days past due at event
+    * delinquency_bucket: Delinquency bucket: CURRENT, 30_DAY, 60_DAY, 90_DAY, 120_DAY, 150_DAY, 180_PLUS
+    * amount_past_due_cents: Amount past due in cents @npi @confidential
+    * total_balance_cents: Total balance at event in cents @npi @confidential
+    * event_date: Event date
+    * cured_date: Date cured (if applicable)
+    * collection_action: Collection action taken @confidential
+    * collection_agency: Collection agency assigned (if applicable)
+    * charge_off_date: Charge-off date (if applicable)
+    * charge_off_amount_cents: Charge-off amount in cents @npi @confidential
+    * recovery_amount_cents: Recovery amount in cents
+    * net_charge_off_cents: Net charge-off in cents @confidential
+    * source_system: Source system identifier
+    * source_updated_at: Timestamp when record was last updated in source system */
+CREATE TABLE Card_Delinquency_Event_schema (
+  delinquency_event_id STRING NOT NULL,
+  credit_card_account_id STRING NOT NULL,
+  customer_id STRING NOT NULL,
+  event_type STRING NOT NULL,
+  days_past_due INT NOT NULL,
+  delinquency_bucket STRING NOT NULL,
+  amount_past_due_cents BIGINT,
+  total_balance_cents BIGINT,
+  event_date DATE NOT NULL,
+  cured_date DATE,
+  collection_action STRING,
+  collection_agency STRING,
+  charge_off_date DATE,
+  charge_off_amount_cents BIGINT,
+  recovery_amount_cents BIGINT,
+  net_charge_off_cents BIGINT,
+  source_system STRING NOT NULL,
+  source_updated_at TIMESTAMP_LTZ(3) NOT NULL
+);

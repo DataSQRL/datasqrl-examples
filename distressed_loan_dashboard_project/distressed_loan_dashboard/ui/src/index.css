@@ -1,0 +1,13 @@
+@import "tailwindcss";
+/* Tailwind v4 does not scan node_modules by default, but Tremor's chart
+   components generate their utility classes at runtime from its own
+   compiled JS — without this, charts render unstyled (giant default SVG
+   shapes instead of lines/areas). */
+@source "../node_modules/@tremor/react/dist";
+
+body {
+  margin: 0;
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}

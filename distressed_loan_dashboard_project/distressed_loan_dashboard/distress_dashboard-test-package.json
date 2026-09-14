@@ -1,0 +1,14 @@
+{
+  "script": {
+    "config": {
+      "environment": "test",
+      "pinned_anchor": true,
+      "anchor_date": "2026-09-14"
+    }
+  },
+  "test-runner": {
+    "delay-sec": -1,
+    "snapshot-folder": "snapshots/distress_dashboard/",
+    "test-folder": "distress_dashboard-api/tests"
+  }
+}

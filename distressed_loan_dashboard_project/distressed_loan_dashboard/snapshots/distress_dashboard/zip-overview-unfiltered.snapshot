@@ -1,0 +1,65 @@
+{
+  "data" : {
+    "ZipOverview" : [ {
+      "zip_code" : "19104",
+      "state" : "PA",
+      "current_week_start" : "2026-09-07",
+      "prior_week_start" : "2026-08-31",
+      "payments_due_amount_cents_current" : 20000000,
+      "distressed_amount_cents_current" : 1200000,
+      "distressed_amount_cents_prior" : 1000000,
+      "pct_distressed_current" : 6.0,
+      "pct_distressed_prior" : 5.0,
+      "distressed_amount_pct_change" : 20.0,
+      "pct_distressed_point_change" : 1.0
+    }, {
+      "zip_code" : "19147",
+      "state" : "PA",
+      "current_week_start" : "2026-09-07",
+      "prior_week_start" : "2026-08-31",
+      "payments_due_amount_cents_current" : 10000000,
+      "distressed_amount_cents_current" : 600000,
+      "distressed_amount_cents_prior" : 900000,
+      "pct_distressed_current" : 6.0,
+      "pct_distressed_prior" : 9.0,
+      "distressed_amount_pct_change" : -33.33,
+      "pct_distressed_point_change" : -3.0
+    }, {
+      "zip_code" : "98101",
+      "state" : "WA",
+      "current_week_start" : "2026-09-07",
+      "prior_week_start" : "2026-08-31",
+      "payments_due_amount_cents_current" : 260000,
+      "distressed_amount_cents_current" : 260000,
+      "distressed_amount_cents_prior" : 500000,
+      "pct_distressed_current" : 100.0,
+      "pct_distressed_prior" : 5.0,
+      "distressed_amount_pct_change" : -48.0,
+      "pct_distressed_point_change" : 95.0
+    }, {
+      "zip_code" : "15213",
+      "state" : "PA",
+      "current_week_start" : "2026-09-07",
+      "prior_week_start" : "2026-08-31",
+      "payments_due_amount_cents_current" : 500000,
+      "distressed_amount_cents_current" : 0,
+      "distressed_amount_cents_prior" : 0,
+      "pct_distressed_current" : 0.0,
+      "pct_distressed_prior" : 0.0,
+      "distressed_amount_pct_change" : null,
+      "pct_distressed_point_change" : 0.0
+    }, {
+      "zip_code" : "98109",
+      "state" : "WA",
+      "current_week_start" : "2026-09-07",
+      "prior_week_start" : "2026-08-31",
+      "payments_due_amount_cents_current" : 0,
+      "distressed_amount_cents_current" : 0,
+      "distressed_amount_cents_prior" : 0,
+      "pct_distressed_current" : null,
+      "pct_distressed_prior" : null,
+      "distressed_amount_pct_change" : null,
+      "pct_distressed_point_change" : null
+    } ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "data" : {
+    "DashboardRunTest" : [ {
+      "run_scope" : "CURRENT",
+      "as_of_date" : "2026-09-14",
+      "current_week_start" : "2026-09-07",
+      "current_week_end" : "2026-09-13",
+      "prior_week_start" : "2026-08-31",
+      "chart_window_start" : "2026-06-22",
+      "window_start_date" : "2026-06-15",
+      "window_end_date" : "2026-09-13"
+    } ]
+  }
+}

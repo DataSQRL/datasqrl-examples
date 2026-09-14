@@ -1,0 +1,1184 @@
+-- Distressed Loan Dashboard: nightly batch recompute of weekly payment-distress
+-- aggregates per zip code and per customer, over a rolling 13-complete-week
+-- window, served through GraphQL/REST/MCP.
+--
+-- Layer:            silver (derived from data_catalog bronze sources)
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA, FCRA, TILA, RESPA, PCI-DSS — inherited
+--                    from the data_catalog scripts this project reads
+--                    (customer_master, consumer_loans, credit_cards,
+--                    mortgage_servicing); see ../data-catalog/README.md for
+--                    the tag vocabulary referenced throughout this file.
+--
+-- Execution mode: the flink engine runs with execution.runtime-mode=BATCH
+-- (distress_dashboard-shared-package.json). Every table below is
+-- recomputed from a bounded input snapshot each nightly run (R3, R4) and
+-- retains no state between runs — there is no continuous input to
+-- watermark and no keyed state that survives past the run that produced
+-- it, so lint rules aimed at unbounded streaming state or missing
+-- watermarks do not apply to any table in this script.
+--
+-- Sensitivity tag propagation into this project's serving tables
+-- (CustomerWeekly, ZipWeekly, ZipCustomerDistress, ZipOverview,
+-- ZipOverviewByPrefix, ZipWeeklyHistory):
+-- * customer_id, first_name, last_name, zip_code, city carry @pii from
+--   Customer_schema / Customer_Address_schema. Required for the
+--   dashboard's customer-lookup requirement (R13) and the zip/state
+--   filter (R9); not masked. Who may see this data (requirements open
+--   question 3) is an access-control concern for the API gateway, out of
+--   scope for this pipeline.
+-- * payment_amount_cents, amount_past_due_cents and every measure derived
+--   from them carry @npi @confidential from Loan_Payment_schema /
+--   Mortgage_Payment_schema / Credit_Card_Payment_schema and the three
+--   *_Delinquency_Event_schema tables. These stay unaggregated (one row
+--   per payment) through every CTE up to the customer-week / zip-week
+--   GROUP BY; CustomerWeekly and ZipWeekly expose only the aggregated
+--   sums, never a per-payment row. _days_late_sum is the one column that
+--   is a raw per-payment SUM (not yet averaged into avg_days_late); it
+--   is a hidden column (leading underscore, excluded from every
+--   generated API result type per /design-api) and still carries
+--   @npi @confidential because summing does not anonymize the amounts on
+--   its own.
+-- * ZipWeekly's *_amount_cents and *_count columns are declassified from
+--   @confidential to unmarked at zip grain: this is an explicit,
+--   documented approval for this dashboard, because R1/R7 require these
+--   figures at zip level and a SUM across every customer in a zip code
+--   does not disclose an individual payment. CustomerWeekly's equivalent
+--   columns are customer-grain (not aggregated across customers) and so
+--   keep the @npi @confidential / regulatory scope of their sources.
+-- * Retention: none of the data_catalog scripts this project reads
+--   declares a retention tag (../data-catalog/README.md's tag vocabulary
+--   has no `@retain` tag at all), so there is no source retention
+--   obligation for this pipeline to propagate or fall short of.
+
+IMPORT connectors.sources-{{environment}} AS sources;
+
+-- ============================================================
+-- RUN ANCHOR
+-- ============================================================
+
+/** Single-row run anchor: as_of_date is pinned in test/local and follows the
+    wall clock in prod. Computes the current and prior Monday-start week
+    boundaries, the 12-week chart window start and the 13-week (84-day)
+    aggregation window used to bound every downstream table, all derived
+    arithmetically from as_of_date (no time zone conversion since every
+    source date is a SQL DATE). Built from a VALUES row rather than a
+    FROM-less SELECT. */
+_RunAnchor :=
+SELECT
+  as_of_date,
+  current_week_start,
+  TIMESTAMPADD(DAY, 6, current_week_start) AS current_week_end,
+  TIMESTAMPADD(DAY, -7, current_week_start) AS prior_week_start,
+  TIMESTAMPADD(DAY, -77, current_week_start) AS chart_window_start,
+  TIMESTAMPADD(DAY, -84, current_week_start) AS window_start_date,
+  TIMESTAMPADD(DAY, 6, current_week_start) AS window_end_date
+FROM (
+  SELECT
+    as_of_date,
+    TIMESTAMPADD(DAY, -7, anchor_week_start) AS current_week_start
+  FROM (
+    SELECT
+      as_of_date,
+      TIMESTAMPADD(DAY, -((DAYOFWEEK(as_of_date) + 5) % 7), as_of_date) AS anchor_week_start
+    FROM (
+      SELECT
+{{#pinned_anchor}}
+        DATE '{{anchor_date}}' AS as_of_date
+{{/pinned_anchor}}
+{{^pinned_anchor}}
+        CURRENT_DATE AS as_of_date
+{{/pinned_anchor}}
+      FROM (VALUES (1)) AS _seed(_dummy)
+    ) AS _base
+  ) AS _weekstart
+) AS _current;
+
+-- ============================================================
+-- CDC DEDUPLICATION AND CUSTOMER GEOGRAPHY
+-- ============================================================
+
+/** Deduplicates the Customer CDC stream to one row per customer_id, keeping
+    the most recently updated source record (last-write-wins on
+    source_updated_at). */
+_Customer := DISTINCT sources.Customer ON customer_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Customer_Address CDC stream to one row per
+    (customer_id, address_type, effective_from) — a customer can have more
+    than one address type and more than one effective period per type —
+    keeping the most recently updated source record. */
+_CustomerAddress := DISTINCT sources.Customer_Address ON customer_id, address_type, effective_from ORDER BY source_updated_at DESC;
+/** Deduplicates the Personal_Loan CDC stream to one row per loan_id, keeping
+    the most recently updated source record. */
+_PersonalLoan := DISTINCT sources.Personal_Loan ON loan_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Auto_Loan CDC stream to one row per loan_id, keeping the
+    most recently updated source record. */
+_AutoLoan := DISTINCT sources.Auto_Loan ON loan_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Mortgage_Loan CDC stream to one row per loan_id, keeping
+    the most recently updated source record. */
+_MortgageLoan := DISTINCT sources.Mortgage_Loan ON loan_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Credit_Card_Account CDC stream to one row per
+    credit_card_account_id, keeping the most recently updated source
+    record. */
+_CreditCardAccount := DISTINCT sources.Credit_Card_Account ON credit_card_account_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Loan_Payment CDC stream (personal and auto loan
+    payments) to one row per payment_id, keeping the most recently updated
+    source record. */
+_LoanPayment := DISTINCT sources.Loan_Payment ON payment_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Mortgage_Payment CDC stream to one row per payment_id,
+    keeping the most recently updated source record. */
+_MortgagePayment := DISTINCT sources.Mortgage_Payment ON payment_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Credit_Card_Payment CDC stream to one row per
+    payment_id, keeping the most recently updated source record. */
+_CreditCardPayment := DISTINCT sources.Credit_Card_Payment ON payment_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Consumer_Loan_Delinquency_Event CDC stream (personal
+    and auto loans) to one row per delinquency_event_id, keeping the most
+    recently updated source record. */
+_ConsumerLoanDelinquencyEvent := DISTINCT sources.Consumer_Loan_Delinquency_Event ON delinquency_event_id ORDER BY source_updated_at DESC;
+/** Deduplicates the mortgage Delinquency_Event CDC stream to one row per
+    delinquency_event_id, keeping the most recently updated source
+    record. */
+_MortgageDelinquencyEvent := DISTINCT sources.Delinquency_Event ON delinquency_event_id ORDER BY source_updated_at DESC;
+/** Deduplicates the Card_Delinquency_Event CDC stream to one row per
+    delinquency_event_id, keeping the most recently updated source
+    record. */
+_CardDelinquencyEvent := DISTINCT sources.Card_Delinquency_Event ON delinquency_event_id ORDER BY source_updated_at DESC;
+
+/** Every current PRIMARY address row per customer (address_type = 'PRIMARY'
+    AND is_current = true), with state upper-cased for the R9 state filter.
+    Zero or more rows per customer_id — collapsed to one by _CustomerZip. */
+_CurrentPrimaryAddress := SELECT
+  customer_id,
+  postal_code AS zip_code,
+  UPPER(state_province) AS state,
+  city,
+  source_updated_at
+FROM _CustomerAddress
+WHERE address_type = 'PRIMARY' AND is_current = true;
+
+/** Reduces _CurrentPrimaryAddress to exactly one row per customer_id,
+    keeping the most recently updated record — the single current-zip
+    assignment used for the entire aggregation window (R5). */
+_CustomerZip := DISTINCT _CurrentPrimaryAddress ON customer_id ORDER BY source_updated_at DESC;
+
+/** Customer dimension: display fields plus the single current-zip assignment
+    applied to the whole window (R5). LEFT JOIN keeps customers with no
+    current PRIMARY address (captured by DQ_Customer_Missing_Zip) with a
+    null zip. */
+_CustomerDim := SELECT
+  c.customer_id,
+  c.first_name,
+  c.last_name,
+  c.customer_type,
+  c.customer_status,
+  c.relationship_start_date,
+  z.zip_code,
+  z.state,
+  z.city
+FROM _Customer c
+LEFT JOIN _CustomerZip z ON c.customer_id = z.customer_id;
+
+-- ============================================================
+-- INSTRUMENT OWNER RESOLUTION
+-- ============================================================
+
+/** Unions the primary-borrower relationship of every loan/account instrument
+    type (personal loan, auto loan, mortgage, credit card) onto one
+    (instrument_type, instrument_id, customer_id) shape. Never filtered by
+    loan/account status: a payment due in the window on a since-closed
+    instrument still belongs in that week's buckets. */
+_InstrumentOwner :=
+SELECT 'PERSONAL_LOAN' AS instrument_type, loan_id AS instrument_id, primary_borrower_customer_id AS customer_id FROM _PersonalLoan
+UNION ALL
+SELECT 'AUTO_LOAN' AS instrument_type, loan_id AS instrument_id, primary_borrower_customer_id AS customer_id FROM _AutoLoan
+UNION ALL
+SELECT 'MORTGAGE' AS instrument_type, loan_id AS instrument_id, primary_borrower_customer_id AS customer_id FROM _MortgageLoan
+UNION ALL
+SELECT 'CREDIT_CARD' AS instrument_type, credit_card_account_id AS instrument_id, primary_customer_id AS customer_id FROM _CreditCardAccount;
+
+-- ============================================================
+-- PAYMENT NORMALIZATION AND CLASSIFICATION
+-- ============================================================
+
+/** Unions the three payment sources (Loan_Payment, Mortgage_Payment,
+    Credit_Card_Payment; all carry @npi @confidential on payment_amount_cents
+    per the data_catalog — see the file header) onto one shape. Posting date
+    follows each source's own fallback order; source-reported lateness is
+    retained only to feed DQ_Payment_DaysLate_Mismatch, never to drive a
+    bucket. days_late is derived here, per source, before the UNION ALL: the
+    Postgres SQL generator cannot unparse a date-difference computed after a
+    UNION ALL + JOIN (a DataSQRL/Calcite dialect limitation, not a business
+    rule), so the subtraction must happen while each branch still reads a
+    single dedup'd source. */
+_RawPayment :=
+SELECT
+  payment_id,
+  CASE WHEN loan_type = 'PERSONAL' THEN 'PERSONAL_LOAN' WHEN loan_type = 'AUTO' THEN 'AUTO_LOAN' END AS instrument_type,
+  loan_id AS instrument_id,
+  payment_amount_cents,
+  payment_type,
+  payment_status,
+  due_date,
+  COALESCE(applied_date, received_date) AS posted_date,
+  days_past_due_at_payment AS source_days_late,
+  CASE WHEN due_date IS NULL OR COALESCE(applied_date, received_date) IS NULL THEN NULL
+       ELSE TIMESTAMPDIFF(DAY, due_date, COALESCE(applied_date, received_date)) END AS days_late,
+  ingested_at
+FROM _LoanPayment
+UNION ALL
+SELECT
+  payment_id,
+  'MORTGAGE' AS instrument_type,
+  loan_id AS instrument_id,
+  payment_amount_cents,
+  payment_type,
+  payment_status,
+  due_date,
+  COALESCE(applied_date, received_date) AS posted_date,
+  days_past_due_at_payment AS source_days_late,
+  CASE WHEN due_date IS NULL OR COALESCE(applied_date, received_date) IS NULL THEN NULL
+       ELSE TIMESTAMPDIFF(DAY, due_date, COALESCE(applied_date, received_date)) END AS days_late,
+  ingested_at
+FROM _MortgagePayment
+UNION ALL
+SELECT
+  payment_id,
+  'CREDIT_CARD' AS instrument_type,
+  credit_card_account_id AS instrument_id,
+  payment_amount_cents,
+  payment_type,
+  payment_status,
+  due_date,
+  COALESCE(posted_date, received_date) AS posted_date,
+  days_from_due AS source_days_late,
+  CASE WHEN due_date IS NULL OR COALESCE(posted_date, received_date) IS NULL THEN NULL
+       ELSE TIMESTAMPDIFF(DAY, due_date, COALESCE(posted_date, received_date)) END AS days_late,
+  ingested_at
+FROM _CreditCardPayment;
+
+/** LEFT JOINs every normalized payment to _InstrumentOwner to attribute it
+    to the instrument's primary borrower. Unmatched rows (customer_id null)
+    are kept, not dropped, so DQ_Payment_Unknown_Instrument can collect
+    them. */
+_PaymentAttributed := SELECT
+  p.payment_id,
+  p.instrument_type,
+  p.instrument_id,
+  o.customer_id,
+  p.payment_amount_cents,
+  p.payment_type,
+  p.payment_status,
+  p.due_date,
+  p.posted_date,
+  p.source_days_late,
+  p.days_late,
+  p.ingested_at
+FROM _RawPayment p
+LEFT JOIN _InstrumentOwner o ON p.instrument_type = o.instrument_type AND p.instrument_id = o.instrument_id;
+
+/** Derives exclusion_reason for every payment that cannot be classified into
+    a bucket: UNKNOWN_INSTRUMENT (no matching primary borrower),
+    NOT_POSTED_STATUS (payment_status is neither APPLIED nor POSTED),
+    PARTIAL_PAYMENT (partial payments are out of scope per the
+    requirements), or MISSING_POSTED_DATE; null when none apply. The
+    exclusion reason needs customer_id from the join in _PaymentAttributed,
+    but the lateness value itself was already derived per-source in
+    _RawPayment. */
+_PaymentDaysLate := SELECT
+  payment_id,
+  instrument_type,
+  instrument_id,
+  customer_id,
+  payment_amount_cents,
+  payment_type,
+  payment_status,
+  due_date,
+  posted_date,
+  source_days_late,
+  days_late,
+  CASE
+    WHEN customer_id IS NULL THEN 'UNKNOWN_INSTRUMENT'
+    WHEN payment_status <> 'APPLIED' AND payment_status <> 'POSTED' THEN 'NOT_POSTED_STATUS'
+    WHEN payment_type = 'PARTIAL' THEN 'PARTIAL_PAYMENT'
+    WHEN posted_date IS NULL THEN 'MISSING_POSTED_DATE'
+    ELSE NULL
+  END AS exclusion_reason
+FROM _PaymentAttributed;
+
+/** Final payment classification: bucket is exactly one of POSTED_ON_TIME
+    (days_late <= 0) or POSTED_LATE (days_late > 0), or null when
+    exclusion_reason is set or due_date is null (no grace period — any
+    positive days_late is late, per the requirements). Also derives
+    due_week_start and posted_week_start (Monday-start weeks) used by every
+    downstream aggregation. */
+_PaymentClassified := SELECT
+  payment_id,
+  instrument_type,
+  instrument_id,
+  customer_id,
+  payment_amount_cents,
+  payment_type,
+  payment_status,
+  due_date,
+  posted_date,
+  source_days_late,
+  exclusion_reason,
+  days_late,
+  CASE
+    WHEN exclusion_reason IS NOT NULL THEN NULL
+    WHEN due_date IS NULL THEN NULL
+    WHEN days_late <= 0 THEN 'POSTED_ON_TIME'
+    WHEN days_late > 0 THEN 'POSTED_LATE'
+    ELSE NULL
+  END AS bucket,
+  CAST(CAST(TIMESTAMPADD(DAY, -((DAYOFWEEK(due_date) + 5) % 7), due_date) AS VARCHAR) AS DATE) AS due_week_start,
+  CAST(CAST(TIMESTAMPADD(DAY, -((DAYOFWEEK(posted_date) + 5) % 7), posted_date) AS VARCHAR) AS DATE) AS posted_week_start
+FROM _PaymentDaysLate;
+
+-- ============================================================
+-- DELINQUENCY NORMALIZATION AND NOT-POSTED SLOT RESOLUTION
+-- ============================================================
+
+/** Unions the three delinquency-event sources (Consumer_Loan_Delinquency_Event,
+    mortgage Delinquency_Event, Card_Delinquency_Event; amount_past_due_cents
+    carries @npi @confidential per the data_catalog) onto one shape, filtered
+    to event_type = 'MISSED_PAYMENT'. Only MISSED_PAYMENT events represent an
+    individual missed payment; every other event type is delinquency
+    lifecycle on a payment already represented elsewhere (the mortgage
+    LATE_PAYMENT value in particular is already in Mortgage_Payment). */
+_RawDelinquency :=
+SELECT
+  delinquency_event_id,
+  CASE WHEN loan_type = 'PERSONAL' THEN 'PERSONAL_LOAN' WHEN loan_type = 'AUTO' THEN 'AUTO_LOAN' END AS instrument_type,
+  loan_id AS instrument_id,
+  customer_id AS event_customer_id,
+  amount_past_due_cents,
+  event_date,
+  source_updated_at
+FROM _ConsumerLoanDelinquencyEvent
+WHERE event_type = 'MISSED_PAYMENT'
+UNION ALL
+SELECT
+  delinquency_event_id,
+  'MORTGAGE' AS instrument_type,
+  loan_id AS instrument_id,
+  customer_id AS event_customer_id,
+  amount_past_due_cents,
+  event_date,
+  source_updated_at
+FROM _MortgageDelinquencyEvent
+WHERE event_type = 'MISSED_PAYMENT'
+UNION ALL
+SELECT
+  delinquency_event_id,
+  'CREDIT_CARD' AS instrument_type,
+  credit_card_account_id AS instrument_id,
+  customer_id AS event_customer_id,
+  amount_past_due_cents,
+  event_date,
+  source_updated_at
+FROM _CardDelinquencyEvent
+WHERE event_type = 'MISSED_PAYMENT';
+
+/** LEFT JOINs every missed-payment event to _InstrumentOwner and attributes
+    it to the instrument's primary borrower (owner_customer_id), never the
+    event's own customer_id — DQ_Delinquency_Customer_Mismatch records
+    disagreements between the two. Derives due_week_start from event_date
+    under the requirements' stated assumption: a missed-payment event is
+    created in the week the missed payment was due. */
+_DelinquencyAttributed := SELECT
+  d.delinquency_event_id,
+  d.instrument_type,
+  d.instrument_id,
+  d.event_customer_id,
+  o.customer_id AS owner_customer_id,
+  d.amount_past_due_cents,
+  d.event_date,
+  CAST(CAST(TIMESTAMPADD(DAY, -((DAYOFWEEK(d.event_date) + 5) % 7), d.event_date) AS VARCHAR) AS DATE) AS due_week_start,
+  d.source_updated_at
+FROM _RawDelinquency d
+LEFT JOIN _InstrumentOwner o ON d.instrument_type = o.instrument_type AND d.instrument_id = o.instrument_id;
+
+/** Deduplicates _DelinquencyAttributed to one candidate slot per
+    (instrument_type, instrument_id, due_week_start): repeated
+    missed-payment events for the same missed payment count once, keeping
+    the one with the latest event_date, then latest source_updated_at. */
+_DelinquencySlotCandidate := DISTINCT _DelinquencyAttributed
+  ON instrument_type, instrument_id, due_week_start
+  ORDER BY event_date DESC, source_updated_at DESC;
+
+/** The distinct set of (instrument_type, instrument_id, due_week_start)
+    combinations that already have a POSTED_LATE payment on file — used by
+    _NotPostedSlot to avoid double-counting a missed payment that has since
+    been paid late. */
+_PostedLatePayment := SELECT instrument_type, instrument_id, due_week_start
+FROM _PaymentClassified
+WHERE bucket = 'POSTED_LATE'
+GROUP BY instrument_type, instrument_id, due_week_start;
+
+/** LEFT JOIN anti-join against _PostedLatePayment: a missed payment becomes
+    a not-posted slot only when pl.instrument_type is null, i.e. no
+    posted-late payment exists for the same instrument and due week — once
+    paid (even late), it is already counted there and must not be counted
+    twice (R6). owner_customer_id IS NOT NULL also excludes unknown
+    instruments here, captured separately by
+    DQ_Delinquency_Unknown_Instrument. */
+_NotPostedSlot := SELECT
+  c.instrument_type,
+  c.instrument_id,
+  c.due_week_start,
+  c.owner_customer_id AS customer_id,
+  COALESCE(c.amount_past_due_cents, 0) AS amount_past_due_cents
+FROM _DelinquencySlotCandidate c
+LEFT JOIN _PostedLatePayment pl
+  ON c.instrument_type = pl.instrument_type
+  AND c.instrument_id = pl.instrument_id
+  AND c.due_week_start = pl.due_week_start
+WHERE pl.instrument_type IS NULL AND c.owner_customer_id IS NOT NULL;
+
+-- ============================================================
+-- PER-CUSTOMER WEEKLY AGGREGATION
+-- ============================================================
+
+/** Unions every classified payment (bucket IS NOT NULL, i.e.
+    POSTED_ON_TIME or POSTED_LATE) with every not-posted slot (labeled
+    'NOT_POSTED') onto one (customer_id, due_week_start, bucket,
+    amount_cents) shape — the single input to the customer-week bucket
+    aggregation. Runs under Flink BATCH execution over a bounded nightly
+    snapshot (see file header), so it needs no event-time watermark. */
+_BucketedEvent :=
+SELECT customer_id, due_week_start, bucket, payment_amount_cents AS amount_cents
+FROM _PaymentClassified
+WHERE bucket IS NOT NULL
+UNION ALL
+SELECT customer_id, due_week_start, 'NOT_POSTED' AS bucket, amount_past_due_cents AS amount_cents
+FROM _NotPostedSlot;
+
+/** Bucket counts/amounts per customer per week due, restricted to the
+    13-week aggregation window (a.window_start_date..a.current_week_start).
+    GROUP BY customer_id, due_week_start over a bounded nightly snapshot
+    under Flink BATCH execution (see file header): the aggregation does not
+    accumulate keyed state across runs, so this is not the unbounded
+    incremental state a streaming GROUP BY would build up. */
+_CustomerWeekBuckets := SELECT
+  b.customer_id,
+  b.due_week_start AS week_start_date,
+  SUM(CASE WHEN b.bucket = 'POSTED_ON_TIME' THEN 1 ELSE 0 END) AS posted_on_time_count,
+  SUM(CASE WHEN b.bucket = 'POSTED_ON_TIME' THEN b.amount_cents ELSE 0 END) AS posted_on_time_amount_cents,
+  SUM(CASE WHEN b.bucket = 'POSTED_LATE' THEN 1 ELSE 0 END) AS posted_late_count,
+  SUM(CASE WHEN b.bucket = 'POSTED_LATE' THEN b.amount_cents ELSE 0 END) AS posted_late_amount_cents,
+  SUM(CASE WHEN b.bucket = 'NOT_POSTED' THEN 1 ELSE 0 END) AS not_posted_count,
+  SUM(CASE WHEN b.bucket = 'NOT_POSTED' THEN b.amount_cents ELSE 0 END) AS not_posted_amount_cents
+FROM _BucketedEvent b
+CROSS JOIN _RunAnchor a
+WHERE b.due_week_start >= a.window_start_date AND b.due_week_start <= a.current_week_start
+GROUP BY b.customer_id, b.due_week_start;
+
+/** Average-days-late input: count and sum of days_late for POSTED_LATE
+    payments, grouped by customer_id and week posted (not week due) — a
+    payment classified POSTED_LATE contributes regardless of when it was
+    due, which is what lets a payment due before the window but posted
+    inside it count here. Same bounded-batch GROUP BY as
+    _CustomerWeekBuckets; see file header on why unbounded-state lint rules
+    do not apply. */
+_CustomerWeekLateness := SELECT
+  p.customer_id,
+  p.posted_week_start AS week_start_date,
+  COUNT(*) AS late_posted_count,
+  SUM(p.days_late) AS days_late_sum
+FROM _PaymentClassified p
+CROSS JOIN _RunAnchor a
+WHERE p.bucket = 'POSTED_LATE'
+  AND p.posted_week_start >= a.window_start_date AND p.posted_week_start <= a.current_week_start
+GROUP BY p.customer_id, p.posted_week_start;
+
+/** FULL OUTER JOINs _CustomerWeekBuckets (by week due) and
+    _CustomerWeekLateness (by week posted) on (customer_id,
+    week_start_date), since they are two separate groupings of the same
+    weeks — a full outer join is required so a week with lateness but no
+    payments due (or vice versa) still produces a row. Missing counts/sums
+    from either side are coalesced to 0. */
+_CustomerWeekJoined := SELECT
+  COALESCE(b.customer_id, l.customer_id) AS customer_id,
+  COALESCE(b.week_start_date, l.week_start_date) AS week_start_date,
+  COALESCE(b.posted_on_time_count, 0) AS posted_on_time_count,
+  COALESCE(b.posted_on_time_amount_cents, 0) AS posted_on_time_amount_cents,
+  COALESCE(b.posted_late_count, 0) AS posted_late_count,
+  COALESCE(b.posted_late_amount_cents, 0) AS posted_late_amount_cents,
+  COALESCE(b.not_posted_count, 0) AS not_posted_count,
+  COALESCE(b.not_posted_amount_cents, 0) AS not_posted_amount_cents,
+  COALESCE(l.late_posted_count, 0) AS late_posted_count,
+  COALESCE(l.days_late_sum, 0) AS days_late_sum
+FROM _CustomerWeekBuckets b
+FULL OUTER JOIN _CustomerWeekLateness l
+  ON b.customer_id = l.customer_id AND b.week_start_date = l.week_start_date;
+
+/** Derives the roll-up totals every downstream table needs: payments_due
+    (on-time + late + not-posted) and distressed (late + not-posted), by
+    both count and amount, per the requirements' bucket definitions. */
+_CustomerWeekDerived := SELECT
+  customer_id,
+  week_start_date,
+  posted_on_time_count,
+  posted_on_time_amount_cents,
+  posted_late_count,
+  posted_late_amount_cents,
+  not_posted_count,
+  not_posted_amount_cents,
+  (posted_on_time_count + posted_late_count + not_posted_count) AS payments_due_count,
+  (posted_on_time_amount_cents + posted_late_amount_cents + not_posted_amount_cents) AS payments_due_amount_cents,
+  (posted_late_count + not_posted_count) AS distressed_count,
+  (posted_late_amount_cents + not_posted_amount_cents) AS distressed_amount_cents,
+  late_posted_count,
+  days_late_sum
+FROM _CustomerWeekJoined;
+
+/** Final customer-week grain: every measure from _CustomerWeekDerived plus
+    week_end_date, pct_distressed and avg_days_late. Empty values are null,
+    not zero: pct_distressed is null when payments_due_amount_cents is 0
+    (nothing due), avg_days_late is null when late_posted_count is 0 (no
+    late payment posted that week) — per requirements open question 6. */
+/*+primary_key(customer_id, week_start_date) */
+_CustomerWeekMetrics := SELECT
+  customer_id,
+  week_start_date,
+  -- A Postgres view recomputing DATE + INTERVAL at query time returns a
+  -- timestamp, not a date (a Postgres/Calcite dialect quirk), which the
+  -- GraphQL Date scalar then rejects — and a plain CAST(... AS DATE) here
+  -- gets optimized away by Calcite as provably redundant (DATE + INTERVAL
+  -- DAY = DATE is true by the SQL standard, just not in Postgres's actual
+  -- runtime), so it never reaches the generated SQL text. Routing the value
+  -- through VARCHAR first is not a no-op Calcite can simplify away, so the
+  -- cast survives into whatever SQL text this ends up as.
+  CAST(CAST(TIMESTAMPADD(DAY, 6, week_start_date) AS VARCHAR) AS DATE) AS week_end_date,
+  posted_on_time_count,
+  posted_on_time_amount_cents,
+  posted_late_count,
+  posted_late_amount_cents,
+  not_posted_count,
+  not_posted_amount_cents,
+  payments_due_count,
+  payments_due_amount_cents,
+  distressed_count,
+  distressed_amount_cents,
+  late_posted_count,
+  days_late_sum,
+  CASE WHEN payments_due_amount_cents = 0 THEN NULL
+       ELSE ROUND(distressed_amount_cents * 100.0 / payments_due_amount_cents, 2) END AS pct_distressed,
+  CASE WHEN late_posted_count = 0 THEN NULL
+       ELSE ROUND(days_late_sum * 1.0 / late_posted_count, 2) END AS avg_days_late
+FROM _CustomerWeekDerived;
+
+-- ============================================================
+-- SERVING TABLES
+-- ============================================================
+
+/** Metadata for the current nightly run: the anchor date and every derived
+    week boundary, so the dashboard can show when data was last refreshed and
+    a failed run keeps serving the previous run's results. */
+/*+primary_key(run_scope) */
+DashboardRun := SELECT
+  'CURRENT' AS run_scope,
+  as_of_date,
+  current_week_start,
+  current_week_end,
+  prior_week_start,
+  chart_window_start,
+  window_start_date,
+  window_end_date,
+  CURRENT_TIMESTAMP AS computed_at
+FROM _RunAnchor;
+
+/** Weekly payment-distress measures per customer (R2). Customer-grain, so
+    it retains the full sensitivity/regulatory scope of its sources (see
+    file header): customer_id/first_name/last_name/zip_code/city carry
+    @pii; every *_amount_cents column and _days_late_sum carry @npi
+    @confidential (GLBA/FCRA/TILA/RESPA/PCI-DSS scope). _days_late_sum is a
+    raw per-customer-week SUM of days_late — not yet averaged into
+    avg_days_late — so it keeps its source tags rather than being
+    declassified; it is a hidden column (leading underscore) excluded from
+    every generated API result type and exists only so ZipWeekly can roll
+    up the average from raw sums instead of averaging an average. */
+/*+primary_key(customer_id, week_start_date), query_by_any(customer_id, zip_code, week_start_date) */
+CustomerWeekly := SELECT
+  m.customer_id,
+  d.first_name,
+  d.last_name,
+  d.customer_type,
+  d.customer_status,
+  d.relationship_start_date,
+  d.zip_code,
+  d.state,
+  d.city,
+  m.week_start_date,
+  m.week_end_date,
+  m.payments_due_count,
+  m.payments_due_amount_cents,
+  m.posted_on_time_count,
+  m.posted_on_time_amount_cents,
+  m.posted_late_count,
+  m.posted_late_amount_cents,
+  m.not_posted_count,
+  m.not_posted_amount_cents,
+  m.distressed_count,
+  m.distressed_amount_cents,
+  m.pct_distressed,
+  m.late_posted_count,
+  m.avg_days_late,
+  a.as_of_date,
+  m.days_late_sum AS _days_late_sum
+FROM _CustomerWeekMetrics m
+JOIN _CustomerDim d ON m.customer_id = d.customer_id
+CROSS JOIN _RunAnchor a
+ORDER BY week_start_date DESC, distressed_amount_cents DESC, customer_id ASC;
+
+/** Weekly payment-distress measures per zip code (R1), computed as the
+    rollup of CustomerWeekly so a zip's figures equal the sum of its
+    customers' figures by construction. Customers with no current PRIMARY
+    address (null zip_code) are excluded here; see DQ_Customer_Missing_Zip.
+    Declassification note (see file header): every *_amount_cents and
+    avg_days_late column here is a SUM()/derived-from-SUM() aggregate over
+    every customer in a zip code, so — unlike CustomerWeekly's
+    customer-grain figures — these columns are approved to serve unmarked
+    (no @confidential/@npi/regulatory-scope tag) because a zip-level total
+    does not disclose an individual customer's payment amount. zip_code and
+    state are carried for the R9 filter only, not @pii (postal codes alone,
+    without a name, are not customer-identifying at this grain). */
+/*+primary_key(zip_code, week_start_date), query_by_any(zip_code, state, week_start_date) */
+ZipWeekly := SELECT
+  zip_code,
+  state,
+  week_start_date,
+  MAX(week_end_date) AS week_end_date,
+  SUM(payments_due_count) AS payments_due_count,
+  SUM(payments_due_amount_cents) AS payments_due_amount_cents,
+  SUM(posted_on_time_count) AS posted_on_time_count,
+  SUM(posted_on_time_amount_cents) AS posted_on_time_amount_cents,
+  SUM(posted_late_count) AS posted_late_count,
+  SUM(posted_late_amount_cents) AS posted_late_amount_cents,
+  SUM(not_posted_count) AS not_posted_count,
+  SUM(not_posted_amount_cents) AS not_posted_amount_cents,
+  SUM(distressed_count) AS distressed_count,
+  SUM(distressed_amount_cents) AS distressed_amount_cents,
+  CASE WHEN SUM(payments_due_amount_cents) = 0 THEN NULL
+       ELSE ROUND(SUM(distressed_amount_cents) * 100.0 / SUM(payments_due_amount_cents), 2) END AS pct_distressed,
+  SUM(late_posted_count) AS late_posted_count,
+  CASE WHEN SUM(late_posted_count) = 0 THEN NULL
+       ELSE ROUND(SUM(_days_late_sum) * 1.0 / SUM(late_posted_count), 2) END AS avg_days_late,
+  MAX(as_of_date) AS as_of_date
+FROM CustomerWeekly
+WHERE zip_code IS NOT NULL
+GROUP BY zip_code, state, week_start_date
+ORDER BY week_start_date DESC, distressed_amount_cents DESC, zip_code ASC;
+
+-- ============================================================
+-- TWO-WEEK OVERVIEW TABLES
+-- ============================================================
+
+/** Pivots ZipWeekly over exactly the current and prior complete week
+    (a.current_week_start / a.prior_week_start from _RunAnchor) into
+    "_current" / "_prior" column pairs, one row per zip code. A zip present
+    in only one of the two weeks still produces a row: zero for missing
+    counts/amounts, null for its ratios (conditional aggregation), per
+    requirements open question 6. */
+_ZipOverviewBase := SELECT
+  z.zip_code,
+  MAX(z.state) AS state,
+  a.current_week_start,
+  a.prior_week_start,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.payments_due_count ELSE 0 END) AS payments_due_count_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.payments_due_count ELSE 0 END) AS payments_due_count_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.payments_due_amount_cents ELSE 0 END) AS payments_due_amount_cents_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.payments_due_amount_cents ELSE 0 END) AS payments_due_amount_cents_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.posted_on_time_count ELSE 0 END) AS posted_on_time_count_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.posted_on_time_count ELSE 0 END) AS posted_on_time_count_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.posted_on_time_amount_cents ELSE 0 END) AS posted_on_time_amount_cents_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.posted_on_time_amount_cents ELSE 0 END) AS posted_on_time_amount_cents_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.posted_late_count ELSE 0 END) AS posted_late_count_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.posted_late_count ELSE 0 END) AS posted_late_count_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.posted_late_amount_cents ELSE 0 END) AS posted_late_amount_cents_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.posted_late_amount_cents ELSE 0 END) AS posted_late_amount_cents_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.not_posted_count ELSE 0 END) AS not_posted_count_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.not_posted_count ELSE 0 END) AS not_posted_count_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.not_posted_amount_cents ELSE 0 END) AS not_posted_amount_cents_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.not_posted_amount_cents ELSE 0 END) AS not_posted_amount_cents_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.distressed_count ELSE 0 END) AS distressed_count_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.distressed_count ELSE 0 END) AS distressed_count_prior,
+  SUM(CASE WHEN z.week_start_date = a.current_week_start THEN z.distressed_amount_cents ELSE 0 END) AS distressed_amount_cents_current,
+  SUM(CASE WHEN z.week_start_date = a.prior_week_start THEN z.distressed_amount_cents ELSE 0 END) AS distressed_amount_cents_prior,
+  MAX(CASE WHEN z.week_start_date = a.current_week_start THEN z.pct_distressed END) AS pct_distressed_current,
+  MAX(CASE WHEN z.week_start_date = a.prior_week_start THEN z.pct_distressed END) AS pct_distressed_prior,
+  MAX(CASE WHEN z.week_start_date = a.current_week_start THEN z.avg_days_late END) AS avg_days_late_current,
+  MAX(CASE WHEN z.week_start_date = a.prior_week_start THEN z.avg_days_late END) AS avg_days_late_prior,
+  a.as_of_date
+FROM ZipWeekly z
+CROSS JOIN _RunAnchor a
+WHERE z.week_start_date = a.current_week_start OR z.week_start_date = a.prior_week_start
+GROUP BY z.zip_code, a.current_week_start, a.prior_week_start, a.as_of_date;
+
+/** One row per zip code with the current/prior complete week and the
+    week-over-week trend for every measure (R7, R8). Trend is percentage
+    change for amounts and average days late, and a percentage-point
+    difference for percent distressed; null when the prior value is zero or
+    null. Each zip's state is carried for the R9 state filter only — there
+    are no state-level totals. */
+/*+primary_key(zip_code), query_by_any(zip_code, state) */
+ZipOverview := SELECT
+  *,
+  CASE WHEN payments_due_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((payments_due_amount_cents_current - payments_due_amount_cents_prior) * 100.0 / payments_due_amount_cents_prior, 2) END AS payments_due_amount_pct_change,
+  CASE WHEN posted_late_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((posted_late_amount_cents_current - posted_late_amount_cents_prior) * 100.0 / posted_late_amount_cents_prior, 2) END AS posted_late_amount_pct_change,
+  CASE WHEN not_posted_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((not_posted_amount_cents_current - not_posted_amount_cents_prior) * 100.0 / not_posted_amount_cents_prior, 2) END AS not_posted_amount_pct_change,
+  CASE WHEN distressed_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((distressed_amount_cents_current - distressed_amount_cents_prior) * 100.0 / distressed_amount_cents_prior, 2) END AS distressed_amount_pct_change,
+  CASE WHEN distressed_count_prior = 0 THEN NULL
+       ELSE ROUND((distressed_count_current - distressed_count_prior) * 100.0 / distressed_count_prior, 2) END AS distressed_count_pct_change,
+  CASE WHEN avg_days_late_prior IS NULL OR avg_days_late_prior = 0 THEN NULL
+       ELSE ROUND((avg_days_late_current - avg_days_late_prior) * 100.0 / avg_days_late_prior, 2) END AS avg_days_late_pct_change,
+  CASE WHEN pct_distressed_current IS NULL OR pct_distressed_prior IS NULL THEN NULL
+       ELSE ROUND(pct_distressed_current - pct_distressed_prior, 2) END AS pct_distressed_point_change
+FROM _ZipOverviewBase
+ORDER BY distressed_amount_cents_current DESC, zip_code ASC;
+
+/** Same two-week pivot as _ZipOverviewBase but at customer grain. The
+    HAVING clause keeps only customers with at least one distressed payment
+    (posted late or not posted) in the current or the prior week — the R11
+    drill-down customer table shows distressed customers only, not every
+    customer in the zip code. */
+_ZipCustomerBase := SELECT
+  c.zip_code,
+  MAX(c.state) AS state,
+  MAX(c.city) AS city,
+  c.customer_id,
+  MAX(c.first_name) AS first_name,
+  MAX(c.last_name) AS last_name,
+  MAX(c.customer_type) AS customer_type,
+  MAX(c.customer_status) AS customer_status,
+  MAX(c.relationship_start_date) AS relationship_start_date,
+  a.current_week_start,
+  a.prior_week_start,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.payments_due_count ELSE 0 END) AS payments_due_count_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.payments_due_count ELSE 0 END) AS payments_due_count_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.payments_due_amount_cents ELSE 0 END) AS payments_due_amount_cents_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.payments_due_amount_cents ELSE 0 END) AS payments_due_amount_cents_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.posted_on_time_count ELSE 0 END) AS posted_on_time_count_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.posted_on_time_count ELSE 0 END) AS posted_on_time_count_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.posted_on_time_amount_cents ELSE 0 END) AS posted_on_time_amount_cents_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.posted_on_time_amount_cents ELSE 0 END) AS posted_on_time_amount_cents_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.posted_late_count ELSE 0 END) AS posted_late_count_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.posted_late_count ELSE 0 END) AS posted_late_count_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.posted_late_amount_cents ELSE 0 END) AS posted_late_amount_cents_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.posted_late_amount_cents ELSE 0 END) AS posted_late_amount_cents_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.not_posted_count ELSE 0 END) AS not_posted_count_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.not_posted_count ELSE 0 END) AS not_posted_count_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.not_posted_amount_cents ELSE 0 END) AS not_posted_amount_cents_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.not_posted_amount_cents ELSE 0 END) AS not_posted_amount_cents_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.distressed_count ELSE 0 END) AS distressed_count_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.distressed_count ELSE 0 END) AS distressed_count_prior,
+  SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.distressed_amount_cents ELSE 0 END) AS distressed_amount_cents_current,
+  SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.distressed_amount_cents ELSE 0 END) AS distressed_amount_cents_prior,
+  MAX(CASE WHEN c.week_start_date = a.current_week_start THEN c.pct_distressed END) AS pct_distressed_current,
+  MAX(CASE WHEN c.week_start_date = a.prior_week_start THEN c.pct_distressed END) AS pct_distressed_prior,
+  MAX(CASE WHEN c.week_start_date = a.current_week_start THEN c.avg_days_late END) AS avg_days_late_current,
+  MAX(CASE WHEN c.week_start_date = a.prior_week_start THEN c.avg_days_late END) AS avg_days_late_prior,
+  a.as_of_date
+FROM CustomerWeekly c
+CROSS JOIN _RunAnchor a
+WHERE c.zip_code IS NOT NULL
+  AND (c.week_start_date = a.current_week_start OR c.week_start_date = a.prior_week_start)
+GROUP BY c.zip_code, c.customer_id, a.current_week_start, a.prior_week_start, a.as_of_date
+HAVING SUM(CASE WHEN c.week_start_date = a.current_week_start THEN c.distressed_count ELSE 0 END) > 0
+    OR SUM(CASE WHEN c.week_start_date = a.prior_week_start THEN c.distressed_count ELSE 0 END) > 0;
+
+/** Drill-down customer table for one zip code (R11, R13): customers with at
+    least one distressed payment (posted late or not posted) in the last two
+    complete weeks, with the same current/prior/trend measures as
+    ZipOverview plus enough customer information to look them up elsewhere.
+    Customer-grain like CustomerWeekly, so customer_id/first_name/last_name
+    carry @pii and every *_amount_cents/*_pct_change column carries @npi
+    @confidential (see file header) — none of these are declassified here. */
+/*+primary_key(zip_code, customer_id), query_by_any(zip_code) */
+ZipCustomerDistress := SELECT
+  *,
+  CASE WHEN payments_due_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((payments_due_amount_cents_current - payments_due_amount_cents_prior) * 100.0 / payments_due_amount_cents_prior, 2) END AS payments_due_amount_pct_change,
+  CASE WHEN posted_late_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((posted_late_amount_cents_current - posted_late_amount_cents_prior) * 100.0 / posted_late_amount_cents_prior, 2) END AS posted_late_amount_pct_change,
+  CASE WHEN not_posted_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((not_posted_amount_cents_current - not_posted_amount_cents_prior) * 100.0 / not_posted_amount_cents_prior, 2) END AS not_posted_amount_pct_change,
+  CASE WHEN distressed_amount_cents_prior = 0 THEN NULL
+       ELSE ROUND((distressed_amount_cents_current - distressed_amount_cents_prior) * 100.0 / distressed_amount_cents_prior, 2) END AS distressed_amount_pct_change,
+  CASE WHEN distressed_count_prior = 0 THEN NULL
+       ELSE ROUND((distressed_count_current - distressed_count_prior) * 100.0 / distressed_count_prior, 2) END AS distressed_count_pct_change,
+  CASE WHEN avg_days_late_prior IS NULL OR avg_days_late_prior = 0 THEN NULL
+       ELSE ROUND((avg_days_late_current - avg_days_late_prior) * 100.0 / avg_days_late_prior, 2) END AS avg_days_late_pct_change,
+  CASE WHEN pct_distressed_current IS NULL OR pct_distressed_prior IS NULL THEN NULL
+       ELSE ROUND(pct_distressed_current - pct_distressed_prior, 2) END AS pct_distressed_point_change
+FROM _ZipCustomerBase
+ORDER BY distressed_amount_cents_current DESC, customer_id ASC;
+
+-- ============================================================
+-- PARAMETERIZED TABLE FUNCTIONS
+-- ============================================================
+
+/** Zip codes whose code starts with the given prefix (R9's numeric search
+    branch), e.g. "981" matches 98101 and 98109.
+
+    Arguments:
+    * zip_prefix (STRING, required): one or more leading digits of a 5-digit
+      zip code, e.g. "981". Matched with STARTSWITH against zip_code, so an
+      empty string matches every zip code and a non-numeric value simply
+      matches nothing (the dashboard's own search field routes alphabetic
+      input to the state filter instead, per R9). */
+ZipOverviewByPrefix(zip_prefix STRING NOT NULL) := SELECT * FROM ZipOverview
+  WHERE STARTSWITH(zip_code, :zip_prefix)
+  ORDER BY distressed_amount_cents_current DESC, zip_code ASC;
+
+/** The 12 most recent complete weeks of ZipWeekly for one zip code — the
+    dashboard's chart data (R11, R12). Joining DashboardRun keeps rows
+    written by earlier nightly runs, for weeks that have since left the
+    window, out of the chart.
+
+    Arguments:
+    * zip_code (STRING, required): the exact 5-digit zip code to fetch
+      history for, matched with equality (not a prefix) against
+      ZipWeekly.zip_code. Weeks are filtered to
+      week_start_date >= DashboardRun.chart_window_start (the current run's
+      12-complete-week chart window) and returned oldest first. An unknown
+      zip code returns zero rows rather than an error. */
+ZipWeeklyHistory(zip_code STRING NOT NULL) := SELECT z.*
+  FROM ZipWeekly z, DashboardRun r
+  WHERE z.zip_code = :zip_code AND z.week_start_date >= r.chart_window_start
+  ORDER BY z.week_start_date ASC;
+
+-- ============================================================
+-- DATA QUALITY TABLES
+-- ============================================================
+
+/** DQ: A posted payment whose loan or credit-card account record does not
+    exist, so it cannot be attributed to a customer or a zip code and is
+    silently absent from every bucket. Reconcile payment feeds against loan
+    master feeds. */
+/*+primary_key(payment_id), query_by_any(instrument_type) */
+DQ_Payment_Unknown_Instrument := SELECT
+  payment_id, instrument_type, instrument_id, payment_amount_cents, due_date, posted_date, ingested_at
+FROM _PaymentAttributed
+WHERE customer_id IS NULL
+ORDER BY ingested_at DESC, payment_id ASC;
+
+/** DQ: A missed-payment event whose loan or account record does not exist,
+    so the not-posted amount it represents is missing from its week
+    entirely. Reconcile delinquency feeds against loan master feeds. */
+/*+primary_key(delinquency_event_id), query_by_any(instrument_type) */
+DQ_Delinquency_Unknown_Instrument := SELECT
+  delinquency_event_id, instrument_type, instrument_id, event_customer_id, amount_past_due_cents, event_date
+FROM _DelinquencyAttributed
+WHERE owner_customer_id IS NULL
+ORDER BY event_date DESC, delinquency_event_id ASC;
+
+/** DQ: A payment the source marked applied or posted but that cannot be
+    bucketed: a missing due date makes it unbucketable by week due, a
+    missing posted date makes on-time-versus-late undecidable. */
+/*+primary_key(payment_id), query_by_any(instrument_type, issue) */
+DQ_Payment_Missing_Dates := SELECT
+  payment_id, instrument_type, instrument_id, payment_amount_cents, due_date, posted_date,
+  CASE WHEN due_date IS NULL THEN 'MISSING_DUE_DATE' ELSE 'MISSING_POSTED_DATE' END AS issue
+FROM _PaymentClassified
+WHERE exclusion_reason = 'MISSING_POSTED_DATE' OR due_date IS NULL
+ORDER BY payment_id ASC;
+
+/** DQ: A posted payment whose derived days late (posted date minus due
+    date) disagrees with the lateness the source reported. A systematic
+    mismatch means the source applies a grace period the dashboard must
+    not inherit — "no grace periods apply" is enforced by the derived
+    value, never the source value. */
+/*+primary_key(payment_id), query_by_any(instrument_type) */
+DQ_Payment_DaysLate_Mismatch := SELECT
+  payment_id, instrument_type, instrument_id, due_date, posted_date, days_late AS derived_days_late, source_days_late
+FROM _PaymentClassified
+WHERE exclusion_reason IS NULL AND due_date IS NOT NULL AND posted_date IS NOT NULL
+  AND source_days_late IS NOT NULL AND days_late <> source_days_late
+ORDER BY payment_id ASC;
+
+/** DQ: A missed-payment event whose amount past due is null or zero. It is
+    counted in the not-posted count but contributes nothing to the
+    not-posted amount, understating the week's percent distressed. */
+/*+primary_key(delinquency_event_id), query_by_any(instrument_type) */
+DQ_Delinquency_Missing_Amount := SELECT
+  delinquency_event_id, instrument_type, instrument_id, event_customer_id, event_date
+FROM _RawDelinquency
+WHERE amount_past_due_cents IS NULL OR amount_past_due_cents = 0
+ORDER BY event_date DESC, delinquency_event_id ASC;
+
+/** DQ: A missed-payment event whose own customer identifier differs from
+    the instrument's primary borrower. Attribution follows the primary
+    borrower, so this row means the source disagrees with the loan master
+    about who owns the instrument — which affects which zip code the
+    distress is reported under. */
+/*+primary_key(delinquency_event_id), query_by_any(instrument_type) */
+DQ_Delinquency_Customer_Mismatch := SELECT
+  delinquency_event_id, instrument_type, instrument_id, event_customer_id, owner_customer_id AS resolved_customer_id
+FROM _DelinquencyAttributed
+WHERE owner_customer_id IS NOT NULL AND event_customer_id <> owner_customer_id
+ORDER BY delinquency_event_id ASC;
+
+/** DQ: A customer with payment activity inside the window who has no
+    current address of type PRIMARY, or whose postal code is null or
+    blank. Their payments are counted at customer grain but vanish from
+    every zip rollup, breaking the acceptance criterion that a zip's
+    figures equal the sum of its customers' figures. */
+/*+primary_key(customer_id), query_by_any(customer_id) */
+DQ_Customer_Missing_Zip := SELECT
+  customer_id, MAX(first_name) AS first_name, MAX(last_name) AS last_name, MAX(customer_status) AS customer_status,
+  SUM(payments_due_count) AS payments_due_count, SUM(payments_due_amount_cents) AS payments_due_amount_cents
+FROM CustomerWeekly
+WHERE zip_code IS NULL
+GROUP BY customer_id
+ORDER BY customer_id ASC;
+
+/** DQ: A customer whose current primary address has a null or blank
+    state_province, so the zip code that address contributes to can never
+    be found by the dashboard's state search (R9) even though it appears
+    in the unfiltered table. */
+/*+primary_key(customer_id), query_by_any(customer_id) */
+DQ_Address_Missing_State := SELECT customer_id, zip_code, city, source_updated_at
+FROM _CurrentPrimaryAddress
+WHERE state IS NULL
+ORDER BY source_updated_at DESC, customer_id ASC;
+
+-- Each of the three ZipWeekly invariants, unioned into one capture table.
+
+/** DQ check: rows where ZipWeekly.pct_distressed falls outside [0, 100] —
+    should never happen given pct_distressed is derived as
+    distressed/payments_due, but is checked independently of the derivation
+    in case a future change breaks that guarantee. */
+_ZipWeeklyPctViolation := SELECT zip_code, week_start_date, 'PCT_DISTRESSED_OUT_OF_RANGE' AS violation,
+    CONCAT('pct_distressed=', CAST(pct_distressed AS STRING)) AS detail
+FROM ZipWeekly
+WHERE pct_distressed IS NOT NULL AND (pct_distressed < 0 OR pct_distressed > 100);
+
+/** DQ check: rows where ZipWeekly's payments_due count/amount does not equal
+    posted_on_time + distressed for the same week — the bucket-sum identity
+    the requirements define (payments due = on time + late + not posted). */
+_ZipWeeklySumViolation := SELECT zip_code, week_start_date, 'BUCKET_SUM_MISMATCH' AS violation,
+    CONCAT('payments_due_count=', CAST(payments_due_count AS STRING),
+           ' on_time_plus_distressed_count=', CAST(posted_on_time_count + distressed_count AS STRING),
+           ' payments_due_amount_cents=', CAST(payments_due_amount_cents AS STRING),
+           ' on_time_plus_distressed_amount_cents=', CAST(posted_on_time_amount_cents + distressed_amount_cents AS STRING)) AS detail
+FROM ZipWeekly
+WHERE payments_due_count <> posted_on_time_count + distressed_count
+   OR payments_due_amount_cents <> posted_on_time_amount_cents + distressed_amount_cents;
+
+/** Rollup validation: joins ZipWeekly to the SUM of its CustomerWeekly rows
+    for the same (zip_code, week_start_date), so _ZipWeeklyRollupViolation
+    can compare the zip's stored payments_due count/amount against what its
+    customers' rows actually sum to. */
+_ZipWeeklyRollupCheck := SELECT
+  z.zip_code, z.week_start_date,
+  z.payments_due_count AS zip_count, z.payments_due_amount_cents AS zip_amount_cents,
+  SUM(c.payments_due_count) AS customer_count_sum, SUM(c.payments_due_amount_cents) AS customer_amount_cents_sum
+FROM ZipWeekly z
+JOIN CustomerWeekly c ON z.zip_code = c.zip_code AND z.week_start_date = c.week_start_date
+GROUP BY z.zip_code, z.week_start_date, z.payments_due_count, z.payments_due_amount_cents;
+
+/** DQ check: rows where a zip-week's stored payments_due count/amount does
+    not equal the sum of its customers' payments_due rows for that
+    week — the invariant that ZipWeekly is a true rollup of CustomerWeekly
+    (see ZipWeekly's docstring). */
+_ZipWeeklyRollupViolation := SELECT zip_code, week_start_date, 'ZIP_CUSTOMER_SUM_MISMATCH' AS violation,
+    CONCAT('zip_count=', CAST(zip_count AS STRING), ' customer_count_sum=', CAST(customer_count_sum AS STRING),
+           ' zip_amount_cents=', CAST(zip_amount_cents AS STRING), ' customer_amount_cents_sum=', CAST(customer_amount_cents_sum AS STRING)) AS detail
+FROM _ZipWeeklyRollupCheck
+WHERE zip_count <> customer_count_sum OR zip_amount_cents <> customer_amount_cents_sum;
+
+/** DQ: A zip-week that violates one of three invariants — percent
+    distressed outside [0, 100], posted-on-time plus distressed not equal
+    to payments due (by count or amount), or the zip's counts/amounts not
+    equal to the sum of its customers' rows for that week. Should always be
+    empty in production; a row means an aggregation defect, not a source
+    defect — the runtime counterpart of the no-rows tests in the test
+    suite. */
+/*+primary_key(zip_code, week_start_date, violation), query_by_any(zip_code, violation) */
+DQ_ZipWeekly_Invariant_Violation :=
+SELECT * FROM _ZipWeeklyPctViolation
+UNION ALL
+SELECT * FROM _ZipWeeklySumViolation
+UNION ALL
+SELECT * FROM _ZipWeeklyRollupViolation
+ORDER BY week_start_date DESC, zip_code ASC, violation ASC;
+
+-- ============================================================
+-- OBSERVABILITY
+-- ============================================================
+
+/** Unions every one of the twelve raw sources (before dedup and before any
+    filter) onto a (source_name, ingested_at) shape — the input to
+    OB_SourceIngestionStats' hourly counts. */
+_SourceRecords :=
+SELECT 'Customer' AS source_name, ingested_at FROM sources.Customer
+UNION ALL SELECT 'Customer_Address' AS source_name, ingested_at FROM sources.Customer_Address
+UNION ALL SELECT 'Personal_Loan' AS source_name, ingested_at FROM sources.Personal_Loan
+UNION ALL SELECT 'Auto_Loan' AS source_name, ingested_at FROM sources.Auto_Loan
+UNION ALL SELECT 'Mortgage_Loan' AS source_name, ingested_at FROM sources.Mortgage_Loan
+UNION ALL SELECT 'Credit_Card_Account' AS source_name, ingested_at FROM sources.Credit_Card_Account
+UNION ALL SELECT 'Loan_Payment' AS source_name, ingested_at FROM sources.Loan_Payment
+UNION ALL SELECT 'Mortgage_Payment' AS source_name, ingested_at FROM sources.Mortgage_Payment
+UNION ALL SELECT 'Credit_Card_Payment' AS source_name, ingested_at FROM sources.Credit_Card_Payment
+UNION ALL SELECT 'Consumer_Loan_Delinquency_Event' AS source_name, ingested_at FROM sources.Consumer_Loan_Delinquency_Event
+UNION ALL SELECT 'Delinquency_Event' AS source_name, ingested_at FROM sources.Delinquency_Event
+UNION ALL SELECT 'Card_Delinquency_Event' AS source_name, ingested_at FROM sources.Card_Delinquency_Event;
+
+/** OB: Hourly counts of records received from each of the twelve raw
+    sources. A drop or a missing hour where a source normally delivers
+    means a feed problem; payment and delinquency feeds are continuous CDC
+    streams, while customer and address feeds are sparse by nature, so
+    empty hours there are normal (documented in the README). */
+/*+primary_key(source_name, window_start), query_by_any(source_name) */
+OB_SourceIngestionStats := SELECT
+  source_name, FLOOR(ingested_at TO HOUR) AS window_start, COUNT(*) AS record_count
+FROM _SourceRecords
+GROUP BY source_name, FLOOR(ingested_at TO HOUR)
+ORDER BY window_start DESC, source_name ASC;
+
+/** Maps every payment (from _PaymentClassified) and every not-posted slot
+    (from _NotPostedSlot) to the classification label it ended up in —
+    POSTED_ON_TIME, POSTED_LATE, NOT_POSTED, or one of the
+    EXCLUDED_* reasons mirroring _PaymentDaysLate's exclusion_reason — the
+    input to OB_PaymentClassificationStats. Preserves detail that is
+    dropped once payments reach the customer/zip serving tables. */
+_ClassificationEvent :=
+SELECT instrument_type, due_week_start, payment_amount_cents AS amount_cents,
+  CASE
+    WHEN bucket = 'POSTED_ON_TIME' THEN 'POSTED_ON_TIME'
+    WHEN bucket = 'POSTED_LATE' THEN 'POSTED_LATE'
+    WHEN exclusion_reason = 'PARTIAL_PAYMENT' THEN 'EXCLUDED_PARTIAL_PAYMENT'
+    WHEN exclusion_reason = 'NOT_POSTED_STATUS' THEN 'EXCLUDED_NOT_POSTED_STATUS'
+    WHEN exclusion_reason = 'MISSING_POSTED_DATE' THEN 'EXCLUDED_MISSING_POSTED_DATE'
+    WHEN exclusion_reason = 'UNKNOWN_INSTRUMENT' THEN 'EXCLUDED_UNKNOWN_INSTRUMENT'
+    WHEN due_date IS NULL THEN 'EXCLUDED_MISSING_DUE_DATE'
+    ELSE 'EXCLUDED_OTHER'
+  END AS classification
+FROM _PaymentClassified
+UNION ALL
+SELECT instrument_type, due_week_start, amount_past_due_cents AS amount_cents, 'NOT_POSTED' AS classification
+FROM _NotPostedSlot;
+
+/** OB: Row and amount counts for one combination of instrument type, week
+    due and classification — the single place that shows how much input
+    each nightly run drops and why, and supplies the per-loan-vehicle
+    breakdown open question 2 asked about without adding a vehicle
+    dimension to the dashboard. */
+/*+primary_key(instrument_type, week_start_date, classification), query_by_any(instrument_type, classification) */
+OB_PaymentClassificationStats := SELECT
+  instrument_type, due_week_start AS week_start_date, classification,
+  COUNT(*) AS record_count, SUM(amount_cents) AS amount_cents_sum
+FROM _ClassificationEvent
+GROUP BY instrument_type, due_week_start, classification
+ORDER BY week_start_date DESC, instrument_type ASC, classification ASC;
+
+-- ============================================================
+-- TEST QUERIES
+-- ============================================================
+
+/*+test */
+DashboardRunTest := SELECT
+  run_scope, as_of_date, current_week_start, current_week_end, prior_week_start,
+  chart_window_start, window_start_date, window_end_date
+FROM DashboardRun
+ORDER BY run_scope ASC;
+
+/*+test */
+ZipWeeklyTest := SELECT * FROM ZipWeekly
+WHERE zip_code = '98101' OR zip_code = '19104' OR zip_code = '30301' OR zip_code = '15213'
+ORDER BY zip_code ASC, week_start_date DESC;
+
+/*+test */
+ZipOverviewTest := SELECT * FROM ZipOverview ORDER BY zip_code ASC;
+
+-- Table functions are invoked here through their equivalent WHERE clause
+-- rather than the FROM Func(...) call form: DataSQRL's generated
+-- Flink table function fails Calcite argument matching for a plain string
+-- literal ("No match found for function signature ...(<CHARACTER>)"), even
+-- when explicitly cast. The function endpoints themselves are exercised
+-- through the GraphQL API tests instead.
+/*+test */
+ZipOverviewByPrefixTest := SELECT * FROM ZipOverview WHERE STARTSWITH(zip_code, '981') ORDER BY zip_code ASC;
+
+/*+test */
+ZipOverviewByStateTest := SELECT * FROM ZipOverview WHERE state = 'PA' ORDER BY zip_code ASC;
+
+/*+test */
+ZipWeeklyHistoryTest := SELECT z.* FROM ZipWeekly z, DashboardRun r
+  WHERE z.zip_code = '98101' AND z.week_start_date >= r.chart_window_start
+  ORDER BY z.week_start_date ASC;
+
+/*+test */
+CustomerWeeklyTest := SELECT
+  customer_id, first_name, last_name, customer_type, customer_status, relationship_start_date,
+  zip_code, state, city, week_start_date, week_end_date,
+  payments_due_count, payments_due_amount_cents, posted_on_time_count, posted_on_time_amount_cents,
+  posted_late_count, posted_late_amount_cents, not_posted_count, not_posted_amount_cents,
+  distressed_count, distressed_amount_cents, pct_distressed, late_posted_count, avg_days_late, as_of_date
+FROM CustomerWeekly
+WHERE customer_id = 'CUST-101'
+ORDER BY week_start_date DESC;
+
+/*+test */
+ZipCustomerDistressTest := SELECT * FROM ZipCustomerDistress WHERE zip_code = '19147' ORDER BY customer_id ASC;
+
+/*+test */
+DQPaymentUnknownInstrumentTest := SELECT payment_id, instrument_type, instrument_id, payment_amount_cents, due_date, posted_date
+FROM DQ_Payment_Unknown_Instrument ORDER BY payment_id ASC;
+
+/*+test */
+DQDelinquencyUnknownInstrumentTest := SELECT * FROM DQ_Delinquency_Unknown_Instrument ORDER BY delinquency_event_id ASC;
+
+/*+test */
+DQPaymentMissingDatesTest := SELECT * FROM DQ_Payment_Missing_Dates ORDER BY payment_id ASC;
+
+/*+test */
+DQPaymentDaysLateMismatchTest := SELECT * FROM DQ_Payment_DaysLate_Mismatch ORDER BY payment_id ASC;
+
+/*+test */
+DQDelinquencyMissingAmountTest := SELECT * FROM DQ_Delinquency_Missing_Amount ORDER BY delinquency_event_id ASC;
+
+/*+test */
+DQDelinquencyCustomerMismatchTest := SELECT * FROM DQ_Delinquency_Customer_Mismatch ORDER BY delinquency_event_id ASC;
+
+/*+test */
+DQCustomerMissingZipTest := SELECT * FROM DQ_Customer_Missing_Zip ORDER BY customer_id ASC;
+
+/*+test */
+DQAddressMissingStateTest := SELECT * FROM DQ_Address_Missing_State ORDER BY customer_id ASC;
+
+/*+test */
+DQZipWeeklyInvariantViolationTest := SELECT * FROM DQ_ZipWeekly_Invariant_Violation ORDER BY zip_code ASC, week_start_date DESC, violation ASC;
+
+/*+test */
+OBSourceIngestionStatsTest := SELECT * FROM OB_SourceIngestionStats ORDER BY source_name ASC, window_start DESC;
+
+/*+test */
+OBPaymentClassificationStatsTest := SELECT * FROM OB_PaymentClassificationStats
+ORDER BY instrument_type ASC, week_start_date DESC, classification ASC;
+
+-- Invariant tests: must always return no rows.
+
+/*+test(no_rows) */
+PctDistressedOutOfRangeTest := SELECT zip_code, week_start_date, pct_distressed
+FROM ZipWeekly
+WHERE pct_distressed IS NOT NULL AND (pct_distressed < 0 OR pct_distressed > 100)
+ORDER BY zip_code ASC;
+
+/*+test(no_rows) */
+BucketSumMismatchTest := SELECT zip_code, week_start_date, payments_due_count, posted_on_time_count, distressed_count
+FROM ZipWeekly
+WHERE payments_due_count <> posted_on_time_count + distressed_count
+   OR payments_due_amount_cents <> posted_on_time_amount_cents + distressed_amount_cents
+ORDER BY zip_code ASC;
+
+/*+test(no_rows) */
+ZipCustomerSumMismatchTest := SELECT zip_code, week_start_date, zip_count, customer_count_sum
+FROM _ZipWeeklyRollupCheck
+WHERE zip_count <> customer_count_sum OR zip_amount_cents <> customer_amount_cents_sum
+ORDER BY zip_code ASC;

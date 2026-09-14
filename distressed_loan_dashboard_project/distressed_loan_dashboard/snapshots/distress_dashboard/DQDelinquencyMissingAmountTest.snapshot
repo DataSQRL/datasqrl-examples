@@ -1,0 +1,11 @@
+{
+  "data" : {
+    "DQDelinquencyMissingAmountTest" : [ {
+      "delinquency_event_id" : "MDE-203",
+      "instrument_type" : "MORTGAGE",
+      "instrument_id" : "ML-106",
+      "event_customer_id" : "CUST-106",
+      "event_date" : "2026-06-17"
+    } ]
+  }
+}

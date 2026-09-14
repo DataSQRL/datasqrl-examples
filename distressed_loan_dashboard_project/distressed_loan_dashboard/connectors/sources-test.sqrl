@@ -1,0 +1,129 @@
+-- Project-owned filesystem test connectors, standing in for the catalog's
+-- production Kafka connectors. Table names match the catalog's production
+-- table names so the main script is environment-agnostic.
+
+IMPORT root.data_catalog.customer.customer_data.customer_master;
+IMPORT root.data_catalog.lending.cards_consumer_credit.consumer_loans;
+IMPORT root.data_catalog.lending.cards_consumer_credit.credit_cards;
+IMPORT root.data_catalog.lending.mortgages.mortgage_originations;
+IMPORT root.data_catalog.lending.mortgages.mortgage_servicing;
+
+CREATE TABLE Customer (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE customer_master.Customer_schema;
+
+CREATE TABLE Customer_Address (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer_address.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE customer_master.Customer_Address_schema;
+
+CREATE TABLE Personal_Loan (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/personal_loan.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE consumer_loans.Personal_Loan_schema;
+
+CREATE TABLE Auto_Loan (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/auto_loan.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE consumer_loans.Auto_Loan_schema;
+
+CREATE TABLE Mortgage_Loan (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_loan.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_originations.Mortgage_Loan_schema;
+
+CREATE TABLE Credit_Card_Account (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_card_account.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE credit_cards.Credit_Card_Account_schema;
+
+CREATE TABLE Loan_Payment (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/loan_payment.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE consumer_loans.Loan_Payment_schema;
+
+CREATE TABLE Mortgage_Payment (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_payment.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_servicing.Mortgage_Payment_schema;
+
+CREATE TABLE Credit_Card_Payment (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_card_payment.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE credit_cards.Credit_Card_Payment_schema;
+
+CREATE TABLE Consumer_Loan_Delinquency_Event (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/consumer_loan_delinquency_event.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE consumer_loans.Consumer_Loan_Delinquency_Event_schema;
+
+CREATE TABLE Delinquency_Event (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/mortgage_delinquency_event.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE mortgage_servicing.Delinquency_Event_schema;
+
+CREATE TABLE Card_Delinquency_Event (
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/card_delinquency_event.jsonl',
+    'format' = 'flexible-json',
+    'flexible-json.timestamp-format.standard' = 'ISO-8601'
+) LIKE credit_cards.Card_Delinquency_Event_schema;

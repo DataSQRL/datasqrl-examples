@@ -1,0 +1,89 @@
+-- ## Credit Cards - Test Data
+--
+-- Use local filesystem data for testing
+
+IMPORT credit_cards.*;
+
+CREATE TABLE Credit_Card_Account (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_cards-credit_card_account.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Credit_Card_Account_schema;
+
+CREATE TABLE Credit_Card (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_cards-credit_card.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Credit_Card_schema;
+
+CREATE TABLE Credit_Card_Statement (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_cards-credit_card_statement.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Credit_Card_Statement_schema;
+
+CREATE TABLE Credit_Card_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_cards-credit_card_payment.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Credit_Card_Payment_schema;
+
+CREATE TABLE Credit_Limit_History (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_cards-credit_limit_history.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Credit_Limit_History_schema;
+
+CREATE TABLE Card_Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/credit_cards-card_delinquency_event.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Card_Delinquency_Event_schema;

@@ -1,0 +1,75 @@
+-- ## Customer Master Data - Test Data
+--
+-- Use local filesystem data for testing
+
+IMPORT customer_master.*;
+
+CREATE TABLE Customer (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer_master-customer.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Customer_schema;
+
+CREATE TABLE Customer_Address (
+    /** Timestamp when record was ingested into the data platform */
+    ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+    WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer_master-customer_address.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Customer_Address_schema;
+
+CREATE TABLE Customer_Contact (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer_master-customer_contact.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Customer_Contact_schema;
+
+CREATE TABLE Customer_Employment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer_master-customer_employment.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Customer_Employment_schema;
+
+CREATE TABLE Customer_Relationship (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL,
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '10' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/customer_master-customer_relationship.jsonl',
+{{^is_batch}}
+    'source.monitor-interval' = '10 min',
+{{/is_batch}}
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Customer_Relationship_schema;

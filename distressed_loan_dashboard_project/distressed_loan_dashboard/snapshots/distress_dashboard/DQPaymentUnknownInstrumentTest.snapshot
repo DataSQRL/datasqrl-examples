@@ -1,0 +1,12 @@
+{
+  "data" : {
+    "DQPaymentUnknownInstrumentTest" : [ {
+      "payment_id" : "LPMT-218",
+      "instrument_type" : "PERSONAL_LOAN",
+      "instrument_id" : "PL-999",
+      "payment_amount_cents" : 123456,
+      "due_date" : "2026-09-08",
+      "posted_date" : "2026-09-10"
+    } ]
+  }
+}

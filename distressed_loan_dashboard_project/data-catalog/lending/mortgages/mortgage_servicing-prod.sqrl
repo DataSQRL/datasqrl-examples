@@ -1,0 +1,90 @@
+-- ## Mortgage Servicing - Production
+--
+-- Ingests source data from Kafka
+
+IMPORT mortgage_servicing.*;
+
+CREATE TABLE Mortgage_Payment (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_servicing.mortgage_payment',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Mortgage_Payment_schema;
+
+CREATE TABLE Escrow_Account (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_servicing.escrow_account',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Escrow_Account_schema;
+
+CREATE TABLE Delinquency_Event (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_servicing.delinquency_event',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Delinquency_Event_schema;
+
+CREATE TABLE Loan_Modification (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_servicing.loan_modification',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Loan_Modification_schema;
+
+CREATE TABLE Property_Valuation (
+  /** Timestamp when record was ingested into the data platform */
+  ingested_at TIMESTAMP_LTZ(3) METADATA FROM 'timestamp',
+  WATERMARK FOR ingested_at AS ingested_at - INTERVAL '30' SECOND
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '${LENDING_KAFKA_BROKERS}',
+    'properties.group.id' = '${DEPLOYMENT_ID}',
+    'topic' = 'mortgage_servicing.property_valuation',
+    'scan.startup.mode' = 'earliest-offset',
+{{#is_batch}}
+    'scan.bounded.mode' = 'latest-offset',
+{{/is_batch}}
+    'value.format' = 'json',
+    'value.json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Property_Valuation_schema;

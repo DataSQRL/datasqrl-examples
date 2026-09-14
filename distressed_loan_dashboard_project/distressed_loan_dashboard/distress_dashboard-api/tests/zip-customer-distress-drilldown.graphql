@@ -1,0 +1,13 @@
+query ZipCustomerDrilldown {
+  ZipCustomerDistress(zip_code: "19147") {
+    zip_code
+    customer_id
+    first_name
+    last_name
+    customer_status
+    distressed_amount_cents_current
+    distressed_amount_cents_prior
+    distressed_count_current
+    distressed_amount_pct_change
+  }
+}

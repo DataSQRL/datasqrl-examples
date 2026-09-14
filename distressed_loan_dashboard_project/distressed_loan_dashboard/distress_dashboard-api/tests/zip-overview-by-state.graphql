@@ -1,0 +1,8 @@
+query ZipOverviewByState {
+  ZipOverview(state: "PA") {
+    zip_code
+    state
+    distressed_amount_cents_current
+    pct_distressed_current
+  }
+}

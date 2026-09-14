@@ -1,0 +1,7 @@
+query ZipOverviewByPrefixSearch {
+  ZipOverviewByPrefix(zip_prefix: "981") {
+    zip_code
+    state
+    distressed_amount_cents_current
+  }
+}

@@ -1,0 +1,203 @@
+-- ## Credit Risk Signals
+--
+-- Silver-layer analytics datasets providing aggregated credit risk views
+-- across the consumer lending portfolio. Includes customer-level credit
+-- exposure, payment behavior patterns, delinquency migration analysis,
+-- and utilization metrics.
+--
+-- Layer:            silver
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA
+-- Upstream:         credit_cards.sqrl, consumer_loans.sqrl
+
+/** Customer-level credit exposure aggregation across all credit products.
+    Grain: one row per customer_id, snapshot_date combination.
+
+    # Columns:
+    * customer_id: Reference to customer @pii
+    * snapshot_date: Date of exposure snapshot
+    * total_card_limit_cents: Total credit card limit in cents @npi @confidential
+    * total_card_balance_cents: Total credit card balance in cents @npi @confidential
+    * total_card_available_cents: Total credit card available in cents @npi @confidential
+    * credit_card_count: Number of credit card accounts
+    * active_card_count: Number of active credit cards
+    * total_personal_loan_cents: Total personal loan balance in cents @npi @confidential
+    * personal_loan_count: Number of personal loans
+    * total_auto_loan_cents: Total auto loan balance in cents @npi @confidential
+    * auto_loan_count: Number of auto loans
+    * total_mortgage_cents: Total mortgage balance in cents @npi @confidential
+    * mortgage_count: Number of mortgages
+    * total_exposure_cents: Total credit exposure in cents @npi @confidential
+    * total_available_cents: Total available credit in cents @npi @confidential
+    * overall_utilization: Overall credit utilization (0-100)
+    * revolving_utilization: Revolving utilization (0-100)
+    * installment_ratio: Installment balance to original ratio
+    * current_credit_score: Most recent credit score @npi @confidential
+    * credit_score_change_90d: Credit score change from 90 days ago
+    * max_delinquency_bucket: Highest delinquency bucket across all products
+    * delinquent_product_count: Number of products currently delinquent
+    * total_past_due_cents: Total past due amount in cents @npi @confidential
+    * risk_tier: Credit risk tier: PRIME, NEAR_PRIME, SUBPRIME, DEEP_SUBPRIME
+    * risk_score: Risk score (internal model, 0-100) @confidential */
+CREATE TABLE Customer_Credit_Exposure_schema (
+  customer_id STRING NOT NULL,
+  snapshot_date DATE NOT NULL,
+  total_card_limit_cents BIGINT,
+  total_card_balance_cents BIGINT,
+  total_card_available_cents BIGINT,
+  credit_card_count INT,
+  active_card_count INT,
+  total_personal_loan_cents BIGINT,
+  personal_loan_count INT,
+  total_auto_loan_cents BIGINT,
+  auto_loan_count INT,
+  total_mortgage_cents BIGINT,
+  mortgage_count INT,
+  total_exposure_cents BIGINT,
+  total_available_cents BIGINT,
+  overall_utilization DECIMAL(5, 2),
+  revolving_utilization DECIMAL(5, 2),
+  installment_ratio DECIMAL(5, 2),
+  current_credit_score INT,
+  credit_score_change_90d INT,
+  max_delinquency_bucket STRING,
+  delinquent_product_count INT,
+  total_past_due_cents BIGINT,
+  risk_tier STRING,
+  risk_score INT
+);
+
+/** Payment behavior analytics across credit products.
+    Grain: one row per customer_id, analysis_month combination.
+
+    # Columns:
+    * customer_id: Reference to customer @pii
+    * analysis_month: Analysis month (first day of month)
+    * total_payments_cents: Total payments made in cents @npi @confidential
+    * total_minimum_due_cents: Total minimum payments due in cents @npi @confidential
+    * total_statement_balance_cents: Total statement balances in cents @npi @confidential
+    * payment_ratio: Payment ratio (payments / minimum due)
+    * full_payment_ratio: Full payment ratio (payments / statement balance)
+    * payment_behavior: Payment behavior: FULL_PAYER, REVOLVER, MINIMUM_PAYER, TRANSACTOR, DELINQUENT
+    * on_time_payment_count: Number of on-time payments
+    * late_payment_count: Number of late payments
+    * missed_payment_count: Number of missed payments
+    * avg_days_to_payment: Average days to payment (from due date, negative = early)
+    * returned_payment_count: Number of returned payments
+    * on_time_rate_3m: Rolling 3-month on-time payment rate
+    * on_time_rate_6m: Rolling 6-month on-time payment rate
+    * on_time_rate_12m: Rolling 12-month on-time payment rate
+    * months_since_late: Months since last late payment
+    * months_since_missed: Months since last missed payment
+    * autopay_coverage: Autopay coverage (% of products enrolled)
+    * primary_payment_method: Primary payment method: ACH, CHECK, DEBIT_CARD, ONLINE
+    * payment_consistency_score: Payment consistency score (0-100) */
+CREATE TABLE Payment_Behavior_schema (
+  customer_id STRING NOT NULL,
+  analysis_month DATE NOT NULL,
+  total_payments_cents BIGINT,
+  total_minimum_due_cents BIGINT,
+  total_statement_balance_cents BIGINT,
+  payment_ratio DECIMAL(6, 4),
+  full_payment_ratio DECIMAL(6, 4),
+  payment_behavior STRING,
+  on_time_payment_count INT,
+  late_payment_count INT,
+  missed_payment_count INT,
+  avg_days_to_payment DECIMAL(5, 2),
+  returned_payment_count INT,
+  on_time_rate_3m DECIMAL(5, 4),
+  on_time_rate_6m DECIMAL(5, 4),
+  on_time_rate_12m DECIMAL(5, 4),
+  months_since_late INT,
+  months_since_missed INT,
+  autopay_coverage DECIMAL(5, 2),
+  primary_payment_method STRING,
+  payment_consistency_score INT
+);
+
+/** Delinquency rollforward analysis tracking migration between buckets.
+    Grain: one row per loan_id, loan_type, from_month, to_month combination.
+
+    # Columns:
+    * loan_id: Reference to loan or credit card account
+    * loan_type: Product type: CREDIT_CARD, PERSONAL_LOAN, AUTO_LOAN, MORTGAGE
+    * from_month: Starting month of transition
+    * to_month: Ending month of transition
+    * from_bucket: Delinquency bucket at start of period
+    * to_bucket: Delinquency bucket at end of period
+    * transition_type: Transition type: CURE, ROLL, STAY, PAYOFF, CHARGE_OFF
+    * from_balance_cents: Balance at start of period in cents @npi @confidential
+    * to_balance_cents: Balance at end of period in cents @npi @confidential
+    * payment_received_cents: Payment received during period in cents @npi @confidential
+    * from_days_past_due: Days past due at start
+    * to_days_past_due: Days past due at end
+    * was_contacted: Whether customer contacted during period
+    * arrangement_made: Whether payment arrangement made
+    * promise_to_pay: Whether promise to pay obtained
+    * credit_score: Credit score at transition @npi @confidential
+    * months_on_books: Months on books */
+CREATE TABLE Delinquency_Rollforward_schema (
+  loan_id STRING NOT NULL,
+  loan_type STRING NOT NULL,
+  from_month DATE NOT NULL,
+  to_month DATE NOT NULL,
+  from_bucket STRING NOT NULL,
+  to_bucket STRING NOT NULL,
+  transition_type STRING NOT NULL,
+  from_balance_cents BIGINT,
+  to_balance_cents BIGINT,
+  payment_received_cents BIGINT,
+  from_days_past_due INT,
+  to_days_past_due INT,
+  was_contacted BOOLEAN,
+  arrangement_made BOOLEAN,
+  promise_to_pay BOOLEAN,
+  credit_score INT,
+  months_on_books INT
+);
+
+/** Credit utilization tracking and trends.
+    Grain: one row per credit_card_account_id, utilization_date combination.
+
+    # Columns:
+    * credit_card_account_id: Reference to credit card account @npi
+    * customer_id: Reference to customer @pii
+    * utilization_date: Date of utilization calculation
+    * current_balance_cents: Current balance in cents @npi @confidential
+    * credit_limit_cents: Credit limit in cents @npi @confidential
+    * utilization_rate: Utilization rate (0-100)
+    * utilization_band: Utilization band: LOW (0-10), MODERATE (10-30), ELEVATED (30-50), HIGH (50-75), VERY_HIGH (75-90), MAXED (90+)
+    * avg_utilization_7d: 7-day average utilization
+    * avg_utilization_30d: 30-day average utilization
+    * avg_utilization_90d: 90-day average utilization
+    * utilization_change_30d: Utilization change from 30 days ago
+    * utilization_change_90d: Utilization change from 90 days ago
+    * peak_utilization_30d: Peak utilization in trailing 30 days
+    * days_over_90_pct: Days at over 90% utilization in trailing 30 days
+    * available_credit_cents: Available credit in cents @npi @confidential
+    * distance_to_limit_cents: Distance to limit in cents
+    * cash_advance_utilization: Cash advance utilization
+    * trend_direction: Utilization trend: INCREASING, STABLE, DECREASING
+    * high_utilization_flag: Utilization risk flag */
+CREATE TABLE Credit_Utilization_schema (
+  credit_card_account_id STRING NOT NULL,
+  customer_id STRING NOT NULL,
+  utilization_date DATE NOT NULL,
+  current_balance_cents BIGINT,
+  credit_limit_cents BIGINT,
+  utilization_rate DECIMAL(5, 2),
+  utilization_band STRING,
+  avg_utilization_7d DECIMAL(5, 2),
+  avg_utilization_30d DECIMAL(5, 2),
+  avg_utilization_90d DECIMAL(5, 2),
+  utilization_change_30d DECIMAL(6, 2),
+  utilization_change_90d DECIMAL(6, 2),
+  peak_utilization_30d DECIMAL(5, 2),
+  days_over_90_pct INT,
+  available_credit_cents BIGINT,
+  distance_to_limit_cents BIGINT,
+  cash_advance_utilization DECIMAL(5, 2),
+  trend_direction STRING,
+  high_utilization_flag BOOLEAN
+);

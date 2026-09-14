@@ -1,0 +1,203 @@
+{
+  "data" : {
+    "OBPaymentClassificationStatsTest" : [ {
+      "instrument_type" : "AUTO_LOAN",
+      "week_start_date" : "2026-09-07",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 200000
+    }, {
+      "instrument_type" : "AUTO_LOAN",
+      "week_start_date" : "2026-09-07",
+      "classification" : "POSTED_LATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 400000
+    }, {
+      "instrument_type" : "AUTO_LOAN",
+      "week_start_date" : "2026-09-07",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 4,
+      "amount_cents_sum" : 9400000
+    }, {
+      "instrument_type" : "AUTO_LOAN",
+      "week_start_date" : "2026-08-31",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 400000
+    }, {
+      "instrument_type" : "AUTO_LOAN",
+      "week_start_date" : "2026-08-31",
+      "classification" : "POSTED_LATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 500000
+    }, {
+      "instrument_type" : "AUTO_LOAN",
+      "week_start_date" : "2026-08-31",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 4,
+      "amount_cents_sum" : 9100000
+    }, {
+      "instrument_type" : "CREDIT_CARD",
+      "week_start_date" : "2026-09-07",
+      "classification" : "EXCLUDED_MISSING_POSTED_DATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 410000
+    }, {
+      "instrument_type" : "CREDIT_CARD",
+      "week_start_date" : "2026-09-07",
+      "classification" : "POSTED_LATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 700000
+    }, {
+      "instrument_type" : "CREDIT_CARD",
+      "week_start_date" : "2026-09-07",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 1,
+      "amount_cents_sum" : 500000
+    }, {
+      "instrument_type" : "CREDIT_CARD",
+      "week_start_date" : "2026-08-31",
+      "classification" : "POSTED_LATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 600000
+    }, {
+      "instrument_type" : "CREDIT_CARD",
+      "week_start_date" : "2026-08-31",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 1,
+      "amount_cents_sum" : 500000
+    }, {
+      "instrument_type" : "CREDIT_CARD",
+      "week_start_date" : "2026-07-13",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 150000
+    }, {
+      "instrument_type" : "CREDIT_CARD",
+      "week_start_date" : "2026-07-13",
+      "classification" : "POSTED_LATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 250000
+    }, {
+      "instrument_type" : "MORTGAGE",
+      "week_start_date" : "2026-09-07",
+      "classification" : "EXCLUDED_PARTIAL_PAYMENT",
+      "record_count" : 1,
+      "amount_cents_sum" : 111111
+    }, {
+      "instrument_type" : "MORTGAGE",
+      "week_start_date" : "2026-09-07",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 500000
+    }, {
+      "instrument_type" : "MORTGAGE",
+      "week_start_date" : "2026-09-07",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 4,
+      "amount_cents_sum" : 18800000
+    }, {
+      "instrument_type" : "MORTGAGE",
+      "week_start_date" : "2026-08-31",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 400000
+    }, {
+      "instrument_type" : "MORTGAGE",
+      "week_start_date" : "2026-08-31",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 4,
+      "amount_cents_sum" : 19000000
+    }, {
+      "instrument_type" : "MORTGAGE",
+      "week_start_date" : "2026-06-15",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 0
+    }, {
+      "instrument_type" : "MORTGAGE",
+      "week_start_date" : null,
+      "classification" : "EXCLUDED_MISSING_DUE_DATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 320000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-09-14",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 1,
+      "amount_cents_sum" : 777777
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-09-07",
+      "classification" : "EXCLUDED_NOT_POSTED_STATUS",
+      "record_count" : 1,
+      "amount_cents_sum" : 999999
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-09-07",
+      "classification" : "EXCLUDED_UNKNOWN_INSTRUMENT",
+      "record_count" : 1,
+      "amount_cents_sum" : 123456
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-09-07",
+      "classification" : "POSTED_LATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 260000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-08-31",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 200000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-08-31",
+      "classification" : "POSTED_LATE",
+      "record_count" : 2,
+      "amount_cents_sum" : 350000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-08-31",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 4,
+      "amount_cents_sum" : 9500000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-07-13",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 220000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-06-22",
+      "classification" : "NOT_POSTED",
+      "record_count" : 1,
+      "amount_cents_sum" : 70000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-06-22",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 1,
+      "amount_cents_sum" : 400000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-06-15",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 1,
+      "amount_cents_sum" : 400000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-06-08",
+      "classification" : "POSTED_ON_TIME",
+      "record_count" : 1,
+      "amount_cents_sum" : 400000
+    }, {
+      "instrument_type" : "PERSONAL_LOAN",
+      "week_start_date" : "2026-04-06",
+      "classification" : "POSTED_LATE",
+      "record_count" : 1,
+      "amount_cents_sum" : 180000
+    } ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "data" : {
+    "DQDelinquencyUnknownInstrumentTest" : [ {
+      "delinquency_event_id" : "CLDE-204",
+      "instrument_type" : "PERSONAL_LOAN",
+      "instrument_id" : "PL-998",
+      "event_customer_id" : "CUST-101",
+      "amount_past_due_cents" : 90000,
+      "event_date" : "2026-09-02"
+    } ]
+  }
+}

@@ -1,0 +1,200 @@
+-- ## Enriched Transactions
+--
+-- Silver-layer transaction data combining and enriching information from
+-- multiple bronze sources to create unified transaction views with merchant
+-- enrichment, categorization, and recurring payment detection.
+--
+-- Layer:            silver
+-- Classification:   Restricted
+-- Regulatory scope: GLBA, GDPR, CCPA
+-- Upstream:         core_transactions.sqrl, card_transactions.sqrl, wire_ach_transactions.sqrl
+
+/** Unified transaction view combining all transaction types with standardized attributes.
+    Grain: one row per transaction_id. */
+CREATE TABLE Unified_Transaction (
+  /** Unique identifier for the transaction */
+  transaction_id STRING,
+  /** Reference to account @npi */
+  account_id STRING,
+  /** Reference to customer @pii */
+  customer_id STRING,
+  /** Transaction source: CORE, CARD, ACH, WIRE */
+  transaction_source STRING,
+  /** Original source system transaction ID */
+  source_transaction_id STRING,
+  /** Standardized transaction type */
+  transaction_type STRING,
+  /** Transaction category: DEBIT, CREDIT */
+  debit_credit STRING,
+  /** Transaction amount in cents @npi @confidential */
+  amount_cents BIGINT,
+  /** Currency code (ISO 4217) */
+  currency_code STRING,
+  /** Transaction status: PENDING, POSTED, REVERSED, RETURNED */
+  transaction_status STRING,
+  /** Date and time transaction occurred */
+  transaction_at TIMESTAMP,
+  /** Date transaction was posted */
+  posted_date DATE,
+  /** Original description @pii */
+  original_description STRING,
+  /** Cleaned/standardized description @pii */
+  clean_description STRING,
+  /** Transaction channel: BRANCH, ATM, ONLINE, MOBILE, ACH, WIRE, POS, CHECK */
+  channel STRING,
+  /** Merchant or counterparty ID (enriched) */
+  merchant_id STRING,
+  /** Merchant or counterparty name (enriched) @pii */
+  merchant_name STRING,
+  /** Merchant category code */
+  mcc_code STRING,
+  /** Transaction category ID */
+  category_id STRING,
+  /** Transaction category name */
+  category_name STRING,
+  /** Transaction subcategory name */
+  subcategory_name STRING,
+  /** Whether transaction is identified as recurring */
+  is_recurring BOOLEAN,
+  /** Recurring payment ID if applicable */
+  recurring_payment_id STRING,
+  /** Geographic location of transaction @pii */
+  location STRING,
+  /** City of transaction @pii */
+  city STRING,
+  /** State/province of transaction */
+  state STRING,
+  /** Country of transaction */
+  country STRING,
+  /** Running balance after transaction in cents @npi @confidential */
+  running_balance_cents BIGINT,
+  /** Whether transaction has been disputed */
+  is_disputed BOOLEAN,
+  /** Whether transaction is potentially fraudulent */
+  is_suspicious BOOLEAN,
+  /** Fraud score (0-100) */
+  fraud_score INT,
+  /** Timestamp when enrichment was computed */
+  computed_at TIMESTAMP
+);
+
+/** Merchant enrichment data providing standardized merchant information.
+    Grain: one row per merchant_id. */
+CREATE TABLE Merchant_Enrichment (
+  /** Unique identifier for the merchant */
+  merchant_id STRING,
+  /** Raw merchant name as received */
+  raw_merchant_name STRING,
+  /** Cleaned/standardized merchant name */
+  clean_merchant_name STRING,
+  /** Parent company name */
+  parent_company STRING,
+  /** Merchant logo URL */
+  logo_url STRING,
+  /** Merchant website */
+  website STRING,
+  /** Primary MCC code */
+  primary_mcc STRING,
+  /** Primary category */
+  primary_category STRING,
+  /** Primary subcategory */
+  primary_subcategory STRING,
+  /** Merchant type: RETAIL, RESTAURANT, SERVICE, UTILITY, SUBSCRIPTION, GOVERNMENT */
+  merchant_type STRING,
+  /** Whether merchant is a subscription service */
+  is_subscription BOOLEAN,
+  /** Whether merchant is a utility provider */
+  is_utility BOOLEAN,
+  /** Whether merchant is a financial institution */
+  is_financial_institution BOOLEAN,
+  /** Enrichment provider: PLAID, YODLEE, MX, INTERNAL */
+  enrichment_source STRING,
+  /** Confidence score for enrichment (0-100) */
+  confidence_score INT,
+  /** Date enrichment was last updated */
+  last_updated_at TIMESTAMP,
+  /** Timestamp when enrichment was computed */
+  computed_at TIMESTAMP
+);
+
+/** Transaction category reference for spending classification.
+    Grain: one row per category_id. */
+CREATE TABLE Transaction_Category (
+  /** Unique identifier for the category */
+  category_id STRING,
+  /** Category name */
+  category_name STRING,
+  /** Parent category ID for hierarchy */
+  parent_category_id STRING,
+  /** Category level in hierarchy (1=top level) */
+  category_level INT,
+  /** Full category path */
+  category_path STRING,
+  /** Category description */
+  description STRING,
+  /** Category icon */
+  icon STRING,
+  /** Display color */
+  color STRING,
+  /** Whether this is a system-defined category */
+  is_system BOOLEAN,
+  /** Whether category is currently active */
+  is_active BOOLEAN,
+  /** Sort order for display */
+  sort_order INT,
+  /** Timestamp when category was created */
+  created_at TIMESTAMP,
+  /** Timestamp when category was last updated */
+  updated_at TIMESTAMP
+);
+
+/** Recurring payment detection and tracking.
+    Grain: one row per recurring_payment_id. */
+CREATE TABLE Recurring_Payment (
+  /** Unique identifier for the recurring payment series */
+  recurring_payment_id STRING,
+  /** Reference to account @npi */
+  account_id STRING,
+  /** Reference to customer @pii */
+  customer_id STRING,
+  /** Merchant ID for this recurring payment */
+  merchant_id STRING,
+  /** Merchant name @pii */
+  merchant_name STRING,
+  /** Recurring payment type: SUBSCRIPTION, BILL, LOAN_PAYMENT, MEMBERSHIP, INSURANCE */
+  payment_type STRING,
+  /** Typical amount in cents @npi @confidential */
+  typical_amount_cents BIGINT,
+  /** Amount variance tolerance in cents */
+  amount_variance_cents BIGINT,
+  /** Payment frequency: WEEKLY, BIWEEKLY, MONTHLY, QUARTERLY, ANNUAL */
+  frequency STRING,
+  /** Typical day of month or week for payment */
+  typical_day INT,
+  /** Day variance tolerance */
+  day_variance INT,
+  /** Date of first detected occurrence */
+  first_occurrence_date DATE,
+  /** Date of most recent occurrence */
+  last_occurrence_date DATE,
+  /** Date of next expected occurrence */
+  next_expected_date DATE,
+  /** Number of occurrences detected */
+  occurrence_count INT,
+  /** Number of missed/late occurrences */
+  missed_count INT,
+  /** Recurring payment status: ACTIVE, PAUSED, ENDED, UNCERTAIN */
+  status STRING,
+  /** Confidence score for detection (0-100) */
+  confidence_score INT,
+  /** Category of recurring payment */
+  category_name STRING,
+  /** Whether payment is essential (utility, insurance, etc.) */
+  is_essential BOOLEAN,
+  /** Annual cost in cents @npi @confidential */
+  annual_cost_cents BIGINT,
+  /** Detection method: AMOUNT_FREQUENCY, MERCHANT_MATCH, DESCRIPTION_MATCH */
+  detection_method STRING,
+  /** Timestamp when detection was last computed */
+  computed_at TIMESTAMP
+);
