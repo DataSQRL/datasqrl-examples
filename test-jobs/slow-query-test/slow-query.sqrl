@@ -1,0 +1,64 @@
+/*
+ Test job for the per-query slow GraphQL query alerts in cloud-backend
+ (metrics_alerting.sqrl -> _SlowQueryAlerts).
+
+ The vertx server tags sqrl_graphql_query_duration_seconds with the GraphQL
+ field name, Prometheus recording rules derive x_sqrl_graphql_query_p50/p99_seconds
+ from it, and the metrics pipeline raises alerts when p99 exceeds 20s (level 1)
+ or 50s (level 2). SlowQuery below is deliberately expensive so those thresholds
+ can be crossed on demand; FastQuery is the control that must never alert.
+*/
+
+-- Bounded seed: 100k rows that land in Postgres via the SeedRows table.
+CREATE TABLE _SeedData (
+  id BIGINT NOT NULL,
+  payload STRING NOT NULL,
+  event_time AS NOW(),
+  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+) WITH (
+  'connector' = 'datagen',
+  'rows-per-second' = '10000',
+  'fields.id.kind' = 'sequence',
+  'fields.id.start' = '1',
+  'fields.id.end' = '100000',
+  'fields.payload.kind' = 'random',
+  'fields.payload.length' = '16'
+);
+
+SeedRows := DISTINCT _SeedData ON id ORDER BY event_time DESC;
+
+-- Unbounded trickle source so the Flink job keeps running after the bounded
+-- seed finishes and the deployment stays healthy while queries are tested.
+CREATE TABLE _Heartbeat (
+  beat DOUBLE NOT NULL,
+  hb_time AS NOW(),
+  WATERMARK FOR hb_time AS hb_time - INTERVAL '5' SECOND
+) WITH (
+  'connector' = 'datagen',
+  'rows-per-second' = '1',
+  'fields.beat.kind' = 'random',
+  'fields.beat.min' = '0.0',
+  'fields.beat.max' = '1.0'
+);
+
+_HeartbeatWindow := SELECT window_start, window_end, COUNT(*) AS beats
+FROM TABLE(TUMBLE(TABLE _Heartbeat, DESCRIPTOR(hb_time), INTERVAL '60' SECOND))
+GROUP BY window_start, window_end;
+
+EXPORT _HeartbeatWindow TO logger.heartbeat;
+
+/**
+  Deliberately slow query: Postgres scans :n x :n row pairs, so latency grows
+  quadratically with n. Tune n at query time to push p99 past the 20s (level 1)
+  or 50s (level 2) alert thresholds without redeploying.
+ */
+SlowQuery(n BIGINT NOT NULL) :=
+SELECT COUNT(*) AS row_pairs, MAX(a.id + b.id) AS max_id_sum
+FROM SeedRows a CROSS JOIN SeedRows b
+WHERE a.id <= :n AND b.id <= :n;
+
+/**
+  Fast control query: must never trigger a slow-query alert.
+ */
+FastQuery(maxId BIGINT NOT NULL) :=
+SELECT id, payload FROM SeedRows WHERE id <= :maxId ORDER BY id ASC LIMIT 10;

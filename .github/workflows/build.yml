@@ -169,6 +169,12 @@ jobs:
               compile scheduled-batch-package.json
               compile simple-scheduled-batch-package.json
 
+          - example: canary-slow-query
+            path: test-jobs/slow-query-test
+            tag: canary
+            test_commands: |
+              compile slow-query-package.json
+
           - example: udf-jbang
             path: user-defined-function/jbang
             tag: udf-jbang
