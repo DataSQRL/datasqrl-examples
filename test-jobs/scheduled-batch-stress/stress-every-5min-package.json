@@ -1,0 +1,37 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "flink"],
+  "script": {
+    "main": "stress_batch.sqrl",
+    "graphql": "stress_batch.graphqls"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH",
+        "table.exec.source.idle-timeout": "1 ms"
+      },
+      "deployment": {
+        "schedule": {
+          "cron": "*/5 * * * *",
+          "timezone": "UTC"
+        }
+      }
+    },
+    "postgres": {
+      "deployment": {
+        "instance-size": "dev",
+        "replica-count": 0
+      }
+    },
+    "vertx": {
+      "deployment": {
+        "instance-size": "dev",
+        "instance-count": 1
+      }
+    }
+  },
+  "test-runner": {
+    "delay-sec": -1
+  }
+}
