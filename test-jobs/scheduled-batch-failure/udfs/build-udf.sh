@@ -13,9 +13,10 @@ CP=$(find ~/.m2/repository/org/apache/flink -name "flink-table-common-${FLINK_VE
 rm -rf target
 mkdir -p target/classes/META-INF/services
 
-javac --release 17 -cp "$CP" -d target/classes FailAfterDelay.java
-echo "com.datasqrl.testjobs.FailAfterDelay" \
-  > target/classes/META-INF/services/org.apache.flink.table.functions.ScalarFunction
+javac --release 17 -cp "$CP" -d target/classes ./*.java
+for f in ./*.java; do
+  echo "com.datasqrl.testjobs.$(basename "$f" .java)"
+done > target/classes/META-INF/services/org.apache.flink.table.functions.ScalarFunction
 
 jar --create --file fail-after-delay.jar -C target/classes .
 rm -rf target

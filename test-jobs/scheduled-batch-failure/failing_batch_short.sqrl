@@ -1,0 +1,20 @@
+IMPORT udfs.FailAfterDelay;
+
+CREATE TABLE DummyInput (
+    id   BIGINT NOT NULL,
+    name STRING NOT NULL
+) WITH (
+    'connector' = 'datagen',
+    'number-of-rows' = '100',
+    'fields.id.kind' = 'sequence',
+    'fields.id.start' = '1',
+    'fields.id.end' = '100',
+    'fields.name.length' = '12'
+);
+
+-- Sequence ids are always positive, so the predicate never drops a row; it is a WHERE rather than a
+-- projection because the planner prunes an unused projected column and would never run the failure.
+Items := SELECT id, name FROM DummyInput WHERE FailAfterDelay(id, 180) >= 0;
+
+/*+ engine(postgres) */
+ItemCount := SELECT COUNT(*) AS total FROM Items;

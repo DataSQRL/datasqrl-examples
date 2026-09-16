@@ -1,0 +1,20 @@
+IMPORT udfs.FailOneSubtaskSlowCancel;
+
+CREATE TABLE DummyInput (
+    id   BIGINT NOT NULL,
+    name STRING NOT NULL
+) WITH (
+    'connector' = 'datagen',
+    'number-of-rows' = '100',
+    'fields.id.kind' = 'sequence',
+    'fields.id.start' = '1',
+    'fields.id.end' = '100',
+    'fields.name.length' = '12'
+);
+
+-- Runs 180s, then the subtask holding id=1 fails while the other three hold cancellation for 120s.
+-- Needs parallelism > 1 to have siblings at all; see the package.json.
+Items := SELECT id, name FROM DummyInput WHERE FailOneSubtaskSlowCancel(id, 180, 120) >= 0;
+
+/*+ engine(postgres) */
+ItemCount := SELECT COUNT(*) AS total FROM Items;
