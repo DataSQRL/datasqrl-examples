@@ -1,0 +1,16 @@
+"A 64-bit signed integer"
+scalar Long
+
+type Items {
+  id: Long!
+  name: String!
+}
+
+type ItemCount {
+  total: Long!
+}
+
+type Query {
+  Items(limit: Int = 10, offset: Int = 0): [Items!]
+  ItemCount(limit: Int = 10, offset: Int = 0): [ItemCount!]
+}

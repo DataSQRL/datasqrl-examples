@@ -1,0 +1,17 @@
+IMPORT udfs.FailAfterDelay;
+
+CREATE TABLE DummyInput (
+    id   BIGINT NOT NULL,
+    name STRING NOT NULL
+) WITH (
+    'connector' = 'datagen',
+    'number-of-rows' = '100',
+    'fields.id.kind' = 'sequence',
+    'fields.id.start' = '1',
+    'fields.id.end' = '100',
+    'fields.name.length' = '12'
+);
+
+_Items := SELECT id, name FROM DummyInput WHERE FailAfterDelay(id, 60) >= 0;
+
+EXPORT _Items TO logger.items;

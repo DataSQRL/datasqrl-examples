@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink"],
+  "script": { "main": "local_fail.sqrl" },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH",
+        "restart-strategy.type": "none"
+      }
+    }
+  }
+}
