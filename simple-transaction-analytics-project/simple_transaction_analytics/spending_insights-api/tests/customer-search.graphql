@@ -1,0 +1,8 @@
+query TestCustomerSearch {
+  CustomerSearch(customerId: "CUST-057") {
+    customerId
+    displayName
+    status
+    accountCount
+  }
+}

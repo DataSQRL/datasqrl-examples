@@ -1,0 +1,187 @@
+-- ## Insights Sinks - Test
+--
+-- Write the insight tables to a local Iceberg warehouse for tests and local runs.
+
+IMPORT insights_sinks.*;
+
+CREATE TABLE Customer_Month_Category_L1_Spending (
+  PRIMARY KEY (customer_id, `month`, category_l1_id) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_month_category_l1_spending',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Month_Category_L1_Spending_schema;
+
+CREATE TABLE Customer_Month_Category_L2_Spending (
+  PRIMARY KEY (customer_id, `month`, category_l2_id) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_month_category_l2_spending',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Month_Category_L2_Spending_schema;
+
+CREATE TABLE Customer_Month_Top_Merchant (
+  PRIMARY KEY (customer_id, `month`, merchant_rank) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_month_top_merchant',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Month_Top_Merchant_schema;
+
+CREATE TABLE Customer_Month_Category_Merchant (
+  PRIMARY KEY (customer_id, `month`, category_l2_id, merchant_id) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_month_category_merchant',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Month_Category_Merchant_schema;
+
+CREATE TABLE Customer_Recurring_Payment (
+  PRIMARY KEY (customer_id, recurring_payment_id) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_recurring_payment',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Recurring_Payment_schema;
+
+CREATE TABLE Customer_Recurring_Monthly_Total (
+  PRIMARY KEY (customer_id) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_recurring_monthly_total',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Recurring_Monthly_Total_schema;
+
+CREATE TABLE Customer_Large_Purchase (
+  PRIMARY KEY (transaction_id) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_large_purchase',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Large_Purchase_schema;
+
+CREATE TABLE Customer_Month_Cash_Flow (
+  PRIMARY KEY (customer_id, `month`) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_month_cash_flow',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Month_Cash_Flow_schema;
+
+CREATE TABLE Customer_Account_Month_Cash_Flow (
+  PRIMARY KEY (customer_id, account_id, `month`) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_account_month_cash_flow',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Account_Month_Cash_Flow_schema;
+
+CREATE TABLE Customer_Day_Spending (
+  PRIMARY KEY (customer_id, spend_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_day_spending',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Day_Spending_schema;
+
+CREATE TABLE Customer_Account_Day_Spending (
+  PRIMARY KEY (customer_id, account_id, spend_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'customer_account_day_spending',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Customer_Account_Day_Spending_schema;
+
+CREATE TABLE Pipeline_Run_Metric (
+  PRIMARY KEY (run_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'pipeline_run_metric',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Pipeline_Run_Metric_schema;
+
+CREATE TABLE Uncategorized_Spending_Daily (
+  PRIMARY KEY (spend_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'uncategorized_spending_daily',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _Uncategorized_Spending_Daily_schema;
+
+CREATE TABLE DQ_Missing_FX_Rate_Transaction (
+  PRIMARY KEY (transaction_id) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'dq_missing_fx_rate_transaction',
+    'warehouse' = 'simple_transaction_analytics/sqrl_iceberg_data/',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE _DQ_Missing_FX_Rate_Transaction_schema;
