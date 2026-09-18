@@ -1,0 +1,9 @@
+{
+  "data" : {
+    "SensorPlacementLoads_Test" : [ {
+      "sensorId" : 1,
+      "patientId" : 28,
+      "metadataId" : 3
+    } ]
+  }
+}

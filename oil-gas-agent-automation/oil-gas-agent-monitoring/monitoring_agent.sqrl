@@ -1,4 +1,4 @@
-IMPORT `data-catalog`.{{variant}} AS ctl;
+IMPORT data_catalog.sources_{{environment}} AS ctl;
 
 /**
   Returns information about the well/asset including it's maintenance records, manual,
@@ -28,7 +28,7 @@ PressureByMinute := SELECT assetId, window_time AS timestamp_min,
                              AVG(pressure_psi) AS avg_pressure_psi,
                              MAX(pressure_psi) AS max_pressure_psi,
                              AVG(temperature_f) AS avg_temperature_f
-                    FROM TABLE(TUMBLE(TABLE ctl.Measurement, DESCRIPTOR(`timestamp`), INTERVAL '1' MINUTE))
+                    FROM TUMBLE(TABLE ctl.Measurement, DESCRIPTOR(`timestamp`), INTERVAL '1' MINUTE)
                     GROUP BY assetId, window_start, window_end, window_time
                     ORDER BY window_time DESC;
 
@@ -39,9 +39,20 @@ PressureByMinute := SELECT assetId, window_time AS timestamp_min,
 FlowrateByMinute := SELECT assetId, window_time AS timestamp_min,
                            AVG(flowrate) AS avg_flowrate,
                            MAX(flowrate) AS max_flowrate
-                    FROM TABLE(TUMBLE(TABLE ctl.FlowRate, DESCRIPTOR(`event_time`), INTERVAL '1' MINUTE))
+                    FROM TUMBLE(TABLE ctl.FlowRate, DESCRIPTOR(`event_time`), INTERVAL '1' MINUTE)
                     GROUP BY assetId, window_start, window_end, window_time
                     ORDER BY window_time DESC;
 
 Assets.flowrate := SELECT * FROM FlowrateByMinute f WHERE this.asset_id = f.assetId ORDER BY timestamp_min DESC;
 Assets.pressure := SELECT * FROM PressureByMinute p WHERE this.asset_id = p.assetId ORDER BY timestamp_min DESC;
+
+/* ==== TEST CASES ==== */
+
+/*+test */
+AssetsTest := SELECT asset_id, asset_number, asset_name, status FROM Assets ORDER BY asset_id ASC;
+
+/*+test */
+FlowrateByMinuteTest := SELECT * FROM FlowrateByMinute ORDER BY timestamp_min DESC, assetId ASC LIMIT 10;
+
+/*+test */
+PressureByMinuteTest := SELECT * FROM PressureByMinute ORDER BY timestamp_min DESC, assetId ASC LIMIT 10;

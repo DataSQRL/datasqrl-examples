@@ -3,8 +3,11 @@ IMPORT usertokens-{{variant}}.user_tokens.*;
 
 _TokenUsageHourWindow := SELECT userid, window_start, window_end, window_time,
                                 SUM(tokens) AS total_tokens
-            FROM TABLE(CUMULATE(TABLE UserTokens, DESCRIPTOR(request_time),
-                    INTERVAL '10' SECOND, INTERVAL '1' HOUR))
+            FROM CUMULATE(
+                TABLE UserTokens,
+                DESCRIPTOR(request_time),
+                INTERVAL '10' SECOND,
+                INTERVAL '1' HOUR)
             GROUP BY userid, window_start, window_end, window_time;
 
 UsageAlert := SUBSCRIBE SELECT userid, total_tokens, window_start, window_time

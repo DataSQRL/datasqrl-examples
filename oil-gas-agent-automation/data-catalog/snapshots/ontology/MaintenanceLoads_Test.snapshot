@@ -1,0 +1,11 @@
+{
+  "data" : {
+    "MaintenanceLoads_Test" : [ {
+      "work_order_id" : 2,
+      "work_order_num" : "WO-10457",
+      "asset_id" : 12221,
+      "wo_type" : "EQUIP_REPLACE",
+      "priority" : "MEDIUM"
+    } ]
+  }
+}

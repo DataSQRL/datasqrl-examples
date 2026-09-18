@@ -1,0 +1,11 @@
+{
+  "enabled-engines": ["vertx", "postgres", "flink"],
+  "script": {
+    "config": {
+      "environment": "test"
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots/monitoring_agent/"
+  }
+}

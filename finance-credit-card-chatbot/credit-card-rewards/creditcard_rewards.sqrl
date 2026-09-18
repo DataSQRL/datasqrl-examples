@@ -42,7 +42,7 @@ TotalReward(customerId BIGINT NOT NULL METADATA FROM 'auth.customerId') :=
   SELECT * FROM _TotalReward WHERE customerId = :customerId;
 
 _RewardsByDay := SELECT customerId, window_time as timeDay, SUM(reward) as total_reward
-                FROM TABLE(TUMBLE(TABLE CustomerRewards, DESCRIPTOR(`time`), INTERVAL '1' DAY))
+                FROM TUMBLE(TABLE CustomerRewards, DESCRIPTOR(`time`), INTERVAL '1' DAY)
                 GROUP BY customerId, window_start, window_end, window_time
                 ORDER BY window_time DESC;
 
@@ -79,7 +79,7 @@ TotalPotentialReward(customerId BIGINT NOT NULL METADATA FROM 'auth.customerId')
   ORDER BY cardType DESC;
 
 _PotentialRewardsByDay := SELECT customerId, rewardCardType AS cardType, window_time as timeDay, SUM(reward) as total_reward
-                          FROM TABLE(TUMBLE(TABLE CustomerPotentialRewards, DESCRIPTOR(`time`), INTERVAL '1' DAY))
+                          FROM TUMBLE(TABLE CustomerPotentialRewards, DESCRIPTOR(`time`), INTERVAL '1' DAY)
                           GROUP BY customerId, window_start, window_end, window_time, rewardCardType
                           ORDER BY window_time DESC, rewardCardType ASC;
 

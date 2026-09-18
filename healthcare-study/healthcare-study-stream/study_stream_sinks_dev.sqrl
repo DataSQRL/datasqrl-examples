@@ -1,0 +1,13 @@
+/* Enriched readings sink for the dev environment: the Kafka topic `enrichedindicators`, keyed by patient. */
+CREATE TABLE EnrichedIndicator (
+     WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '5' SECOND
+) WITH (
+      'connector' = 'kafka',
+      'topic' = 'enrichedindicators',
+      'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+      'properties.group.id' = 'mygroup',
+      'scan.startup.mode' = 'earliest-offset',
+      'value.format' = 'flexible-json',
+      'key.format' = 'raw',
+      'key.fields' = 'patientId'
+) LIKE `*`;

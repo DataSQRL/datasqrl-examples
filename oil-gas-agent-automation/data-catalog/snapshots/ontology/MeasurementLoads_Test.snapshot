@@ -1,0 +1,7 @@
+{
+  "data" : {
+    "MeasurementLoads_Test" : [ {
+      "num_readings" : 40000
+    } ]
+  }
+}

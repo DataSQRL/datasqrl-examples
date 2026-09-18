@@ -89,3 +89,15 @@ Sample Data:
 {"sensorId":16,"patientId":24,"metadataId":7,"eventId":"782f445d-a610-4cd4-b891-f94341516bf7","placedTimestamp":"2024-09-15T00:00:00Z"}
 {"sensorId":17,"patientId":23,"metadataId":10,"eventId":"35e05544-5a6f-43d7-8e6f-31a50f5851b6","placedTimestamp":"2024-09-15T00:00:00Z"}
 ```
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `study_test.sqrl` | The four master datasets above as file sources (`LIKE testdata/*.jsonl`) — the `test` environment |
+| `study_dev.sqrl` | The same four datasets as Kafka change streams (topics `metadata`, `observationgroup`, `patients`, `sensorplacements`) — the `dev` environment |
+| `metrics_test.sqrl` | Sensor readings (`ClinicalIndicator`) from `testdata/clinical_indicator.jsonl` — the `test` environment |
+| `metrics_dev.sqrl` | Sensor readings from the Kafka topic `indicators`, schema from `schema/clinical_indicator.avsc` — the `dev` environment |
+| `ontology.sqrl` | Relationships between the datasets (patient ↔ sensors ↔ indicator, group ↔ members, sensor ↔ readings) and the data quality assertions that must never be violated; run with `ontology-shared-package.json` + `ontology-test-package.json` |
+
+Projects import the datasets as `` data_catalog.study_{{environment}} `` and `` data_catalog.metrics_{{environment}} `` and select the environment in their package configuration.

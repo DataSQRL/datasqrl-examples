@@ -1,0 +1,9 @@
+{
+  "data" : {
+    "ObservationGroupLoads_Test" : [ {
+      "groupId" : 3,
+      "studyId" : 1,
+      "groupName" : "BETSY JOHNSON HOSPITAL"
+    } ]
+  }
+}

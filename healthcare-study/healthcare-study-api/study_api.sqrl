@@ -1,5 +1,5 @@
-IMPORT `data-catalog`.`study-test` AS study_ctl;
-IMPORT `data-catalog`.`metrics-{{variant}}` AS metrics_ctl;
+IMPORT data_catalog.study_{{environment}} AS study_ctl;
+IMPORT data_catalog.metrics_{{environment}} AS metrics_ctl;
 
 _ClinicalIndicator := SELECT sensorId, metric, `timestamp` FROM metrics_ctl.ClinicalIndicator;
 
@@ -22,7 +22,7 @@ EXPORT IndicatorAlerts TO logger.Alert;
 
 /*+no_query */
 PatientMetricsHourly := SELECT patientId, window_time AS timeHour, metadataId, name, AVG(metric) as avgMetric
-            FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
+            FROM TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR)
             GROUP BY patientId, metadataId, name, window_start, window_end, window_time;
 
 /*+test */

@@ -1,0 +1,22 @@
+{
+  "enabled-engines": ["iceberg","snowflake", "flink"],
+  "script": {
+    "config": {
+      "environment": "prod"
+    }
+  },
+  "engines": {
+    "snowflake": {
+      "catalog-name": "MyCatalog",
+      "external-volume": "MyNewVolume",
+      "url": "${SNOWFLAKE_JDBC_URL}"
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "s3a://sqrl-examples-data-bucket/datasqrl-examples/healthcare-study-analytics-iceberg",
+      "catalog-type": "hadoop",
+      "catalog-name": "mycatalog"
+    }
+  }
+}

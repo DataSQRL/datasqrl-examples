@@ -1,0 +1,7 @@
+{
+  "data" : {
+    "ClinicalIndicatorLoads_Test" : [ {
+      "num_readings" : 21600
+    } ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "data" : {
+    "AssetLoads_Test" : [ {
+      "asset_id" : 12221,
+      "asset_number" : "W-12221",
+      "asset_name" : "Well Beta 12221",
+      "status" : "ACTIVE"
+    } ]
+  }
+}

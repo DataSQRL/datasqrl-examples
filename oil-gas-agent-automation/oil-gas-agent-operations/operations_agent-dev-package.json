@@ -1,0 +1,10 @@
+{
+  "script": {
+    "config": {
+      "environment": "dev"
+    }
+  },
+  "test-runner": {
+    "create-topics": ["assets", "maintenance", "measurement"]
+  }
+}

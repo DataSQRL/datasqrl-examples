@@ -1,0 +1,20 @@
+{
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "config": {
+      "environment": "test"
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "warehouse",
+      "catalog-type": "hadoop",
+      "catalog-name": "mydatabase"
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots/study_analytics/",
+    "delay-sec": -1,
+    "required-checkpoints": 2
+  }
+}

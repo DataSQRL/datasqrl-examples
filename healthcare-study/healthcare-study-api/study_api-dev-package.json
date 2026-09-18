@@ -1,0 +1,16 @@
+{
+  "script": {
+    "config": {
+      "environment": "dev"
+    }
+  },
+  "test-runner": {
+    "create-topics": [
+      "indicators",
+      "metadata",
+      "observationgroup",
+      "patients",
+      "sensorplacements"
+    ]
+  }
+}

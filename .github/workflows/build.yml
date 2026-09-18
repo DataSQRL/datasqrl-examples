@@ -23,7 +23,7 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: '0.11.2'
+  SQRL_VERSION: '0.11.4'
 
 jobs:
   build-and-push:
@@ -40,8 +40,8 @@ jobs:
           - example: recommendation
             path: clickstream-ai-recommendation
             test_commands: |
-              compile recommendation_package_api.json
-              compile recommendation_package_kafka.json
+              compile recommendation_api_package.json
+              compile recommendation_kafka_package.json
 
           - example: credit-card-analytics
             path: finance-credit-card-chatbot
@@ -68,22 +68,22 @@ jobs:
             path: healthcare-study
             tag: healthcare-study-analytics
             test_commands: |
-              compile healthcare-study-analytics/study_analytics_package_test.json
-              test healthcare-study-analytics/study_analytics_package_test.json
+              compile healthcare-study-analytics/study_analytics-shared-package.json healthcare-study-analytics/study_analytics-test-package.json
+              test study_analytics-shared-package.json study_analytics-test-package.json -r healthcare-study-analytics
           - example: healthcare-study-api
             path: healthcare-study
             tag: healthcare-study-api
             test_commands: |
-              compile healthcare-study-api/study_api_package_api.json
-              compile healthcare-study-api/study_api_package_test.json
-              test healthcare-study-api/study_api_package_test.json
+              compile healthcare-study-api/study_api-shared-package.json healthcare-study-api/study_api-test-package.json
+              compile healthcare-study-api/study_api-shared-package.json healthcare-study-api/study_api-dev-package.json
+              test study_api-shared-package.json study_api-test-package.json -r healthcare-study-api
           - example: healthcare-study-stream
             path: healthcare-study
             tag: healthcare-study-stream
             test_commands: |
-              compile healthcare-study-stream/study_stream_package_kafka.json
-              compile healthcare-study-stream/study_stream_package_test.json
-              test healthcare-study-stream/study_stream_package_test.json
+              compile healthcare-study-stream/study_stream-shared-package.json healthcare-study-stream/study_stream-test-package.json
+              compile healthcare-study-stream/study_stream-shared-package.json healthcare-study-stream/study_stream-dev-package.json
+              test study_stream-shared-package.json study_stream-test-package.json -r healthcare-study-stream
 
           - example: iceberg-dedup
             path: iceberg-data-deduplication
@@ -103,32 +103,35 @@ jobs:
           - example: law-enforcement
             path: law-enforcement
             test_commands: |
-              compile baseball_card_package_test.json
-              test baseball_card_package_test.json
+              compile baseball_card_test_package.json
+              test baseball_card_test_package.json
 
           - example: logistics
             path: logistics-shipping-geodata
             test_commands: |
-              compile logistics_package_test.json
-              test logistics_package_test.json
+              compile logistics_test_package.json
+              test logistics_test_package.json
 
           - example: oil-gas-monitoring
             path: oil-gas-agent-automation
             tag: oil-gas-agent-monitoring
             test_commands: |
-              compile oil-gas-agent-monitoring/monitoring_agent_package_test.json
+              compile oil-gas-agent-monitoring/monitoring_agent-shared-package.json oil-gas-agent-monitoring/monitoring_agent-test-package.json
+              compile oil-gas-agent-monitoring/monitoring_agent-shared-package.json oil-gas-agent-monitoring/monitoring_agent-dev-package.json
+              test monitoring_agent-shared-package.json monitoring_agent-test-package.json -r oil-gas-agent-monitoring
           - example: oil-gas-operations
             path: oil-gas-agent-automation
             tag: oil-gas-agent-operations
             test_commands: |
-              compile oil-gas-agent-operations/operations_agent_package_test.json
-              test oil-gas-agent-operations/operations_agent_package_test.json
+              compile oil-gas-agent-operations/operations_agent-shared-package.json oil-gas-agent-operations/operations_agent-test-package.json
+              compile oil-gas-agent-operations/operations_agent-shared-package.json oil-gas-agent-operations/operations_agent-dev-package.json
+              test operations_agent-shared-package.json operations_agent-test-package.json -r oil-gas-agent-operations
 
           - example: usage-analytics
             path: usage-analytics
             test_commands: |
-              compile usertokens_package_test.json
-              test usertokens_package_test.json
+              compile usertokens_test_package.json
+              test usertokens_test_package.json
 
           - example: canary-aggregation
             path: test-jobs/aggregation-tests

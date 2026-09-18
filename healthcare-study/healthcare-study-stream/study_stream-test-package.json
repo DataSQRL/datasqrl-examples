@@ -1,0 +1,12 @@
+{
+  "enabled-engines": ["flink"],
+  "script": {
+    "config": {
+      "environment": "test"
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots/study_stream/",
+    "delay-sec": 120
+  }
+}

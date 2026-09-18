@@ -1,0 +1,12 @@
+{
+  "script": {
+    "config": {
+      "environment": "test"
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots/study_api/",
+    "test-folder": "study_api-api/tests/",
+    "delay-sec": 200
+  }
+}

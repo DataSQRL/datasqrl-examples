@@ -1,5 +1,5 @@
-IMPORT `data-catalog`.`study-test` AS study_ctl;
-IMPORT `data-catalog`.`metrics-test` AS metrics_ctl;
+IMPORT data_catalog.study_test AS study_ctl;
+IMPORT data_catalog.metrics_test AS metrics_ctl;
 
 _SensorPlacements := DISTINCT study_ctl.SensorPlacements ON sensorId ORDER BY placedTimestamp DESC;
 _Metadata         := DISTINCT study_ctl.Metadata ON metadataId ORDER BY lastUpdated DESC;
@@ -12,7 +12,7 @@ _EnrichedIndicators := SELECT * FROM metrics_ctl.ClinicalIndicator m
 
 /*+primary_key(studyId, patientId, metadataId, name, timeHour), partition_key(studyId) */
 _PatientMetricsHourly := SELECT studyId, patientId, window_time AS timeHour, metadataId, name, AVG(metric) as avgMetric
-            FROM TABLE(TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR))
+            FROM TUMBLE(TABLE _EnrichedIndicators, DESCRIPTOR(`timestamp`), INTERVAL '1' HOUR)
             GROUP BY studyId, patientId, metadataId, name, window_start, window_end, window_time;
 
 _ObservationGroup := DISTINCT study_ctl.ObservationGroup ON groupId ORDER BY createdDate DESC;
