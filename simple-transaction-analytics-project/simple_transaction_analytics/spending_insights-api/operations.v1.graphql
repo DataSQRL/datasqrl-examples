@@ -1,0 +1,142 @@
+# Resolve a customer id to display name, status and in-scope account count.
+query CustomerSearch($customerId: String!) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/search") {
+  CustomerSearch(customerId: $customerId) {
+    customerId
+    displayName
+    status
+    accountCount
+  }
+}
+
+# The OPEN CHECKING/SAVINGS accounts of a customer, for the account picker.
+query CustomerAccounts($customerId: String!) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/accounts") {
+  CustomerAccounts(customerId: $customerId) {
+    accountId
+    accountNumber
+    accountType
+    status
+  }
+}
+
+# Monthly cash flow summary for a customer, or a single account when accountId is given.
+query MonthOverview($customerId: String!, $month: String!, $accountId: String) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/month/{month}/overview{?accountId}") {
+  MonthOverview(customerId: $customerId, month: $month, accountId: $accountId) {
+    income
+    spending
+    net
+    savingsRate
+    isPartialMonth
+  }
+}
+
+# Daily spending for the chosen month, for a customer or a single account.
+query DailySpending($customerId: String!, $month: String!, $accountId: String) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/month/{month}/daily{?accountId}") {
+  DailySpending(customerId: $customerId, month: $month, accountId: $accountId) {
+    date
+    spending
+  }
+}
+
+# Per level-1 category spending with normal-spending baseline and nested level-2 children.
+query CategorySpending($customerId: String!, $month: String!) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/month/{month}/categories") {
+  CategorySpending(customerId: $customerId, month: $month) {
+    category_l1_id
+    category_l1_name
+    spend_usd_cents
+    normal_spend_usd_cents
+    is_much_more_than_usual
+    excess_usd_cents
+    excess_pct
+    children {
+      category_l2_id
+      category_l2_name
+      spend_usd_cents
+      normal_spend_usd_cents
+      is_much_more_than_usual
+      excess_usd_cents
+      excess_pct
+    }
+  }
+}
+
+# Merchants behind a single level-2 category for the chosen month.
+query CategoryMerchants($customerId: String!, $month: String!, $categoryId: String!) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/month/{month}/category/{categoryId}/merchants") {
+  CategoryMerchants(customerId: $customerId, month: $month, categoryId: $categoryId) {
+    merchantId
+    merchantName
+    spending
+    transactionCount
+  }
+}
+
+# The top 5 merchants by monthly spending for a customer.
+query TopMerchants($customerId: String!, $month: String!) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/month/{month}/top-merchants") {
+  TopMerchants(customerId: $customerId, month: $month) {
+    merchantId
+    merchantName
+    spending
+    transactionCount
+  }
+}
+
+# A customer's recurring payment series with monthly cost and price-change flags.
+query RecurringPayments($customerId: String!) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/recurring") {
+  RecurringPayments(customerId: $customerId) {
+    recurringPaymentId
+    merchantName
+    paymentType
+    frequency
+    monthlyCost
+    latestCharge
+    previousCharge
+    latestChargeDate
+    becameMoreExpensive
+    increaseAmount
+    increasePct
+    status
+  }
+}
+
+# Total monthly recurring cost across a customer's ACTIVE series.
+query RecurringTotal($customerId: String!) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/recurring/total") {
+  RecurringTotal(customerId: $customerId) {
+    totalMonthlyCost
+  }
+}
+
+# Unusually large purchases for a customer, optionally within a date range.
+query LargePurchases($customerId: String!, $fromDate: String, $toDate: String) @api(mcp: TOOL, rest: GET, uri: "/customer/{customerId}/large-purchases{?fromDate,toDate}") {
+  LargePurchases(customerId: $customerId, fromDate: $fromDate, toDate: $toDate) {
+    transactionId
+    date
+    merchantName
+    categoryName
+    amount
+    baselineMean
+    ratio
+  }
+}
+
+# The most recent pipeline run metrics.
+query RunMetrics($limit: Int) @api(mcp: TOOL, rest: GET, uri: "/metrics{?limit}") {
+  RunMetrics(limit: $limit) {
+    runDate
+    windowStart
+    windowEnd
+    recomputedDayCount
+    recomputedMonths
+    transactionCountProcessed
+    lateTransactionCount
+    missingFxRateTxnCount
+  }
+}
+
+# Daily total vs uncategorized spending share within a date range.
+query UncategorizedShare($fromDate: String!, $toDate: String!) @api(mcp: TOOL, rest: GET, uri: "/uncategorized{?fromDate,toDate}") {
+  UncategorizedShare(fromDate: $fromDate, toDate: $toDate) {
+    date
+    totalSpending
+    uncategorizedSpending
+    share
+  }
+}

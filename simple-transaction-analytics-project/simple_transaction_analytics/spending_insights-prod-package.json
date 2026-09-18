@@ -1,0 +1,23 @@
+{
+  "script": {
+    "config": {
+      "environment": "prod"
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.batch-shuffle-mode": "ALL_EXCHANGES_BLOCKING"
+      },
+      "deployment": {
+        "jobmanager-size": "dev",
+        "taskmanager-size": "small.mem",
+        "taskmanager-count": 1,
+        "schedule": {
+          "cron": "0 2 * * *",
+          "timezone": "UTC"
+        }
+      }
+    }
+  }
+}

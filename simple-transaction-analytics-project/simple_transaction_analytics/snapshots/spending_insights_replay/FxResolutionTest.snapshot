@@ -1,0 +1,21 @@
+{
+  "data" : {
+    "FxResolutionTest" : [ {
+      "currency_code" : "EUR",
+      "rate_date" : "2026-09-01",
+      "usd_per_unit" : 1.0874
+    }, {
+      "currency_code" : "EUR",
+      "rate_date" : "2026-09-02",
+      "usd_per_unit" : 1.089
+    }, {
+      "currency_code" : "GBP",
+      "rate_date" : "2026-09-02",
+      "usd_per_unit" : 1.25
+    }, {
+      "currency_code" : "JPY",
+      "rate_date" : "2026-09-02",
+      "usd_per_unit" : null
+    } ]
+  }
+}

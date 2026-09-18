@@ -1,0 +1,12 @@
+{
+  "data" : {
+    "CategoryL2SpendingTest" : [ {
+      "customer_id" : "CUST-057",
+      "month" : "2026-08-01",
+      "category_l2_id" : "CAT-014",
+      "category_l2_name" : "Travel",
+      "spend_usd_cents" : 23054,
+      "txn_count" : 1
+    } ]
+  }
+}

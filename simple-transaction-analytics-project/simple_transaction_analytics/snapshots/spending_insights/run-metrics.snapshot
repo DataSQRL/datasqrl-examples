@@ -1,0 +1,14 @@
+{
+  "data" : {
+    "RunMetrics" : [ {
+      "runDate" : "2026-09-02",
+      "windowStart" : "2026-08-27",
+      "windowEnd" : "2026-09-02",
+      "recomputedDayCount" : 7,
+      "recomputedMonths" : 2,
+      "transactionCountProcessed" : 1447,
+      "lateTransactionCount" : 0,
+      "missingFxRateTxnCount" : 0
+    } ]
+  }
+}

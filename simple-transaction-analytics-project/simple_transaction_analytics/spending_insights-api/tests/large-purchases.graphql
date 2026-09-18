@@ -1,0 +1,11 @@
+query TestLargePurchases {
+  LargePurchases(customerId: "CUST-093") {
+    transactionId
+    date
+    merchantName
+    categoryName
+    amount
+    baselineMean
+    ratio
+  }
+}

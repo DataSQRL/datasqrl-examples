@@ -1,0 +1,14 @@
+-- ## Fx Daily Rate - Test Data
+--
+-- Read the local JSONL test file.
+
+IMPORT fx_rates.*;
+
+CREATE TABLE Fx_Daily_Rate (
+  PRIMARY KEY (currency_code, rate_date) NOT ENFORCED
+) WITH (
+    'connector' = 'filesystem',
+    'path' = '${DATA_PATH}/fx_daily_rate.jsonl',
+    'format' = 'json',
+    'json.timestamp-format.standard' = 'ISO-8601'
+) LIKE Fx_Daily_Rate_schema;

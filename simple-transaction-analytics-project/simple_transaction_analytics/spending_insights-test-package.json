@@ -1,0 +1,35 @@
+{
+  "script": {
+    "config": {
+      "environment": "test",
+      "run_date": "2026-09-02"
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "simple_transaction_analytics/sqrl_iceberg_data"
+    }
+  },
+  "engines": {
+    "vertx": {
+      "config": {
+        "jwtAuth": {
+          "pubSecKeys": [
+            {
+              "algorithm": "HS256",
+              "buffer": "c3BlbmRpbmctaW5zaWdodHMtaHMyNTYtdGVzdC1zZWNyZXQta2V5LTIwMjY="
+            }
+          ]
+        }
+      }
+    }
+  },
+  "test-runner": {
+    "delay-sec": -1,
+    "snapshot-folder": "snapshots/spending_insights/",
+    "test-folder": "spending_insights-api/tests",
+    "headers": {
+      "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzcGVuZGluZy1pbnNpZ2h0cyIsImF1ZCI6WyJzcGVuZGluZy1jb25zb2xlIl0sImV4cCI6OTk5OTk5OTk5OSwic3ViIjoic3RhZmYtMDAxIiwicm9sZXMiOlsic3RhZmYiXSwiaWF0IjoxNzg5NjYxMDAyfQ.8TFQxDWfCx2gaYhriplAO6eH_ovT4EnacYRM5n95N-4"
+    }
+  }
+}
