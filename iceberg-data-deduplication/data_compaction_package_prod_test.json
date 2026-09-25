@@ -1,0 +1,7 @@
+{
+  "script": {
+    "config": {
+      "warehouse": "s3://prod-sqrl-examples-data-bucket/datasqrl-examples/iceberg-canary"
+    }
+  }
+}
