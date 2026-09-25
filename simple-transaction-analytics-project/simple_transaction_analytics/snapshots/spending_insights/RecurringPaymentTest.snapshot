@@ -1,0 +1,23 @@
+{
+  "data" : {
+    "RecurringPaymentTest" : [ {
+      "recurring_payment_id" : "REC-001",
+      "customer_id" : "CUST-002",
+      "frequency" : "WEEKLY",
+      "monthly_cost_usd_cents" : 6500,
+      "status" : "ACTIVE"
+    }, {
+      "recurring_payment_id" : "REC-107",
+      "customer_id" : "CUST-174",
+      "frequency" : "WEEKLY",
+      "monthly_cost_usd_cents" : 11527,
+      "status" : "ACTIVE"
+    }, {
+      "recurring_payment_id" : "REC-180",
+      "customer_id" : "CUST-268",
+      "frequency" : "WEEKLY",
+      "monthly_cost_usd_cents" : 8290,
+      "status" : "ACTIVE"
+    } ]
+  }
+}

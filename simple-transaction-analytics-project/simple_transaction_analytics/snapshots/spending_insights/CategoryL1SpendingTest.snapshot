@@ -1,0 +1,12 @@
+{
+  "data" : {
+    "CategoryL1SpendingTest" : [ {
+      "customer_id" : "CUST-057",
+      "month" : "2026-08-01",
+      "category_l1_id" : "CAT-006",
+      "category_l1_name" : "Transportation",
+      "spend_usd_cents" : 23054,
+      "txn_count" : 1
+    } ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "data" : {
+    "PipelineRunMetricTest" : [ {
+      "run_date" : "2026-09-05",
+      "window_start" : "2026-08-30",
+      "window_end" : "2026-09-05",
+      "recomputed_day_count" : 7,
+      "recomputed_months" : 2,
+      "transaction_count_processed" : 1497,
+      "late_transaction_count" : 0,
+      "missing_fx_rate_txn_count" : 0
+    } ]
+  }
+}
