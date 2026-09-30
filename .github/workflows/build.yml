@@ -95,10 +95,10 @@ jobs:
           - example: iot-sensor
             path: iot-sensor-metrics
             test_commands: |
-              compile sensors_package_api.json
-              compile sensors_package_test.json
-              test sensors_package_test.json
-              test sensors_package_api.json
+              compile sensors-shared-package.json sensors-test-package.json
+              compile sensors-shared-package.json sensors-dev-package.json
+              test sensors-shared-package.json sensors-test-package.json
+              test sensors-shared-package.json sensors-dev-package.json
 
           - example: law-enforcement
             path: law-enforcement
