@@ -1,0 +1,93 @@
+-- ## Police Data Sources - Schemas
+--
+-- The payload columns of every dataset, written once and shared by the environment files
+-- (police_<env>.sqrl). The test environment infers these same columns from the files in
+-- testdata/; the dev environment declares them via LIKE because a Kafka topic carries no schema.
+
+/** A licensed driver, as a change record from the DMV database.
+    Grain: one row per driver_id and last_updated.
+
+    # Columns:
+    * driver_id: Unique identifier of the driver
+    * first_name: Driver's first name
+    * last_name: Driver's last name
+    * license_number: Driver's license number
+    * license_state: Two-letter state that issued the license
+    * date_of_birth: Date of birth (ISO-8601 date string)
+    * license_status: License status, e.g. valid, suspended
+    * license_expiry_date: When the license expires
+    * last_updated: Time the driver record was last updated */
+CREATE TABLE _Driver_schema (
+    driver_id STRING NOT NULL,
+    first_name STRING NOT NULL,
+    last_name STRING NOT NULL,
+    license_number STRING NOT NULL,
+    license_state STRING NOT NULL,
+    date_of_birth STRING NOT NULL,
+    license_status STRING NOT NULL,
+    license_expiry_date TIMESTAMP_LTZ(3) NOT NULL,
+    last_updated TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** A registered vehicle, as a change record from the vehicle registry.
+    Grain: one row per vehicle_id and last_updated.
+
+    # Columns:
+    * vehicle_id: Unique identifier of the vehicle
+    * registration_number: License plate number
+    * registration_state: Two-letter state of registration
+    * registration_expiry: When the registration expires
+    * make: Vehicle make
+    * model: Vehicle model
+    * year: Model year
+    * owner_driver_id: The owning driver (references Driver.driver_id)
+    * last_updated: Time the vehicle record was last updated */
+CREATE TABLE _Vehicle_schema (
+    vehicle_id STRING NOT NULL,
+    registration_number STRING NOT NULL,
+    registration_state STRING NOT NULL,
+    registration_expiry TIMESTAMP_LTZ(3) NOT NULL,
+    make STRING NOT NULL,
+    model STRING NOT NULL,
+    `year` BIGINT NOT NULL,
+    owner_driver_id STRING NOT NULL,
+    last_updated TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** An issued arrest warrant, as an event on the warrant stream.
+    Grain: one row per warrant_id and last_updated.
+
+    # Columns:
+    * warrant_id: Unique identifier of the warrant
+    * person_id: The person the warrant is for (references Driver.driver_id)
+    * warrant_status: One of active, urgent, closed, suspended
+    * crime_description: The crime the warrant was issued for
+    * state_of_issuance: Two-letter state that issued the warrant
+    * issue_date: When the warrant was issued
+    * last_updated: Time the warrant record was last updated */
+CREATE TABLE _Warrant_schema (
+    warrant_id STRING NOT NULL,
+    person_id STRING NOT NULL,
+    warrant_status STRING NOT NULL,
+    crime_description STRING NOT NULL,
+    state_of_issuance STRING NOT NULL,
+    issue_date TIMESTAMP_LTZ(3) NOT NULL,
+    last_updated TIMESTAMP_LTZ(3) NOT NULL
+);
+
+/** A bolo ("be on the lookout") issued for a vehicle, as an event on the bolo stream.
+    Grain: one row per bolo_id and last_updated.
+
+    # Columns:
+    * bolo_id: Unique identifier of the bolo
+    * vehicle_id: The vehicle the bolo is for (references Vehicle.vehicle_id)
+    * issue_date: When the bolo was issued
+    * status: Bolo status, e.g. active
+    * last_updated: Time the bolo record was last updated */
+CREATE TABLE _Bolo_schema (
+    bolo_id STRING NOT NULL,
+    vehicle_id STRING NOT NULL,
+    issue_date TIMESTAMP_LTZ(3) NOT NULL,
+    status STRING NOT NULL,
+    last_updated TIMESTAMP_LTZ(3) NOT NULL
+);

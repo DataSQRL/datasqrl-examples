@@ -2,14 +2,11 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
-    "main": "baseball_card.sqrl",
-    "config": {
-      "variant": "test"
-    }
+    "main": "baseball_card.sqrl"
   },
   "engines": {
-    "flink" : {
-      "config" : {
+    "flink": {
+      "config": {
         "table.exec.source.idle-timeout": "10 s"
       }
     }

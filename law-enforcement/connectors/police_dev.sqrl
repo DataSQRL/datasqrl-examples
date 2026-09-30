@@ -1,0 +1,50 @@
+-- ## Police Data Sources - dev environment
+--
+-- One Kafka topic per dataset; the columns come from police.sqrl, this file adds the connector
+-- and the watermark.
+
+IMPORT police.*;
+
+CREATE TABLE Driver (
+    WATERMARK FOR `last_updated` AS `last_updated`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'driver',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _Driver_schema;
+
+CREATE TABLE Vehicle (
+    WATERMARK FOR `last_updated` AS `last_updated`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'vehicle',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _Vehicle_schema;
+
+CREATE TABLE Warrant (
+    WATERMARK FOR `last_updated` AS `last_updated`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'warrant',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _Warrant_schema;
+
+CREATE TABLE Bolo (
+    WATERMARK FOR `last_updated` AS `last_updated`
+) WITH (
+    'connector' = 'kafka',
+    'topic' = 'bolo',
+    'properties.bootstrap.servers' = '${KAFKA_BOOTSTRAP_SERVERS}',
+    'properties.group.id' = 'mygroup',
+    'scan.startup.mode' = 'earliest-offset',
+    'format' = 'flexible-json'
+) LIKE _Bolo_schema;

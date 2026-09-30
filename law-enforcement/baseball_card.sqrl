@@ -1,4 +1,4 @@
-IMPORT connectors.police_{{variant}} AS ctl;
+IMPORT connectors.police_{{environment}} AS ctl;
 
 /**
  Retrieves driver information using their license number.
