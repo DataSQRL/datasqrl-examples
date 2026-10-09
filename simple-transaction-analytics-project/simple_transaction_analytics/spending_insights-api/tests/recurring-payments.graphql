@@ -1,0 +1,10 @@
+query TestRecurringPayments {
+  RecurringPayments(customerId: "CUST-057") {
+    recurringPaymentId
+    merchantName
+    frequency
+    monthlyCost
+    becameMoreExpensive
+    status
+  }
+}

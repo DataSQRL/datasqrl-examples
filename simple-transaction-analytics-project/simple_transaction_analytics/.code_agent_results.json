@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "mode": "implementation",
+  "scenario": "pipeline",
+  "domains": [
+    "analytics",
+    "finance"
+  ],
+  "refinements": 2,
+  "issue_score": 25,
+  "issue_count": 1,
+  "test_commands": [
+    "bash run-tests.sh"
+  ],
+  "test_script": "run-tests.sh",
+  "last_test_scope": [],
+  "compile_commands": [
+    "/opt/agent/cmd.sh compile -r simple_transaction_analytics spending_insights-shared-package.json -b spending_insights"
+  ],
+  "verified_envs": {},
+  "build_dirs": {},
+  "request_uuid": "36cbf3a0-64a9-4a05-8e25-5b5e331d40ee"
+}

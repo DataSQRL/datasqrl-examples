@@ -1,0 +1,18 @@
+-- ## Fx Daily Rate - Production
+--
+-- Reads the Iceberg table loaded by the treasury rate feed.
+
+IMPORT fx_rates.*;
+
+CREATE TABLE Fx_Daily_Rate (
+  PRIMARY KEY (currency_code, rate_date) NOT ENFORCED
+) WITH (
+    'connector' = 'iceberg',
+    'catalog-type' = 'hadoop',
+    'catalog-name' = 'spending_insights',
+    'catalog-database' = 'insights',
+    'catalog-table' = 'fx_daily_rate',
+    'warehouse' = '${SPENDING_INSIGHTS_ICEBERG_WAREHOUSE}',
+    'format-version' = '2',
+    'write.upsert.enabled' = 'true'
+) LIKE Fx_Daily_Rate_schema;

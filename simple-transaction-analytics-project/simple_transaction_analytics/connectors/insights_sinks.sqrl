@@ -1,0 +1,152 @@
+-- ## Insights Sink Schemas
+--
+-- Physical payload columns for the 13 Iceberg output tables. The per-environment
+-- connector files (insights_sinks-test.sqrl / -prod.sqrl) add the PRIMARY KEY and
+-- Iceberg WITH config.
+
+CREATE TABLE _Customer_Month_Category_L1_Spending_schema (
+  customer_id STRING NOT NULL,
+  `month` DATE NOT NULL,
+  category_l1_id STRING NOT NULL,
+  category_l1_name STRING,
+  spend_usd_cents BIGINT,
+  txn_count BIGINT,
+  normal_spend_usd_cents BIGINT,
+  is_much_more_than_usual BOOLEAN,
+  excess_usd_cents BIGINT,
+  excess_pct DOUBLE,
+  is_partial_month BOOLEAN
+);
+
+CREATE TABLE _Customer_Month_Category_L2_Spending_schema (
+  customer_id STRING NOT NULL,
+  `month` DATE NOT NULL,
+  category_l2_id STRING NOT NULL,
+  category_l2_name STRING,
+  category_l1_id STRING,
+  category_l1_name STRING,
+  spend_usd_cents BIGINT,
+  txn_count BIGINT,
+  normal_spend_usd_cents BIGINT,
+  is_much_more_than_usual BOOLEAN,
+  excess_usd_cents BIGINT,
+  excess_pct DOUBLE,
+  is_partial_month BOOLEAN
+);
+
+CREATE TABLE _Customer_Month_Top_Merchant_schema (
+  customer_id STRING NOT NULL,
+  `month` DATE NOT NULL,
+  merchant_rank BIGINT NOT NULL,
+  merchant_id STRING,
+  merchant_name STRING,
+  spend_usd_cents BIGINT,
+  txn_count BIGINT
+);
+
+CREATE TABLE _Customer_Month_Category_Merchant_schema (
+  customer_id STRING NOT NULL,
+  `month` DATE NOT NULL,
+  category_l2_id STRING NOT NULL,
+  merchant_id STRING NOT NULL,
+  merchant_name STRING,
+  spend_usd_cents BIGINT,
+  txn_count BIGINT
+);
+
+CREATE TABLE _Customer_Recurring_Payment_schema (
+  customer_id STRING NOT NULL,
+  recurring_payment_id STRING NOT NULL,
+  merchant_name STRING,
+  payment_type STRING,
+  frequency STRING,
+  monthly_cost_usd_cents BIGINT,
+  latest_charge_usd_cents BIGINT,
+  previous_charge_usd_cents BIGINT,
+  latest_charge_date DATE,
+  became_more_expensive BOOLEAN,
+  increase_usd_cents BIGINT,
+  increase_pct DOUBLE,
+  status STRING,
+  typical_amount_usd_cents BIGINT,
+  amount_variance_usd_cents BIGINT
+);
+
+CREATE TABLE _Customer_Recurring_Monthly_Total_schema (
+  customer_id STRING NOT NULL,
+  total_monthly_cost_usd_cents BIGINT
+);
+
+CREATE TABLE _Customer_Large_Purchase_schema (
+  transaction_id STRING NOT NULL,
+  customer_id STRING NOT NULL,
+  posted_date DATE,
+  merchant_id STRING,
+  merchant_name STRING,
+  category_l2_id STRING,
+  category_l2_name STRING,
+  amount_usd_cents BIGINT,
+  baseline_mean_usd_cents BIGINT,
+  ratio DOUBLE
+);
+
+CREATE TABLE _Customer_Month_Cash_Flow_schema (
+  customer_id STRING NOT NULL,
+  `month` DATE NOT NULL,
+  income_usd_cents BIGINT,
+  spending_usd_cents BIGINT,
+  net_usd_cents BIGINT,
+  savings_rate DOUBLE
+);
+
+CREATE TABLE _Customer_Account_Month_Cash_Flow_schema (
+  customer_id STRING NOT NULL,
+  account_id STRING NOT NULL,
+  `month` DATE NOT NULL,
+  income_usd_cents BIGINT,
+  spending_usd_cents BIGINT,
+  net_usd_cents BIGINT,
+  savings_rate DOUBLE
+);
+
+CREATE TABLE _Customer_Day_Spending_schema (
+  customer_id STRING NOT NULL,
+  spend_date DATE NOT NULL,
+  spend_usd_cents BIGINT
+);
+
+CREATE TABLE _Customer_Account_Day_Spending_schema (
+  customer_id STRING NOT NULL,
+  account_id STRING NOT NULL,
+  spend_date DATE NOT NULL,
+  spend_usd_cents BIGINT
+);
+
+CREATE TABLE _Pipeline_Run_Metric_schema (
+  run_date DATE NOT NULL,
+  window_start DATE,
+  window_end DATE,
+  recomputed_day_count INT,
+  recomputed_months INT,
+  transaction_count_processed BIGINT,
+  late_transaction_count BIGINT,
+  missing_fx_rate_txn_count BIGINT
+);
+
+CREATE TABLE _Uncategorized_Spending_Daily_schema (
+  spend_date DATE NOT NULL,
+  total_spend_usd_cents BIGINT,
+  uncategorized_spend_usd_cents BIGINT,
+  uncategorized_share DOUBLE,
+  total_txn_count BIGINT,
+  uncategorized_txn_count BIGINT
+);
+
+CREATE TABLE _DQ_Missing_FX_Rate_Transaction_schema (
+  transaction_id STRING NOT NULL,
+  customer_id STRING,
+  account_id STRING,
+  currency_code STRING,
+  posted_date DATE,
+  amount_cents BIGINT
+);

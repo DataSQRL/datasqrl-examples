@@ -1,0 +1,54 @@
+{
+  "data" : {
+    "UncategorizedDailyTest" : [ {
+      "spend_date" : "2026-08-30",
+      "total_spend_usd_cents" : 199254,
+      "uncategorized_spend_usd_cents" : 118552,
+      "uncategorized_share" : 0.59497927,
+      "total_txn_count" : 4,
+      "uncategorized_txn_count" : 2
+    }, {
+      "spend_date" : "2026-08-31",
+      "total_spend_usd_cents" : 61308,
+      "uncategorized_spend_usd_cents" : 0,
+      "uncategorized_share" : 0,
+      "total_txn_count" : 7,
+      "uncategorized_txn_count" : 0
+    }, {
+      "spend_date" : "2026-09-01",
+      "total_spend_usd_cents" : 930072,
+      "uncategorized_spend_usd_cents" : 748404,
+      "uncategorized_share" : 0.80467319,
+      "total_txn_count" : 17,
+      "uncategorized_txn_count" : 4
+    }, {
+      "spend_date" : "2026-09-02",
+      "total_spend_usd_cents" : 185220,
+      "uncategorized_spend_usd_cents" : 49500,
+      "uncategorized_share" : 0.26724976,
+      "total_txn_count" : 15,
+      "uncategorized_txn_count" : 2
+    }, {
+      "spend_date" : "2026-09-03",
+      "total_spend_usd_cents" : 30582,
+      "uncategorized_spend_usd_cents" : 0,
+      "uncategorized_share" : 0,
+      "total_txn_count" : 6,
+      "uncategorized_txn_count" : 0
+    }, {
+      "spend_date" : "2026-09-04",
+      "total_spend_usd_cents" : 127413,
+      "uncategorized_spend_usd_cents" : 14086,
+      "uncategorized_share" : 0.11055387,
+      "total_txn_count" : 11,
+      "uncategorized_txn_count" : 1
+    }, {
+      "spend_date" : "2026-09-05",
+      "total_spend_usd_cents" : 8093476,
+      "uncategorized_spend_usd_cents" : 7972200,
+      "uncategorized_share" : 0.98501559,
+      "total_txn_count" : 12,
+      "uncategorized_txn_count" : 2
+    } ]
+  }
+}

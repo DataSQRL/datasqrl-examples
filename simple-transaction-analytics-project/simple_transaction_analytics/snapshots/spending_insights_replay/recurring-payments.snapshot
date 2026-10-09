@@ -1,0 +1,40 @@
+{
+  "data" : {
+    "RecurringPayments" : [ {
+      "recurringPaymentId" : "REC-097",
+      "merchantName" : "Nexus Wireless",
+      "frequency" : "MONTHLY",
+      "monthlyCost" : 13769,
+      "becameMoreExpensive" : false,
+      "status" : "ENDED"
+    }, {
+      "recurringPaymentId" : "REC-098",
+      "merchantName" : "Summit Lending Portland",
+      "frequency" : "MONTHLY",
+      "monthlyCost" : 80202,
+      "becameMoreExpensive" : false,
+      "status" : "ACTIVE"
+    }, {
+      "recurringPaymentId" : "REC-099",
+      "merchantName" : "Metro Water Phoenix",
+      "frequency" : "MONTHLY",
+      "monthlyCost" : 6882,
+      "becameMoreExpensive" : false,
+      "status" : "ACTIVE"
+    }, {
+      "recurringPaymentId" : "REC-100",
+      "merchantName" : "Heritage Credit Union Atlanta",
+      "frequency" : "BIWEEKLY",
+      "monthlyCost" : 90445,
+      "becameMoreExpensive" : false,
+      "status" : "ACTIVE"
+    }, {
+      "recurringPaymentId" : "REC-101",
+      "merchantName" : "Guardian Mutual Insurance Portland",
+      "frequency" : "MONTHLY",
+      "monthlyCost" : 13974,
+      "becameMoreExpensive" : false,
+      "status" : "ENDED"
+    } ]
+  }
+}

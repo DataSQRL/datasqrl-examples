@@ -1,0 +1,6 @@
+query TestUnauthenticated {
+  CustomerSearch(customerId: "CUST-001") {
+    customerId
+    displayName
+  }
+}

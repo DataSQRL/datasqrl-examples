@@ -230,3 +230,9 @@ Temporary Items
 
 py-venv
 # End of https://www.toptal.com/developers/gitignore/api/macos
+
+# DataSQRL Code Agent logs and their rotated backups (can reach hundreds of MB)
+**/.claude/
+**/.claude/codeagent_logs.jsonl
+**/.claude/codeagent_logs.jsonl*.bak
+**/.claude/*.jsonl.bak

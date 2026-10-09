@@ -1,0 +1,37 @@
+{
+  "data" : {
+    "TopMerchantTest" : [ {
+      "customer_id" : "CUST-057",
+      "month" : "2026-08-01",
+      "merchant_rank" : 1,
+      "merchant_id" : "MERCH-160",
+      "merchant_name" : "Summit Lending Portland",
+      "spend_usd_cents" : 80202,
+      "txn_count" : 1
+    }, {
+      "customer_id" : "CUST-057",
+      "month" : "2026-08-01",
+      "merchant_rank" : 2,
+      "merchant_id" : "MERCH-141",
+      "merchant_name" : "SkyBridge Airlines Denver",
+      "spend_usd_cents" : 23054,
+      "txn_count" : 1
+    }, {
+      "customer_id" : "CUST-057",
+      "month" : "2026-08-01",
+      "merchant_rank" : 3,
+      "merchant_id" : "MERCH-112",
+      "merchant_name" : "Bagel Stop Atlanta",
+      "spend_usd_cents" : 3274,
+      "txn_count" : 1
+    }, {
+      "customer_id" : "CUST-057",
+      "month" : "2026-08-01",
+      "merchant_rank" : 4,
+      "merchant_id" : "MERCH-101",
+      "merchant_name" : "Chicken Coop",
+      "spend_usd_cents" : 2270,
+      "txn_count" : 1
+    } ]
+  }
+}

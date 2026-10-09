@@ -1,0 +1,12 @@
+query TestRunMetrics {
+  RunMetrics(limit: 5) {
+    runDate
+    windowStart
+    windowEnd
+    recomputedDayCount
+    recomputedMonths
+    transactionCountProcessed
+    lateTransactionCount
+    missingFxRateTxnCount
+  }
+}
