@@ -168,6 +168,7 @@ jobs:
             test_commands: |
               compile scheduled-batch-package.json
               compile simple-scheduled-batch-package.json
+              compile minutely-batch-package.json
 
           - example: udf-jbang
             path: user-defined-function/jbang

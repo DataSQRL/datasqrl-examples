@@ -1,4 +1,4 @@
-CREATE TABLE DummyInput (
+CREATE TABLE GeneratedItems (
     id   BIGINT NOT NULL,
     name STRING NOT NULL
 ) WITH (
@@ -7,7 +7,7 @@ CREATE TABLE DummyInput (
     'fields.name.length' = '12'
 );
 
-Items := SELECT id, name FROM DummyInput;
+Items := SELECT id, name FROM GeneratedItems;
 
 /*+ engine(postgres) */
 ItemCount := SELECT COUNT(*) AS total FROM Items;
