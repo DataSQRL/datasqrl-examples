@@ -1,0 +1,32 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "flink"],
+  "script": {
+    "main": "minutely-batch.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH"
+      },
+      "deployment": {
+        "schedule": {
+          "cron": "* * * * *",
+          "timezone": "UTC"
+        }
+      }
+    },
+    "postgres": {
+      "deployment": {
+        "instance-size": "dev",
+        "replica-count": 0
+      }
+    },
+    "vertx": {
+      "deployment": {
+        "instance-size": "dev",
+        "instance-count": 1
+      }
+    }
+  }
+}

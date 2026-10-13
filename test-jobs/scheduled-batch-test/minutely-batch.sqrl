@@ -1,0 +1,13 @@
+CREATE TABLE GeneratedItems (
+    id   BIGINT NOT NULL,
+    name STRING NOT NULL
+) WITH (
+    'connector' = 'datagen',
+    'number-of-rows' = '100',
+    'fields.name.length' = '12'
+);
+
+Items := SELECT id, name FROM GeneratedItems;
+
+/*+ engine(postgres) */
+ItemCount := SELECT COUNT(*) AS total FROM Items;
