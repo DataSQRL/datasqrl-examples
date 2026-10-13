@@ -2,8 +2,7 @@
   "version": "1",
   "enabled-engines": ["vertx", "postgres", "flink"],
   "script": {
-    "main": "batch_validator.sqrl",
-    "graphql": "batch_schema.graphqls"
+    "main": "batch_validator.sqrl"
   },
   "engines": {
     "flink": {
