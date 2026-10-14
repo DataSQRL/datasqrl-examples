@@ -1,0 +1,10 @@
+{
+  "data" : {
+    "CustomerSearch" : [ {
+      "customerId" : "CUST-057",
+      "displayName" : "James and Ryan Ortiz",
+      "status" : "ACTIVE",
+      "accountCount" : 2
+    } ]
+  }
+}

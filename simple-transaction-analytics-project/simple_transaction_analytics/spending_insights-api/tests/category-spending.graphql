@@ -1,0 +1,16 @@
+query TestCategorySpending {
+  CategorySpending(customerId: "CUST-057", month: "2026-08") {
+    category_l1_id
+    category_l1_name
+    spend_usd_cents
+    normal_spend_usd_cents
+    is_much_more_than_usual
+    excess_usd_cents
+    excess_pct
+    children {
+      category_l2_id
+      category_l2_name
+      spend_usd_cents
+    }
+  }
+}
