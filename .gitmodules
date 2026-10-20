@@ -1,0 +1,4 @@
+[submodule "simple-transaction-analytics-project/data-catalog"]
+	path = simple-transaction-analytics-project/data-catalog
+	url = https://github.com/datasqrl-colab/finance-data-catalog-demo.git
+	branch = catalog-completion-test-data-augmentation
