@@ -211,10 +211,14 @@ jobs:
       uses: ScribeMD/docker-cache@0.5.0
       with:
         # one cache entry per SQRL image ref & OS
-        key: sqrl-${{ runner.os }}-${{ steps.resolve-image.outputs.image }}
+        key: sqrl-${{ runner.os }}-${{ inputs.sqrl_image || hashFiles('sqrl.Dockerfile') }}
 
     - name: Pull SQRL Docker image
-      run: docker pull "${{ steps.resolve-image.outputs.image }}"
+      env:
+        SQRL_IMAGE: ${{ steps.resolve-image.outputs.image }}
+      run: |
+        docker pull "$SQRL_IMAGE"
+        docker tag "$SQRL_IMAGE" "${SQRL_IMAGE%@*}"
 
     - name: Configure AWS credentials via OIDC
       # Tolerated: PRs from forks cannot mint an OIDC token for this repo's role.
