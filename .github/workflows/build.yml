@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       sqrl_image:
-        description: "Full SQRL CLI image reference (e.g. ghcr.io/datasqrl/cmd:pr-123 or datasqrl/cmd:dev). When set, overrides SQRL_VERSION and skips Docker Hub publishing."
+        description: "Full SQRL CLI image reference (e.g. ghcr.io/datasqrl/cmd:pr-123 or datasqrl/cmd:dev). When set, overrides sqrl.Dockerfile and skips Docker Hub publishing."
         required: false
         default: ''
       correlation_id:
@@ -23,7 +23,6 @@ concurrency:
 
 env:
   TZ: 'America/Los_Angeles'
-  SQRL_VERSION: '0.11.7'
 
 jobs:
   build-and-push:
@@ -190,14 +189,18 @@ jobs:
       run: |
         if [ -n "${{ inputs.sqrl_image }}" ]; then
           IMAGE="${{ inputs.sqrl_image }}"
-          IS_SNAPSHOT=true
+          PUBLISH=false
         else
-          IMAGE="datasqrl/cmd:${SQRL_VERSION}"
-          IS_SNAPSHOT=false
+          IMAGE=$(sed -n 's/^FROM //p' sqrl.Dockerfile)
+          PUBLISH=true
+        fi
+        # Dependabot PRs get no Docker Hub secrets
+        if [ "${{ github.event.pull_request.user.login }}" = "dependabot[bot]" ]; then
+          PUBLISH=false
         fi
         echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
-        echo "is_snapshot=$IS_SNAPSHOT" >> "$GITHUB_OUTPUT"
-        echo "Using SQRL image: $IMAGE (snapshot=$IS_SNAPSHOT)"
+        echo "publish=$PUBLISH" >> "$GITHUB_OUTPUT"
+        echo "Using SQRL image: $IMAGE (publish=$PUBLISH)"
 
     - name: Setup Timezone
       uses: szenius/set-timezone@v1.1
@@ -256,7 +259,7 @@ jobs:
         done
 
     - name: Write Dockerfile
-      if: steps.resolve-image.outputs.is_snapshot != 'true'
+      if: steps.resolve-image.outputs.publish == 'true'
       env:
         SQRL_IMAGE: ${{ steps.resolve-image.outputs.image }}
       run: |
@@ -268,22 +271,22 @@ jobs:
         EOF
 
     - name: Set up QEMU
-      if: steps.resolve-image.outputs.is_snapshot != 'true'
+      if: steps.resolve-image.outputs.publish == 'true'
       uses: docker/setup-qemu-action@v2
 
     - name: Set up Docker Buildx
-      if: steps.resolve-image.outputs.is_snapshot != 'true'
+      if: steps.resolve-image.outputs.publish == 'true'
       uses: docker/setup-buildx-action@v2
 
     - name: Login to Docker Hub
-      if: steps.resolve-image.outputs.is_snapshot != 'true'
+      if: steps.resolve-image.outputs.publish == 'true'
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Publish ${{ matrix.example }}
-      if: steps.resolve-image.outputs.is_snapshot != 'true'
+      if: steps.resolve-image.outputs.publish == 'true'
       uses: docker/build-push-action@v3
       with:
         context: ./${{ matrix.path }}
@@ -300,7 +303,7 @@ jobs:
 
       - name: Lint GraphQL schemas
         run: |
-          SCHEMAS=$(find . -name "*.graphqls" -type f)
+          SCHEMAS=$(find . -name "*.graphqls" -type f -not -path "./.github/*")
           if [ -z "$SCHEMAS" ]; then
             echo "No GraphQL schemas found"
             exit 0
@@ -309,10 +312,12 @@ jobs:
           LINT_OPTS="--rules fields-are-camel-cased,types-are-capitalized,enum-values-all-caps,input-object-values-are-camel-cased"
           IGNORE='{"fields-are-camel-cased":["Query.Shipment","Query.Vehicle","Query.Customer","Query.Aggregation","Query.Measurement","Query.Activity","Mutation.InputData"]}'
           FAILED=0
+          NODE_IMAGE=$(sed -n 's/^FROM //p' .github/graphql-lint/Dockerfile)
+          docker run --rm -v "$PWD":/app -w /app/.github/graphql-lint "$NODE_IMAGE" npm ci --silent
 
           for schema in $SCHEMAS; do
             echo "::group::Checking $schema"
-            output=$(docker run --rm -v "$PWD":/app -w /app node:18-slim npx graphql-schema-linter $LINT_OPTS --ignore "$IGNORE" "$schema" 2>&1)
+            output=$(docker run --rm -v "$PWD":/app -w /app "$NODE_IMAGE" .github/graphql-lint/node_modules/.bin/graphql-schema-linter $LINT_OPTS --ignore "$IGNORE" "$schema" 2>&1)
             result=$?
             echo "$output" | grep -v "^npm"
             echo "::endgroup::"
@@ -323,8 +328,45 @@ jobs:
 
           exit $FAILED
 
+  maven:
+    name: Maven ${{ matrix.project }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - data-generator
+          - iceberg-data-deduplication/udfs
+          - user-defined-function/maven-project/myjavafunction
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml', '.github/maven/Dockerfile') }}
+          restore-keys: maven-
+
+      - name: Build ${{ matrix.project }}
+        run: |
+          docker run --rm -v "$PWD":/workspace -v "$HOME/.m2":/root/.m2 -w /workspace \
+            "$(sed -n 's/^FROM //p' .github/maven/Dockerfile)" \
+            mvn -B -f "${{ matrix.project }}/pom.xml" verify
+
+  python-requirements:
+    name: Python requirements
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install requirements.txt
+        run: |
+          docker run --rm -v "$PWD":/workspace -w /workspace \
+            "$(sed -n 's/^FROM //p' .github/python/Dockerfile)" \
+            pip install --root-user-action=ignore --disable-pip-version-check -r requirements.txt
+
   build:
-    needs: [build-and-push, lint-graphql]
+    needs: [build-and-push, lint-graphql, maven, python-requirements]
     runs-on: ubuntu-latest
     if: always()
     steps:
