@@ -12,6 +12,9 @@ updates:
       # Flink is provided by the datasqrl/cmd runtime pinned in sqrl.Dockerfile
       - dependency-name: org.apache.flink:*
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # Hadoop versions need to be kept in sync with what is defined in Flink
+      - dependency-name: org.apache.hadoop:*
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
 
   - package-ecosystem: docker
     directories:
