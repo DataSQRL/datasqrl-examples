@@ -14,14 +14,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <slf4j.version>1.7.36</slf4j.version>
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>2.25.5</log4j.version>
         <lombok.version>1.18.32</lombok.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <guava.version>33.1.0-jre</guava.version>
-        <jackson.version>2.17.0</jackson.version>
+        <jackson.version>2.18.12</jackson.version>
         <picocli.version>4.7.5</picocli.version>
-        <commons-config.version>2.10.1</commons-config.version>
+        <commons-config.version>2.15.1</commons-config.version>
         <datafaker.version>2.4.1</datafaker.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <junit-jupiter-engine.version>5.6.2</junit-jupiter-engine.version>
+        <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
+        <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
     </properties>
 
     <dependencies>
@@ -105,19 +109,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.junit.jupiter</groupId>
                         <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.6.2</version>
+                        <version>${junit-jupiter-engine.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${maven-jar-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -130,6 +134,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>

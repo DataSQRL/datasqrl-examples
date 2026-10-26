@@ -61,9 +61,9 @@ else
   ROOT="."                                        # not in a repo: this project is the root
 fi
 
-# The DataSQRL CLI version the code agent container ships; CI and local runs default to the same
-# one so snapshots match. Override with SQRL_VERSION.
-SQRL_VERSION="${SQRL_VERSION:-0.11.2}"
+# The DataSQRL CLI version pinned in the repo's sqrl.Dockerfile; CI and local runs default to the
+# same one so snapshots match. Override with SQRL_VERSION.
+SQRL_VERSION="${SQRL_VERSION:-$(sed -n 's|^FROM datasqrl/cmd:\([^@]*\).*|\1|p' "$(git rev-parse --show-toplevel 2>/dev/null)/sqrl.Dockerfile" 2>/dev/null)}"
 # Fallback tag for when that version is not published yet (a release in flight). Resolved once,
 # on the first docker invocation, and never inside the code agent — the container has its own CLI.
 SQRL_FALLBACK_IMAGE="${SQRL_FALLBACK_IMAGE:-datasqrl/cmd:dev}"

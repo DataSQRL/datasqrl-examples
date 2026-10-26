@@ -1,0 +1,48 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directories:
+      - /data-generator
+      - /iceberg-data-deduplication/udfs
+      - /user-defined-function/maven-project/myjavafunction
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    ignore:
+      # Flink is provided by the datasqrl/cmd runtime pinned in sqrl.Dockerfile
+      - dependency-name: org.apache.flink:*
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # Hadoop versions need to be kept in sync with what is defined in Flink
+      - dependency-name: org.apache.hadoop:*
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  - package-ecosystem: docker
+    directories:
+      - /
+      - /.github/graphql-lint
+      - /.github/maven
+      - /.github/python
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /.github/graphql-lint
+    schedule:
+      interval: daily
+    ignore:
+      # graphql-schema-linter 3.0.1 peers on graphql ^15 || ^16
+      - dependency-name: graphql
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    groups:
+      github-actions:
+        patterns: ["*"]
