@@ -1,0 +1,21 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "flink"],
+  "script": {
+    "main": "oauth.sqrl"
+  },
+  "engines": {
+    "vertx": {
+      "authKind": ["OAUTH"],
+      "config": {
+        "oauthConfig": {
+          "oauth2Options": {
+            "site": "https://dev-x2k6ziops74yyzik.us.auth0.com/"
+          },
+          "authorizationServerUrl": "https://dev-x2k6ziops74yyzik.us.auth0.com/",
+          "scopesSupported": ["mcp:tools", "mcp:resources"]
+        }
+      }
+    }
+  }
+}
