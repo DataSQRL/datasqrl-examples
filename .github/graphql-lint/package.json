@@ -1,0 +1,8 @@
+{
+  "name": "graphql-lint",
+  "private": true,
+  "devDependencies": {
+    "graphql": "16.14.2",
+    "graphql-schema-linter": "3.0.1"
+  }
+}

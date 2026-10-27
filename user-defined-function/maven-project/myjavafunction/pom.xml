@@ -10,19 +10,21 @@
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <auto-service.version>1.0.1</auto-service.version>
+    <flink.version>1.19.3</flink.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.google.auto.service</groupId>
       <artifactId>auto-service</artifactId>
-      <version>1.0.1</version>
+      <version>${auto-service.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-table-api-java-bridge</artifactId>
-      <version>1.19.3</version>
+      <version>${flink.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
