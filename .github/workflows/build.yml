@@ -182,7 +182,7 @@ jobs:
               compile udf_maven_package.json
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Resolve SQRL image
       id: resolve-image
@@ -203,7 +203,7 @@ jobs:
         echo "Using SQRL image: $IMAGE (publish=$PUBLISH)"
 
     - name: Setup Timezone
-      uses: szenius/set-timezone@v1.1
+      uses: szenius/set-timezone@v2.0
       with:
         timezoneLinux: "America/Los_Angeles"
 
@@ -225,7 +225,7 @@ jobs:
       # Such PRs fall back to running without AWS credentials, which is fine for
       # every matrix entry except the S3-backed iceberg canary.
       continue-on-error: true
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v6
       with:
         role-to-assume: ${{ secrets.AWS_DEV_GITHUB_ACTION_ROLE }}
         aws-region: us-east-1
@@ -276,22 +276,22 @@ jobs:
 
     - name: Set up QEMU
       if: steps.resolve-image.outputs.publish == 'true'
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v4
 
     - name: Set up Docker Buildx
       if: steps.resolve-image.outputs.publish == 'true'
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v4
 
     - name: Login to Docker Hub
       if: steps.resolve-image.outputs.publish == 'true'
-      uses: docker/login-action@v2
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Publish ${{ matrix.example }}
       if: steps.resolve-image.outputs.publish == 'true'
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v7
       with:
         context: ./${{ matrix.path }}
         file: ./${{ matrix.path }}/Dockerfile
@@ -303,7 +303,7 @@ jobs:
     name: Lint GraphQL Schemas
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Lint GraphQL schemas
         run: |
@@ -343,7 +343,7 @@ jobs:
           - iceberg-data-deduplication/udfs
           - user-defined-function/maven-project/myjavafunction
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/cache@v6
         with:
@@ -361,7 +361,7 @@ jobs:
     name: Python requirements
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install requirements.txt
         run: |
