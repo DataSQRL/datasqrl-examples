@@ -1,0 +1,6 @@
+query TestDailySpending {
+  DailySpending(customerId: "CUST-057", month: "2026-08") {
+    date
+    spending
+  }
+}

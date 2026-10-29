@@ -1,0 +1,8 @@
+query TestTopMerchants {
+  TopMerchants(customerId: "CUST-057", month: "2026-08") {
+    merchantId
+    merchantName
+    spending
+    transactionCount
+  }
+}

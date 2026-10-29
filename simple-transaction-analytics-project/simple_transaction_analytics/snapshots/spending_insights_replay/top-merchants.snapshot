@@ -1,0 +1,25 @@
+{
+  "data" : {
+    "TopMerchants" : [ {
+      "merchantId" : "MERCH-160",
+      "merchantName" : "Summit Lending Portland",
+      "spending" : 80202,
+      "transactionCount" : 1
+    }, {
+      "merchantId" : "MERCH-141",
+      "merchantName" : "SkyBridge Airlines Denver",
+      "spending" : 23054,
+      "transactionCount" : 1
+    }, {
+      "merchantId" : "MERCH-112",
+      "merchantName" : "Bagel Stop Atlanta",
+      "spending" : 3274,
+      "transactionCount" : 1
+    }, {
+      "merchantId" : "MERCH-101",
+      "merchantName" : "Chicken Coop",
+      "spending" : 2270,
+      "transactionCount" : 1
+    } ]
+  }
+}

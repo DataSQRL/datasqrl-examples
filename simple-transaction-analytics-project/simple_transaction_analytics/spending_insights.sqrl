@@ -1,0 +1,912 @@
+-- Spending Insights: nightly batch pipeline over the shared retail-bank data catalog.
+--
+-- Reads enriched transactions, reversal records, accounts, account holders and
+-- customer master from the data-catalog module, plus a project-owned daily FX
+-- rate source. Computes per-customer spending insights over a bounded 7-day
+-- window and writes them to Iceberg (served over a JWT-authenticated GraphQL /
+-- REST / MCP API backed by DuckDB + Vert.x).
+
+IMPORT data_catalog.deposits_payments.transactions.enriched_transactions-{{environment}} AS et;
+IMPORT data_catalog.deposits_payments.transactions.core_transactions-{{environment}} AS ct;
+IMPORT data_catalog.deposits_payments.accounts.deposit_accounts-{{environment}} AS da;
+IMPORT data_catalog.customer.customer_data.customer_master-{{environment}} AS cm;
+IMPORT connectors.fx_rates-{{environment}} AS fx;
+IMPORT connectors.insights_sinks-{{environment}} AS sink;
+
+-- ============================================================
+-- DEDUPLICATION: latest snapshot per CDC key
+-- ============================================================
+-- The four bronze sources (Customer, Account, Account_Holder, Transaction_Reversal)
+-- are Kafka change streams in production, so a bounded batch read sees every
+-- historical version. Collapse each to its latest snapshot. The four enriched
+-- sources are Iceberg upsert tables (one row per key) and are read as-is.
+
+_Customer := DISTINCT cm.Customer ON customer_id ORDER BY source_updated_at DESC;
+_Account := DISTINCT da.Account ON account_id ORDER BY source_updated_at DESC;
+_AccountHolder := DISTINCT da.Account_Holder ON account_id, customer_id ORDER BY source_updated_at DESC;
+_Reversal := DISTINCT ct.Transaction_Reversal ON reversal_id ORDER BY source_updated_at DESC;
+
+-- ============================================================
+-- RUN CONTROL (FR-1..FR-6)
+-- ============================================================
+-- The run date is operator-configurable (script.config.run_date); in production it
+-- falls back to yesterday in UTC. Every other date derives from it, so a re-run of
+-- the same run_date reproduces the same output.
+
+_RunDate := SELECT {{#run_date}}DATE '{{run_date}}'{{/run_date}}{{^run_date}}CURRENT_DATE - INTERVAL '1' DAY{{/run_date}} AS run_date;
+
+_RunControl := SELECT
+  run_date,
+  run_date - INTERVAL '6' DAY AS window_start,
+  run_date AS window_end,
+  CAST(DATE_FORMAT(CAST(run_date - INTERVAL '6' DAY AS TIMESTAMP), 'yyyy-MM-01') AS DATE) - INTERVAL '3' MONTH AS read_from,
+  CAST(DATE_FORMAT(CAST(run_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE) AS partial_month
+FROM _RunDate;
+
+-- Scanned transactions bounded by read_from (FR-3).
+_ScannedTxn := SELECT t.*, rc.run_date, rc.window_start, rc.window_end, rc.read_from, rc.partial_month
+  FROM et.Unified_Transaction t
+  CROSS JOIN _RunControl rc
+  WHERE t.posted_date >= rc.read_from AND t.posted_date <= rc.run_date;
+
+-- ============================================================
+-- FX RESOLUTION (FR-7..FR-9)
+-- ============================================================
+-- Effective USD conversion rate per (currency_code, date), carrying forward the
+-- most recent earlier rate. USD converts at exactly 1.0. A currency with no rate
+-- and no earlier rate resolves to NULL and the transaction is excluded + counted.
+-- The probe calendar joins the transaction (currency, date) pairs with synthetic
+-- probes that exercise the carry-forward (EUR on a gap day) and missing-rate (JPY)
+-- paths, which no catalog transaction exercises because they are all USD.
+
+_FxProbe :=
+  SELECT currency_code, posted_date AS rate_date FROM _ScannedTxn
+  UNION
+  SELECT 'EUR' AS currency_code, DATE '2026-09-01' AS rate_date
+  UNION
+  SELECT 'EUR' AS currency_code, DATE '2026-09-02' AS rate_date
+  UNION
+  SELECT 'GBP' AS currency_code, DATE '2026-09-02' AS rate_date
+  UNION
+  SELECT 'JPY' AS currency_code, DATE '2026-09-02' AS rate_date;
+
+_FxCross := SELECT
+  p.currency_code,
+  p.rate_date AS probe_date,
+  f.rate_date AS fx_date,
+  f.usd_per_unit
+FROM _FxProbe p
+LEFT JOIN fx.Fx_Daily_Rate f ON f.currency_code = p.currency_code;
+
+_FxRateRanked := SELECT
+  currency_code,
+  probe_date,
+  usd_per_unit,
+  ROW_NUMBER() OVER (PARTITION BY currency_code, probe_date ORDER BY fx_date DESC) AS rn
+FROM _FxCross
+WHERE fx_date IS NULL OR fx_date <= probe_date;
+
+_FxResolvedNonUsd := SELECT
+  currency_code,
+  probe_date AS rate_date,
+  usd_per_unit
+FROM _FxRateRanked
+WHERE rn = 1 AND currency_code <> 'USD';
+
+_FxResolvedUsd := SELECT
+  currency_code,
+  rate_date,
+  CAST(1.000000 AS DECIMAL(19,6)) AS usd_per_unit
+FROM _FxProbe
+WHERE currency_code = 'USD';
+
+/*+primary_key(currency_code, rate_date) */
+_FxResolved := SELECT * FROM _FxResolvedNonUsd
+  UNION ALL
+  SELECT * FROM _FxResolvedUsd;
+
+-- ============================================================
+-- CLASSIFICATION (FR-10..FR-14a, FR-17..FR-18)
+-- ============================================================
+-- Restrict to CHECKING/SAVINGS accounts, classify spending vs income, resolve
+-- category (L1 + L2) and merchant, and mark rule-(a) internal transfers.
+
+_Classified := SELECT
+  t.transaction_id,
+  t.account_id,
+  t.customer_id,
+  t.transaction_type,
+  t.debit_credit,
+  t.transaction_status,
+  t.posted_date,
+  t.currency_code,
+  t.amount_cents,
+  t.recurring_payment_id,
+  t.computed_at,
+  t.run_date, t.window_start, t.window_end, t.read_from, t.partial_month,
+  a.account_type,
+  a.account_status,
+  fx.usd_per_unit,
+  CASE WHEN fx.usd_per_unit IS NULL THEN CAST(NULL AS BIGINT)
+       ELSE CAST(ROUND(t.amount_cents * fx.usd_per_unit) AS BIGINT) END AS amount_usd_cents,
+  COALESCE(l1.category_id, l2.category_id, 'Uncategorized') AS category_l1_id,
+  COALESCE(l1.category_name, l2.category_name, 'Uncategorized') AS category_l1_name,
+  COALESCE(l2.category_id, 'Uncategorized') AS category_l2_id,
+  COALESCE(l2.category_name, 'Uncategorized') AS category_l2_name,
+  COALESCE(t.merchant_id, t.merchant_name, 'UNKNOWN_MERCHANT') AS merchant_key,
+  COALESCE(m.clean_merchant_name, t.merchant_name, 'Unknown merchant') AS merchant_name,
+  CASE WHEN a.account_type IN ('CHECKING','SAVINGS') THEN TRUE ELSE FALSE END AS is_in_scope,
+  CASE WHEN t.transaction_status = 'POSTED' AND t.debit_credit = 'DEBIT' AND t.transaction_type <> 'REVERSAL' THEN TRUE ELSE FALSE END AS is_debit_spend,
+  CASE WHEN t.transaction_status = 'POSTED' AND t.debit_credit = 'CREDIT' AND t.transaction_type <> 'REVERSAL' THEN TRUE ELSE FALSE END AS is_credit_income,
+  CASE WHEN COALESCE(l1.category_name, l2.category_name) = 'Transfers'
+            OR t.transaction_type IN ('TRANSFER_IN','TRANSFER_OUT','INTERNAL_TRANSFER')
+       THEN TRUE ELSE FALSE END AS is_transfer_marked,
+  CASE WHEN fx.usd_per_unit IS NULL THEN TRUE ELSE FALSE END AS is_missing_fx
+FROM _ScannedTxn t
+LEFT JOIN _Account a ON a.account_id = t.account_id
+LEFT JOIN _FxResolved fx ON fx.currency_code = t.currency_code AND fx.rate_date = t.posted_date
+LEFT JOIN et.Transaction_Category l2 ON l2.category_id = t.category_id
+LEFT JOIN et.Transaction_Category l1 ON l1.category_id = l2.parent_category_id
+LEFT JOIN et.Merchant_Enrichment m ON m.merchant_id = t.merchant_id;
+
+-- ============================================================
+-- INTERNAL-TRANSFER PAIRING (FR-14b)
+-- ============================================================
+-- Rule (b): a POSTED DEBIT and POSTED CREDIT of the same customer, equal USD amount,
+-- on two different in-scope accounts, posted within 1 day of each other, neither
+-- already marked. Each debit pairs with at most one credit (smallest transaction_id
+-- wins). Snapshot is expected to be empty on the catalog test data.
+
+_SpendingCand := SELECT transaction_id, customer_id, account_id, posted_date, amount_usd_cents
+  FROM _Classified
+  WHERE is_in_scope AND is_debit_spend AND NOT is_transfer_marked AND amount_usd_cents IS NOT NULL;
+
+_IncomeCand := SELECT transaction_id, customer_id, account_id, posted_date, amount_usd_cents
+  FROM _Classified
+  WHERE is_in_scope AND is_credit_income AND NOT is_transfer_marked AND amount_usd_cents IS NOT NULL;
+
+_PairedCandidates := SELECT
+  d.transaction_id AS debit_txn_id,
+  c.transaction_id AS credit_txn_id
+FROM _SpendingCand d
+JOIN _IncomeCand c
+  ON d.customer_id = c.customer_id
+ AND d.amount_usd_cents = c.amount_usd_cents
+WHERE d.account_id <> c.account_id
+  AND c.posted_date BETWEEN d.posted_date - INTERVAL '1' DAY AND d.posted_date + INTERVAL '1' DAY;
+
+_PairedTransfers := SELECT debit_txn_id, credit_txn_id FROM (
+  SELECT debit_txn_id, credit_txn_id,
+         ROW_NUMBER() OVER (PARTITION BY debit_txn_id ORDER BY credit_txn_id ASC) AS rn
+  FROM _PairedCandidates
+) WHERE rn = 1;
+
+_InternalTransferTxn :=
+  SELECT transaction_id FROM _Classified WHERE is_transfer_marked
+  UNION
+  SELECT debit_txn_id AS transaction_id FROM _PairedTransfers
+  UNION
+  SELECT credit_txn_id AS transaction_id FROM _PairedTransfers;
+
+-- ============================================================
+-- REVERSAL NETTING (FR-15..FR-16)
+-- ============================================================
+-- Net PARTIAL/CORRECTION reversals against the still-POSTED original transaction,
+-- converted at the original's business-date rate, floored at zero. Applied only when
+-- the reversal's posted_date is on or before run_date; attributed to the original's
+-- own date/`month`/category/merchant/account.
+
+_ReversalNet := SELECT
+  r.original_transaction_id AS transaction_id,
+  SUM(r.reversal_amount_cents * fx.usd_per_unit) AS reversal_usd_cents
+FROM _Reversal r
+JOIN et.Unified_Transaction o ON o.transaction_id = r.original_transaction_id
+JOIN _FxResolved fx ON fx.currency_code = o.currency_code AND fx.rate_date = o.posted_date
+CROSS JOIN _RunControl rc
+WHERE r.reversal_type IN ('PARTIAL', 'CORRECTION')
+  AND o.transaction_status = 'POSTED'
+  AND r.posted_date <= rc.run_date
+GROUP BY r.original_transaction_id;
+
+-- Final classified transaction set with netted USD amount.
+_ClassifiedNetted := SELECT
+  c.*,
+  CASE
+    WHEN c.amount_usd_cents IS NULL THEN CAST(NULL AS BIGINT)
+    WHEN c.amount_usd_cents - COALESCE(n.reversal_usd_cents, 0) < 0 THEN CAST(0 AS BIGINT)
+    ELSE CAST(ROUND(c.amount_usd_cents - COALESCE(n.reversal_usd_cents, 0)) AS BIGINT)
+  END AS netted_amount_usd_cents
+FROM _Classified c
+LEFT JOIN _ReversalNet n ON n.transaction_id = c.transaction_id;
+
+-- Spending and income rows after every exclusion rule.
+_SpendingTxn := SELECT c.* FROM _ClassifiedNetted c
+  LEFT JOIN _InternalTransferTxn it ON it.transaction_id = c.transaction_id
+  WHERE c.is_in_scope AND c.is_debit_spend
+    AND it.transaction_id IS NULL
+    AND c.amount_usd_cents IS NOT NULL;
+
+_IncomeTxn := SELECT c.* FROM _ClassifiedNetted c
+  LEFT JOIN _InternalTransferTxn it ON it.transaction_id = c.transaction_id
+  WHERE c.is_in_scope AND c.is_credit_income
+    AND it.transaction_id IS NULL
+    AND c.amount_usd_cents IS NOT NULL;
+
+-- ============================================================
+-- INSIGHT 1: category spending (FR-20..FR-22, FR-30)
+-- ============================================================
+
+-- Earliest spending date per customer, for the normal-spending baseline gate (FR-21).
+_CustomerEarliestSpend := SELECT customer_id, MIN(posted_date) AS earliest_txn_date
+  FROM _SpendingTxn GROUP BY customer_id;
+
+-- Monthly spending per customer and level-1 category, for every `month` in the scan.
+_MonthCatL1 := SELECT
+  customer_id,
+  CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE) AS `month`,
+  category_l1_id,
+  category_l1_name,
+  SUM(netted_amount_usd_cents) AS spend_usd_cents,
+  COUNT(*) AS txn_count
+FROM _SpendingTxn
+GROUP BY customer_id, CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE), category_l1_id, category_l1_name;
+
+-- Monthly spending per customer and level-2 category.
+_MonthCatL2 := SELECT
+  customer_id,
+  CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE) AS `month`,
+  category_l2_id,
+  category_l2_name,
+  category_l1_id,
+  category_l1_name,
+  SUM(netted_amount_usd_cents) AS spend_usd_cents,
+  COUNT(*) AS txn_count
+FROM _SpendingTxn
+GROUP BY customer_id, CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE), category_l2_id, category_l2_name, category_l1_id, category_l1_name;
+
+-- Touched months (the months the window covers), which are the only months rewritten.
+_TouchedMonths := SELECT DISTINCT CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE) AS `month`
+  FROM _ScannedTxn
+  WHERE posted_date BETWEEN window_start AND window_end;
+
+-- Normal spending = mean of the 3 complete calendar months before `month`, zero-filling
+-- missing months (FR-21). Null unless the customer's earliest spending is <= baseline start.
+
+_L1Normal := SELECT
+  s.customer_id,
+  s.`month`,
+  s.category_l1_id,
+  CASE WHEN e.earliest_txn_date <= s.`month` - INTERVAL '3' MONTH THEN
+    CAST((COALESCE(s1.spend_usd_cents, 0) + COALESCE(s2.spend_usd_cents, 0) + COALESCE(s3.spend_usd_cents, 0)) / 3 AS BIGINT)
+  ELSE NULL END AS normal_spend_usd_cents
+FROM _MonthCatL1 s
+LEFT JOIN _MonthCatL1 s1 ON s1.customer_id = s.customer_id AND s1.category_l1_id = s.category_l1_id AND s1.`month` = s.`month` - INTERVAL '1' MONTH
+LEFT JOIN _MonthCatL1 s2 ON s2.customer_id = s.customer_id AND s2.category_l1_id = s.category_l1_id AND s2.`month` = s.`month` - INTERVAL '2' MONTH
+LEFT JOIN _MonthCatL1 s3 ON s3.customer_id = s.customer_id AND s3.category_l1_id = s.category_l1_id AND s3.`month` = s.`month` - INTERVAL '3' MONTH
+LEFT JOIN _CustomerEarliestSpend e ON e.customer_id = s.customer_id;
+
+/*+primary_key(customer_id, month, category_l1_id) */
+Customer_Month_Category_L1_Spending := SELECT
+  s.customer_id,
+  s.`month`,
+  s.category_l1_id,
+  s.category_l1_name,
+  s.spend_usd_cents,
+  s.txn_count,
+  n.normal_spend_usd_cents,
+  CASE
+    WHEN s.`month` = rc.partial_month THEN CAST(NULL AS BOOLEAN)
+    WHEN n.normal_spend_usd_cents IS NULL THEN CAST(NULL AS BOOLEAN)
+    WHEN s.spend_usd_cents >= n.normal_spend_usd_cents + (n.normal_spend_usd_cents / 2)
+         AND s.spend_usd_cents - n.normal_spend_usd_cents >= 7500 THEN TRUE
+    ELSE FALSE END AS is_much_more_than_usual,
+  CASE
+    WHEN s.`month` = rc.partial_month THEN CAST(NULL AS BIGINT)
+    WHEN n.normal_spend_usd_cents IS NULL THEN CAST(NULL AS BIGINT)
+    WHEN s.spend_usd_cents >= n.normal_spend_usd_cents THEN s.spend_usd_cents - n.normal_spend_usd_cents
+    ELSE CAST(0 AS BIGINT) END AS excess_usd_cents,
+  CASE
+    WHEN s.`month` = rc.partial_month THEN CAST(NULL AS DOUBLE)
+    WHEN n.normal_spend_usd_cents IS NULL THEN CAST(NULL AS DOUBLE)
+    WHEN n.normal_spend_usd_cents = 0 THEN CAST(NULL AS DOUBLE)
+    ELSE (s.spend_usd_cents - n.normal_spend_usd_cents) * 100.0 / n.normal_spend_usd_cents END AS excess_pct,
+  CASE WHEN s.`month` = rc.partial_month THEN TRUE ELSE FALSE END AS is_partial_month
+FROM _MonthCatL1 s
+CROSS JOIN _RunControl rc
+LEFT JOIN _L1Normal n ON n.customer_id = s.customer_id AND n.category_l1_id = s.category_l1_id AND n.`month` = s.`month`
+WHERE s.`month` >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND s.`month` <= CAST(DATE_FORMAT(CAST(rc.window_end AS TIMESTAMP), 'yyyy-MM-01') AS DATE);
+
+_L2Normal := SELECT
+  s.customer_id,
+  s.`month`,
+  s.category_l2_id,
+  CASE WHEN e.earliest_txn_date <= s.`month` - INTERVAL '3' MONTH THEN
+    CAST((COALESCE(s1.spend_usd_cents, 0) + COALESCE(s2.spend_usd_cents, 0) + COALESCE(s3.spend_usd_cents, 0)) / 3 AS BIGINT)
+  ELSE NULL END AS normal_spend_usd_cents
+FROM _MonthCatL2 s
+LEFT JOIN _MonthCatL2 s1 ON s1.customer_id = s.customer_id AND s1.category_l2_id = s.category_l2_id AND s1.`month` = s.`month` - INTERVAL '1' MONTH
+LEFT JOIN _MonthCatL2 s2 ON s2.customer_id = s.customer_id AND s2.category_l2_id = s.category_l2_id AND s2.`month` = s.`month` - INTERVAL '2' MONTH
+LEFT JOIN _MonthCatL2 s3 ON s3.customer_id = s.customer_id AND s3.category_l2_id = s.category_l2_id AND s3.`month` = s.`month` - INTERVAL '3' MONTH
+LEFT JOIN _CustomerEarliestSpend e ON e.customer_id = s.customer_id;
+
+/*+primary_key(customer_id, month, category_l2_id) */
+Customer_Month_Category_L2_Spending := SELECT
+  s.customer_id,
+  s.`month`,
+  s.category_l2_id,
+  s.category_l2_name,
+  s.category_l1_id,
+  s.category_l1_name,
+  s.spend_usd_cents,
+  s.txn_count,
+  n.normal_spend_usd_cents,
+  CASE
+    WHEN s.`month` = rc.partial_month THEN CAST(NULL AS BOOLEAN)
+    WHEN n.normal_spend_usd_cents IS NULL THEN CAST(NULL AS BOOLEAN)
+    WHEN s.spend_usd_cents >= n.normal_spend_usd_cents + (n.normal_spend_usd_cents / 2)
+         AND s.spend_usd_cents - n.normal_spend_usd_cents >= 7500 THEN TRUE
+    ELSE FALSE END AS is_much_more_than_usual,
+  CASE
+    WHEN s.`month` = rc.partial_month THEN CAST(NULL AS BIGINT)
+    WHEN n.normal_spend_usd_cents IS NULL THEN CAST(NULL AS BIGINT)
+    WHEN s.spend_usd_cents >= n.normal_spend_usd_cents THEN s.spend_usd_cents - n.normal_spend_usd_cents
+    ELSE CAST(0 AS BIGINT) END AS excess_usd_cents,
+  CASE
+    WHEN s.`month` = rc.partial_month THEN CAST(NULL AS DOUBLE)
+    WHEN n.normal_spend_usd_cents IS NULL THEN CAST(NULL AS DOUBLE)
+    WHEN n.normal_spend_usd_cents = 0 THEN CAST(NULL AS DOUBLE)
+    ELSE (s.spend_usd_cents - n.normal_spend_usd_cents) * 100.0 / n.normal_spend_usd_cents END AS excess_pct,
+  CASE WHEN s.`month` = rc.partial_month THEN TRUE ELSE FALSE END AS is_partial_month
+FROM _MonthCatL2 s
+CROSS JOIN _RunControl rc
+LEFT JOIN _L2Normal n ON n.customer_id = s.customer_id AND n.category_l2_id = s.category_l2_id AND n.`month` = s.`month`
+WHERE s.`month` >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND s.`month` <= CAST(DATE_FORMAT(CAST(rc.window_end AS TIMESTAMP), 'yyyy-MM-01') AS DATE);
+
+-- Level-2 children of a level-1 category row, for the category drill-down.
+Customer_Month_Category_L1_Spending.children := SELECT
+  l2.category_l2_id,
+  l2.category_l2_name,
+  l2.spend_usd_cents,
+  l2.normal_spend_usd_cents,
+  l2.is_much_more_than_usual,
+  l2.excess_usd_cents,
+  l2.excess_pct
+FROM Customer_Month_Category_L2_Spending l2
+WHERE this.customer_id = l2.customer_id AND this.`month` = l2.`month` AND this.category_l1_id = l2.category_l1_id
+ORDER BY l2.category_l2_id ASC;
+
+-- ============================================================
+-- INSIGHT 2: top merchants + per-category merchants (FR-23)
+-- ============================================================
+
+_MerchantSpend := SELECT
+  customer_id,
+  CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE) AS `month`,
+  merchant_key,
+  merchant_name,
+  SUM(netted_amount_usd_cents) AS spend_usd_cents,
+  COUNT(*) AS txn_count
+FROM _SpendingTxn
+GROUP BY customer_id, CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE), merchant_key, merchant_name;
+
+_MerchantRanked := SELECT
+  customer_id, `month`, merchant_key, merchant_name, spend_usd_cents, txn_count,
+  ROW_NUMBER() OVER (PARTITION BY customer_id, `month` ORDER BY spend_usd_cents DESC, merchant_name ASC, merchant_key ASC) AS merchant_rank
+FROM _MerchantSpend;
+
+/*+primary_key(customer_id, month, merchant_rank) */
+Customer_Month_Top_Merchant := SELECT
+  customer_id, `month`, merchant_rank, merchant_key AS merchant_id, merchant_name, spend_usd_cents, txn_count
+FROM _MerchantRanked
+CROSS JOIN _RunControl rc
+WHERE merchant_rank <= 5
+  AND `month` >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND `month` <= CAST(DATE_FORMAT(CAST(rc.window_end AS TIMESTAMP), 'yyyy-MM-01') AS DATE);
+
+_CategoryMerchantSpend := SELECT
+  customer_id,
+  CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE) AS `month`,
+  category_l2_id,
+  merchant_key,
+  merchant_name,
+  SUM(netted_amount_usd_cents) AS spend_usd_cents,
+  COUNT(*) AS txn_count
+FROM _SpendingTxn
+GROUP BY customer_id, CAST(DATE_FORMAT(CAST(posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE), category_l2_id, merchant_key, merchant_name;
+
+/*+primary_key(customer_id, month, category_l2_id, merchant_id) */
+Customer_Month_Category_Merchant := SELECT
+  customer_id, `month`, category_l2_id, merchant_key AS merchant_id, merchant_name, spend_usd_cents, txn_count
+FROM _CategoryMerchantSpend
+CROSS JOIN _RunControl rc
+WHERE `month` >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND `month` <= CAST(DATE_FORMAT(CAST(rc.window_end AS TIMESTAMP), 'yyyy-MM-01') AS DATE);
+
+-- ============================================================
+-- INSIGHT 3: recurring payments (FR-24..FR-26)
+-- ============================================================
+
+_RecurringMonthly := SELECT
+  r.customer_id,
+  r.recurring_payment_id,
+  r.merchant_name,
+  r.payment_type,
+  r.frequency,
+  r.status,
+  r.typical_amount_cents,
+  r.amount_variance_cents,
+  CAST(ROUND(r.typical_amount_cents * (
+    CASE r.frequency
+      WHEN 'WEEKLY' THEN 52.0 / 12.0
+      WHEN 'BIWEEKLY' THEN 26.0 / 12.0
+      WHEN 'MONTHLY' THEN 1.0
+      WHEN 'QUARTERLY' THEN 1.0 / 3.0
+      WHEN 'ANNUAL' THEN 1.0 / 12.0
+      ELSE 1.0 END
+  )) AS BIGINT) AS monthly_cost_usd_cents
+FROM et.Recurring_Payment r;
+
+_RecurringChargeRank := SELECT
+  recurring_payment_id,
+  posted_date,
+  amount_usd_cents,
+  ROW_NUMBER() OVER (PARTITION BY recurring_payment_id ORDER BY posted_date DESC, transaction_id DESC) AS rn
+FROM _ClassifiedNetted
+WHERE recurring_payment_id IS NOT NULL AND transaction_status = 'POSTED' AND debit_credit = 'DEBIT';
+
+_RecurringChargeStats := SELECT
+  recurring_payment_id,
+  MAX(CASE WHEN rn = 1 THEN amount_usd_cents END) AS latest_charge_usd_cents,
+  MAX(CASE WHEN rn = 1 THEN posted_date END) AS latest_charge_date,
+  MAX(CASE WHEN rn = 2 THEN amount_usd_cents END) AS previous_charge_usd_cents
+FROM _RecurringChargeRank
+GROUP BY recurring_payment_id;
+
+/*+primary_key(customer_id, recurring_payment_id) */
+Customer_Recurring_Payment := SELECT
+  r.customer_id,
+  r.recurring_payment_id,
+  r.merchant_name,
+  r.payment_type,
+  r.frequency,
+  r.monthly_cost_usd_cents,
+  c.latest_charge_usd_cents,
+  c.previous_charge_usd_cents,
+  c.latest_charge_date,
+  CASE
+    WHEN c.previous_charge_usd_cents IS NULL THEN FALSE
+    WHEN c.latest_charge_usd_cents >= c.previous_charge_usd_cents + (c.previous_charge_usd_cents * 5 / 100)
+         AND c.latest_charge_usd_cents - c.previous_charge_usd_cents >= 100 THEN TRUE
+    ELSE FALSE END AS became_more_expensive,
+  CASE WHEN c.previous_charge_usd_cents IS NULL THEN CAST(NULL AS BIGINT)
+       ELSE c.latest_charge_usd_cents - c.previous_charge_usd_cents END AS increase_usd_cents,
+  CASE WHEN c.previous_charge_usd_cents IS NULL THEN CAST(NULL AS DOUBLE)
+       ELSE (c.latest_charge_usd_cents - c.previous_charge_usd_cents) * 100.0 / c.previous_charge_usd_cents END AS increase_pct,
+  r.status,
+  r.typical_amount_cents AS typical_amount_usd_cents,
+  r.amount_variance_cents AS amount_variance_usd_cents
+FROM _RecurringMonthly r
+LEFT JOIN _RecurringChargeStats c ON c.recurring_payment_id = r.recurring_payment_id;
+
+/*+primary_key(customer_id) */
+Customer_Recurring_Monthly_Total := SELECT
+  customer_id,
+  SUM(monthly_cost_usd_cents) AS total_monthly_cost_usd_cents
+FROM _RecurringMonthly
+WHERE status = 'ACTIVE'
+GROUP BY customer_id;
+
+-- ============================================================
+-- INSIGHT 4: unusually large purchases (FR-27)
+-- ============================================================
+
+-- 90-day-before baseline mean per spending transaction (needs >= 5 prior transactions),
+-- computed with a RANGE window over the 90 days before each transaction's posted_date.
+/*+primary_key(transaction_id) */
+_LargePurchaseBaseline := SELECT
+  transaction_id,
+  customer_id,
+  posted_date,
+  merchant_key,
+  merchant_name,
+  category_l2_id,
+  category_l2_name,
+  netted_amount_usd_cents AS amount_usd_cents,
+  AVG(netted_amount_usd_cents) OVER (
+    PARTITION BY customer_id
+    ORDER BY posted_date
+    RANGE BETWEEN INTERVAL '90' DAY PRECEDING AND INTERVAL '1' DAY PRECEDING
+  ) AS baseline_mean_usd_cents,
+  COUNT(*) OVER (
+    PARTITION BY customer_id
+    ORDER BY posted_date
+    RANGE BETWEEN INTERVAL '90' DAY PRECEDING AND INTERVAL '1' DAY PRECEDING
+  ) AS prior_count
+FROM _SpendingTxn;
+
+/*+primary_key(transaction_id) */
+Customer_Large_Purchase := SELECT
+  b.transaction_id,
+  b.customer_id,
+  b.posted_date,
+  b.merchant_key AS merchant_id,
+  b.merchant_name,
+  b.category_l2_id,
+  b.category_l2_name,
+  b.amount_usd_cents,
+  b.baseline_mean_usd_cents,
+  CASE WHEN b.baseline_mean_usd_cents = 0 THEN CAST(NULL AS DOUBLE) ELSE b.amount_usd_cents * 1.0 / b.baseline_mean_usd_cents END AS ratio
+FROM _LargePurchaseBaseline b
+CROSS JOIN _RunControl rc
+WHERE b.prior_count >= 5
+  AND b.amount_usd_cents >= 20000
+  AND b.amount_usd_cents >= b.baseline_mean_usd_cents * 3
+  AND b.posted_date BETWEEN rc.window_start AND rc.window_end;
+
+-- ============================================================
+-- INSIGHT 5: cash flow + daily spending (FR-28..FR-29)
+-- ============================================================
+
+_AccountMonthCash := SELECT
+  c.customer_id,
+  c.account_id,
+  CAST(DATE_FORMAT(CAST(c.posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE) AS `month`,
+  SUM(CASE WHEN c.debit_credit = 'CREDIT' THEN c.netted_amount_usd_cents ELSE 0 END) AS income_usd_cents,
+  SUM(CASE WHEN c.debit_credit = 'DEBIT' THEN c.netted_amount_usd_cents ELSE 0 END) AS spending_usd_cents
+FROM _ClassifiedNetted c
+LEFT JOIN _InternalTransferTxn it ON it.transaction_id = c.transaction_id
+WHERE c.is_in_scope
+  AND c.transaction_status = 'POSTED'
+  AND c.transaction_type <> 'REVERSAL'
+  AND it.transaction_id IS NULL
+  AND c.amount_usd_cents IS NOT NULL
+GROUP BY c.customer_id, c.account_id, CAST(DATE_FORMAT(CAST(c.posted_date AS TIMESTAMP), 'yyyy-MM-01') AS DATE);
+
+/*+primary_key(customer_id, account_id, month) */
+Customer_Account_Month_Cash_Flow := SELECT
+  customer_id, account_id, `month`,
+  income_usd_cents, spending_usd_cents,
+  income_usd_cents - spending_usd_cents AS net_usd_cents,
+  CASE WHEN income_usd_cents = 0 THEN CAST(NULL AS DOUBLE)
+       ELSE (income_usd_cents - spending_usd_cents) * 1.0 / income_usd_cents END AS savings_rate
+FROM _AccountMonthCash
+CROSS JOIN _RunControl rc
+WHERE `month` >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND `month` <= CAST(DATE_FORMAT(CAST(rc.window_end AS TIMESTAMP), 'yyyy-MM-01') AS DATE);
+
+/*+primary_key(customer_id, month) */
+Customer_Month_Cash_Flow := SELECT
+  customer_id,
+  `month`,
+  SUM(income_usd_cents) AS income_usd_cents,
+  SUM(spending_usd_cents) AS spending_usd_cents,
+  SUM(income_usd_cents) - SUM(spending_usd_cents) AS net_usd_cents,
+  CASE WHEN SUM(income_usd_cents) = 0 THEN CAST(NULL AS DOUBLE)
+       ELSE (SUM(income_usd_cents) - SUM(spending_usd_cents)) * 1.0 / SUM(income_usd_cents) END AS savings_rate
+FROM _AccountMonthCash
+CROSS JOIN _RunControl rc
+WHERE `month` >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND `month` <= CAST(DATE_FORMAT(CAST(rc.window_end AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+GROUP BY customer_id, `month`;
+
+_AccountDaySpend := SELECT
+  customer_id,
+  account_id,
+  posted_date AS spend_date,
+  SUM(netted_amount_usd_cents) AS spend_usd_cents
+FROM _SpendingTxn
+GROUP BY customer_id, account_id, posted_date;
+
+/*+primary_key(customer_id, account_id, spend_date) */
+Customer_Account_Day_Spending := SELECT customer_id, account_id, spend_date, spend_usd_cents
+FROM _AccountDaySpend
+CROSS JOIN _RunControl rc
+WHERE spend_date >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND spend_date <= rc.window_end;
+
+/*+primary_key(customer_id, spend_date) */
+Customer_Day_Spending := SELECT
+  customer_id,
+  spend_date,
+  SUM(spend_usd_cents) AS spend_usd_cents
+FROM _AccountDaySpend
+CROSS JOIN _RunControl rc
+WHERE spend_date >= CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE)
+  AND spend_date <= rc.window_end
+GROUP BY customer_id, spend_date;
+
+-- ============================================================
+-- MONITORING (FR-31..FR-32)
+-- ============================================================
+
+_TransactionCount := SELECT COUNT(*) AS transaction_count_processed FROM _ScannedTxn;
+
+_LateCount := SELECT
+  rc.run_date,
+  COUNT(*) AS late_transaction_count
+FROM _ScannedTxn t
+CROSS JOIN _RunControl rc
+WHERE CAST(t.computed_at AS DATE) = rc.run_date AND t.posted_date < rc.window_start
+GROUP BY rc.run_date;
+
+_MissingFxCount := SELECT COUNT(*) AS missing_fx_rate_txn_count FROM _Classified WHERE is_missing_fx;
+
+/*+primary_key(run_date) */
+Pipeline_Run_Metric := SELECT
+  rc.run_date,
+  rc.window_start,
+  rc.window_end,
+  7 AS recomputed_day_count,
+  CASE WHEN CAST(DATE_FORMAT(CAST(rc.window_start AS TIMESTAMP), 'yyyy-MM-01') AS DATE) = CAST(DATE_FORMAT(CAST(rc.window_end AS TIMESTAMP), 'yyyy-MM-01') AS DATE) THEN 1 ELSE 2 END AS recomputed_months,
+  tc.transaction_count_processed,
+  COALESCE(lc.late_transaction_count, 0) AS late_transaction_count,
+  mfc.missing_fx_rate_txn_count
+FROM _RunControl rc
+CROSS JOIN _TransactionCount tc
+CROSS JOIN _MissingFxCount mfc
+LEFT JOIN _LateCount lc ON lc.run_date = rc.run_date;
+
+_UncategorizedDaily := SELECT
+  s.posted_date AS spend_date,
+  SUM(s.netted_amount_usd_cents) AS total_spend_usd_cents,
+  SUM(CASE WHEN s.category_l2_id = 'Uncategorized' THEN s.netted_amount_usd_cents ELSE 0 END) AS uncategorized_spend_usd_cents,
+  COUNT(*) AS total_txn_count,
+  SUM(CASE WHEN s.category_l2_id = 'Uncategorized' THEN 1 ELSE 0 END) AS uncategorized_txn_count
+FROM _SpendingTxn s
+CROSS JOIN _RunControl rc
+WHERE s.posted_date BETWEEN rc.window_start AND rc.window_end
+GROUP BY s.posted_date;
+
+/*+primary_key(spend_date) */
+Uncategorized_Spending_Daily := SELECT
+  spend_date,
+  total_spend_usd_cents,
+  uncategorized_spend_usd_cents,
+  CASE WHEN total_spend_usd_cents = 0 THEN CAST(0 AS DOUBLE)
+       ELSE uncategorized_spend_usd_cents * 1.0 / total_spend_usd_cents END AS uncategorized_share,
+  total_txn_count,
+  uncategorized_txn_count
+FROM _UncategorizedDaily;
+
+-- ============================================================
+-- EXPORT TO ICEBERG SINKS
+-- ============================================================
+
+EXPORT Customer_Month_Category_L1_Spending TO sink.Customer_Month_Category_L1_Spending;
+EXPORT Customer_Month_Category_L2_Spending TO sink.Customer_Month_Category_L2_Spending;
+EXPORT Customer_Month_Top_Merchant TO sink.Customer_Month_Top_Merchant;
+EXPORT Customer_Month_Category_Merchant TO sink.Customer_Month_Category_Merchant;
+EXPORT Customer_Recurring_Payment TO sink.Customer_Recurring_Payment;
+EXPORT Customer_Recurring_Monthly_Total TO sink.Customer_Recurring_Monthly_Total;
+EXPORT Customer_Large_Purchase TO sink.Customer_Large_Purchase;
+EXPORT Customer_Month_Cash_Flow TO sink.Customer_Month_Cash_Flow;
+EXPORT Customer_Account_Month_Cash_Flow TO sink.Customer_Account_Month_Cash_Flow;
+EXPORT Customer_Day_Spending TO sink.Customer_Day_Spending;
+EXPORT Customer_Account_Day_Spending TO sink.Customer_Account_Day_Spending;
+EXPORT Pipeline_Run_Metric TO sink.Pipeline_Run_Metric;
+EXPORT Uncategorized_Spending_Daily TO sink.Uncategorized_Spending_Daily;
+
+-- ============================================================
+-- DATA QUALITY TABLES
+-- ============================================================
+
+/** DQ: Transactions dropped from every insight because their currency has no rate
+    and no earlier rate (FR-9). One row per dropped transaction so losing them does
+    not hide the problem; the count surfaces in Pipeline_Run_Metric.missing_fx_rate_txn_count. */
+/*+primary_key(transaction_id) */
+DQ_Missing_FX_Rate_Transaction := SELECT
+  transaction_id, customer_id, account_id, currency_code, posted_date, amount_cents
+FROM _Classified
+WHERE is_missing_fx
+ORDER BY transaction_id ASC;
+
+EXPORT DQ_Missing_FX_Rate_Transaction TO sink.DQ_Missing_FX_Rate_Transaction;
+
+-- ============================================================
+-- API FUNCTIONS (FR-33)
+-- ============================================================
+-- One named operation per screen element. Each requires a valid JWT (enforced by the
+-- Vert.x server); no operation filters by the caller's identity because any signed-in
+-- staff user may read any customer.
+
+_CustomerInScopeAccounts := SELECT
+  h.customer_id,
+  h.account_id,
+  a.account_type,
+  a.account_status,
+  a.account_number
+FROM _AccountHolder h
+JOIN _Account a ON h.account_id = a.account_id
+WHERE h.is_active = true AND a.account_type IN ('CHECKING','SAVINGS');
+
+/*+primary_key(customerId) */
+_CustomerSearch := SELECT
+  c.customer_id AS customerId,
+  CONCAT(TRIM(c.first_name), ' ', TRIM(c.last_name)) AS displayName,
+  c.customer_status AS status,
+  COUNT(a.account_id) AS accountCount
+FROM _Customer c
+LEFT JOIN _CustomerInScopeAccounts a ON a.customer_id = c.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name, c.customer_status;
+
+CustomerSearch(customerId STRING NOT NULL) := SELECT * FROM _CustomerSearch WHERE customerId = :customerId;
+
+CustomerAccounts(customerId STRING NOT NULL) := SELECT
+  account_id AS accountId,
+  CONCAT('****', RIGHT(account_number, 4)) AS accountNumber,
+  account_type AS accountType,
+  account_status AS status
+FROM _CustomerInScopeAccounts
+WHERE customer_id = :customerId AND account_status = 'OPEN'
+ORDER BY account_id ASC;
+
+MonthOverview(customerId STRING NOT NULL, `month` STRING NOT NULL, accountId STRING) := SELECT
+  SUM(cf.income_usd_cents) AS income,
+  SUM(cf.spending_usd_cents) AS spending,
+  SUM(cf.income_usd_cents) - SUM(cf.spending_usd_cents) AS net,
+  CASE WHEN SUM(cf.income_usd_cents) = 0 THEN CAST(NULL AS DOUBLE)
+       ELSE (SUM(cf.income_usd_cents) - SUM(cf.spending_usd_cents)) * 1.0 / SUM(cf.income_usd_cents) END AS savingsRate,
+  (DATE_FORMAT(CAST(rc.partial_month AS TIMESTAMP), 'yyyy-MM') = :month) AS isPartialMonth
+FROM _AccountMonthCash cf
+CROSS JOIN _RunControl rc
+WHERE cf.customer_id = :customerId
+  AND DATE_FORMAT(CAST(cf.`month` AS TIMESTAMP), 'yyyy-MM') = :month
+  AND (:accountId IS NULL OR cf.account_id = :accountId)
+GROUP BY rc.partial_month;
+
+DailySpending(customerId STRING NOT NULL, `month` STRING NOT NULL, accountId STRING) := SELECT
+  spend_date AS `date`,
+  SUM(spend_usd_cents) AS spending
+FROM _AccountDaySpend
+WHERE customer_id = :customerId
+  AND DATE_FORMAT(CAST(spend_date AS TIMESTAMP), 'yyyy-MM') = :month
+  AND (:accountId IS NULL OR account_id = :accountId)
+GROUP BY spend_date
+ORDER BY spend_date ASC;
+
+CategorySpending(customerId STRING NOT NULL, `month` STRING NOT NULL) := SELECT *
+FROM Customer_Month_Category_L1_Spending
+WHERE customer_id = :customerId AND DATE_FORMAT(CAST(`month` AS TIMESTAMP), 'yyyy-MM') = :month
+ORDER BY category_l1_id ASC;
+
+CategoryMerchants(customerId STRING NOT NULL, `month` STRING NOT NULL, categoryId STRING NOT NULL) := SELECT
+  merchant_id AS merchantId,
+  merchant_name AS merchantName,
+  spend_usd_cents AS spending,
+  txn_count AS transactionCount
+FROM Customer_Month_Category_Merchant
+WHERE customer_id = :customerId AND DATE_FORMAT(CAST(`month` AS TIMESTAMP), 'yyyy-MM') = :month AND category_l2_id = :categoryId
+ORDER BY spend_usd_cents DESC, merchant_name ASC, merchant_id ASC;
+
+TopMerchants(customerId STRING NOT NULL, `month` STRING NOT NULL) := SELECT
+  merchant_id AS merchantId,
+  merchant_name AS merchantName,
+  spend_usd_cents AS spending,
+  txn_count AS transactionCount
+FROM Customer_Month_Top_Merchant
+WHERE customer_id = :customerId AND DATE_FORMAT(CAST(`month` AS TIMESTAMP), 'yyyy-MM') = :month
+ORDER BY merchant_rank ASC;
+
+RecurringPayments(customerId STRING NOT NULL) := SELECT
+  recurring_payment_id AS recurringPaymentId,
+  merchant_name AS merchantName,
+  payment_type AS paymentType,
+  frequency,
+  monthly_cost_usd_cents AS monthlyCost,
+  latest_charge_usd_cents AS latestCharge,
+  previous_charge_usd_cents AS previousCharge,
+  latest_charge_date AS latestChargeDate,
+  became_more_expensive AS becameMoreExpensive,
+  increase_usd_cents AS increaseAmount,
+  increase_pct AS increasePct,
+  status
+FROM Customer_Recurring_Payment
+WHERE customer_id = :customerId
+ORDER BY recurring_payment_id ASC;
+
+RecurringTotal(customerId STRING NOT NULL) := SELECT
+  total_monthly_cost_usd_cents AS totalMonthlyCost
+FROM Customer_Recurring_Monthly_Total
+WHERE customer_id = :customerId;
+
+LargePurchases(customerId STRING NOT NULL, fromDate STRING, toDate STRING) := SELECT
+  transaction_id AS transactionId,
+  posted_date AS `date`,
+  merchant_name AS merchantName,
+  category_l2_name AS categoryName,
+  amount_usd_cents AS amount,
+  baseline_mean_usd_cents AS baselineMean,
+  ratio
+FROM Customer_Large_Purchase
+WHERE customer_id = :customerId
+  AND (:fromDate IS NULL OR posted_date >= CAST(:fromDate AS DATE))
+  AND (:toDate IS NULL OR posted_date <= CAST(:toDate AS DATE))
+ORDER BY posted_date DESC, transaction_id ASC;
+
+RunMetrics(`limit` INT) := SELECT
+  run_date AS runDate,
+  window_start AS windowStart,
+  window_end AS windowEnd,
+  recomputed_day_count AS recomputedDayCount,
+  recomputed_months AS recomputedMonths,
+  transaction_count_processed AS transactionCountProcessed,
+  late_transaction_count AS lateTransactionCount,
+  missing_fx_rate_txn_count AS missingFxRateTxnCount
+FROM Pipeline_Run_Metric
+ORDER BY run_date DESC
+LIMIT :limit;
+
+UncategorizedShare(fromDate STRING NOT NULL, toDate STRING NOT NULL) := SELECT
+  spend_date AS `date`,
+  total_spend_usd_cents AS totalSpending,
+  uncategorized_spend_usd_cents AS uncategorizedSpending,
+  uncategorized_share AS share
+FROM Uncategorized_Spending_Daily
+WHERE spend_date >= CAST(:fromDate AS DATE) AND spend_date <= CAST(:toDate AS DATE)
+ORDER BY spend_date ASC;
+
+-- ============================================================
+-- TEST QUERIES
+-- ============================================================
+
+/*+test */
+FxResolutionTest := SELECT currency_code, rate_date, usd_per_unit
+  FROM _FxResolved
+  WHERE currency_code IN ('EUR', 'GBP', 'JPY')
+  ORDER BY currency_code ASC, rate_date ASC;
+
+/*+test(no_rows) */
+PairedTransfersEmpty_Test := SELECT * FROM _PairedTransfers;
+
+/*+test */
+DQMissingFxRateTest := SELECT transaction_id, currency_code, posted_date, amount_cents
+  FROM DQ_Missing_FX_Rate_Transaction
+  ORDER BY transaction_id ASC;
+
+/*+test */
+CategoryL1SpendingTest := SELECT customer_id, `month`, category_l1_id, category_l1_name, spend_usd_cents, txn_count
+  FROM Customer_Month_Category_L1_Spending
+  WHERE customer_id = 'CUST-057' AND category_l1_id = 'CAT-006'
+  ORDER BY customer_id ASC, `month` ASC, category_l1_id ASC;
+
+/*+test */
+CategoryL2SpendingTest := SELECT customer_id, `month`, category_l2_id, category_l2_name, spend_usd_cents, txn_count
+  FROM Customer_Month_Category_L2_Spending
+  WHERE customer_id = 'CUST-057' AND category_l2_id = 'CAT-014'
+  ORDER BY customer_id ASC, `month` ASC, category_l2_id ASC;
+
+/*+test */
+TopMerchantTest := SELECT customer_id, `month`, merchant_rank, merchant_id, merchant_name, spend_usd_cents, txn_count
+  FROM Customer_Month_Top_Merchant
+  WHERE customer_id = 'CUST-057' AND `month` = DATE '2026-08-01'
+  ORDER BY merchant_rank ASC;
+
+/*+test */
+RecurringPaymentTest := SELECT recurring_payment_id, customer_id, frequency, monthly_cost_usd_cents, status
+  FROM Customer_Recurring_Payment
+  WHERE frequency = 'WEEKLY'
+  ORDER BY recurring_payment_id ASC;
+
+/*+test */
+LargePurchaseTest := SELECT transaction_id, customer_id, posted_date, amount_usd_cents, baseline_mean_usd_cents, ratio
+  FROM Customer_Large_Purchase
+  WHERE transaction_id = 'TXN-8397'
+  ORDER BY transaction_id ASC;
+
+/*+test */
+CashFlowTest := SELECT customer_id, `month`, income_usd_cents, spending_usd_cents, net_usd_cents, savings_rate
+  FROM Customer_Month_Cash_Flow
+  WHERE customer_id = 'CUST-057'
+  ORDER BY customer_id ASC, `month` ASC;
+
+/*+test */
+PipelineRunMetricTest := SELECT run_date, window_start, window_end, recomputed_day_count, recomputed_months, transaction_count_processed, late_transaction_count, missing_fx_rate_txn_count
+  FROM Pipeline_Run_Metric
+  ORDER BY run_date ASC;
+
+/*+test */
+UncategorizedDailyTest := SELECT spend_date, total_spend_usd_cents, uncategorized_spend_usd_cents, uncategorized_share, total_txn_count, uncategorized_txn_count
+  FROM Uncategorized_Spending_Daily
+  ORDER BY spend_date ASC;

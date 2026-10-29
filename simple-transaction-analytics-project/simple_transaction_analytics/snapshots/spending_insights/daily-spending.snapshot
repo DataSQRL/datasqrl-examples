@@ -1,0 +1,14 @@
+{
+  "data" : {
+    "DailySpending" : [ {
+      "date" : "2026-08-02",
+      "spending" : 26328
+    }, {
+      "date" : "2026-08-25",
+      "spending" : 2270
+    }, {
+      "date" : "2026-08-30",
+      "spending" : 80202
+    } ]
+  }
+}
