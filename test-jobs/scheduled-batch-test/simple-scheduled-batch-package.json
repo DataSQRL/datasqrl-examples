@@ -14,6 +14,7 @@
         "jobmanager-size": "small",
         "taskmanager-size": "small",
         "taskmanager-count": 1,
+        "taskmanager-dedicated-nodes": ["nvme"],
         "schedule": {
           "cron": "*/15 * * * *",
           "timezone": "UTC"
