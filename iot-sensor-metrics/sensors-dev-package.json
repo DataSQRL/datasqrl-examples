@@ -1,0 +1,11 @@
+{
+  "script": {
+    "config": {
+      "environment": "dev"
+    }
+  },
+  "test-runner": {
+    "snapshot-folder": "snapshots/sensors_dev/",
+    "test-folder": "sensors-api/tests/"
+  }
+}
