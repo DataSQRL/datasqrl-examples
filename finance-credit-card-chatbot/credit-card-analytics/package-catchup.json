@@ -1,0 +1,17 @@
+{
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.checkpointing.interval": "1 h",
+        "execution.checkpointing.mode": "AT_LEAST_ONCE"
+      }
+    },
+    "postgres": {
+      "deployment": {
+        "replica-count": 0,
+        "create-indexes": false,
+        "data-checksums": false
+      }
+    }
+  }
+}
