@@ -1,0 +1,16 @@
+CREATE TABLE _Heartbeats (
+  sensorId INT NOT NULL,
+  event_time AS NOW(),
+  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+) WITH (
+  'connector' = 'datagen',
+  'rows-per-second' = '1',
+  'fields.sensorId.kind' = 'random',
+  'fields.sensorId.min' = '1',
+  'fields.sensorId.max' = '3'
+);
+
+/**
+  Latest heartbeat of each sensor
+ */
+LatestHeartbeat := DISTINCT _Heartbeats ON sensorId ORDER BY event_time DESC;

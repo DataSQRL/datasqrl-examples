@@ -169,6 +169,13 @@ jobs:
               compile simple-scheduled-batch-package.json
               compile minutely-batch-package.json
 
+          - example: canary-long-lived
+            path: test-jobs/long-lived
+            tag: canary
+            test_commands: |
+              compile long-lived-streaming-package.json
+              compile long-lived-batch-package.json
+
           - example: udf-jbang
             path: user-defined-function/jbang
             tag: udf-jbang

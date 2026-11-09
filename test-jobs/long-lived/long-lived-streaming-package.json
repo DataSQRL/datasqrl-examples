@@ -1,0 +1,35 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "postgres", "flink"],
+  "script": {
+    "main": "long-lived-streaming.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "1 s"
+      },
+      "deployment": {
+        "jobmanager-size": "dev",
+        "jobmanager-cpu-request-factor": 0.1,
+        "taskmanager-size": "dev",
+        "taskmanager-cpu-request-factor": 0.1,
+        "taskmanager-count": 1
+      }
+    },
+    "postgres": {
+      "deployment": {
+        "instance-size": "dev",
+        "cpu-request-factor": 0.1,
+        "replica-count": 0
+      }
+    },
+    "vertx": {
+      "deployment": {
+        "instance-size": "dev",
+        "cpu-request-factor": 0.1,
+        "instance-count": 1
+      }
+    }
+  }
+}
