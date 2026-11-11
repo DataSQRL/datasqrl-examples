@@ -4,7 +4,7 @@ The cloud-frontend E2E suite keeps one deployment of each job running in the E2E
 checks on every run that it is still healthy, so infrastructure updates that break existing
 deployments fail the suite.
 
-* [Streaming](long-lived-streaming.sqrl): datagen emits one heartbeat per second, the API serves the latest one per sensor
+* [Streaming](long-lived-streaming.sqrl): datagen emits one heartbeat per second, the API serves the latest one per sensor and the heartbeat count of every minute in the last 30 days
 * [Batch](long-lived-batch.sqrl): runs every 3 hours (`0 */3 * * *`, UTC) and writes a count to Postgres
 
 Both jobs use the `dev` sizes with a CPU request factor of 0.1 to keep running them around the clock
