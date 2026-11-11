@@ -14,3 +14,20 @@ CREATE TABLE _Heartbeats (
   Latest heartbeat of each sensor
  */
 LatestHeartbeat := DISTINCT _Heartbeats ON sensorId ORDER BY event_time DESC;
+
+/*+primary_key(window_end) */
+_HeartbeatsPerMinute := SELECT
+  window_start,
+  window_end,
+  window_time,
+  COUNT(*) AS heartbeat_count
+FROM TUMBLE(TABLE _Heartbeats, DESCRIPTOR(event_time), INTERVAL '1' MINUTE)
+GROUP BY window_start, window_end, window_time;
+
+/**
+  Minutes that received heartbeats since fromTime, oldest first. A minute without heartbeats has no row.
+ */
+HeartbeatMinutes(fromTime TIMESTAMP NOT NULL) :=
+SELECT window_start, heartbeat_count
+FROM _HeartbeatsPerMinute WHERE :fromTime <= window_start
+ORDER BY window_start ASC;
