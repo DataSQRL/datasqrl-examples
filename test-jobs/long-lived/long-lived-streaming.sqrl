@@ -15,15 +15,12 @@ CREATE TABLE _Heartbeats (
  */
 LatestHeartbeat := DISTINCT _Heartbeats ON sensorId ORDER BY event_time DESC;
 
-_HeartbeatWindows := SELECT window_start, window_end, window_time, COUNT(*) AS heartbeat_count
-FROM TUMBLE(TABLE _Heartbeats, DESCRIPTOR(event_time), INTERVAL '1' MINUTE)
-GROUP BY window_start, window_end, window_time;
-
 -- Minute within a 30-day cycle, so a new minute overwrites the one from 30 days ago.
 _HeartbeatSlots := SELECT
   MOD(TIMESTAMPDIFF(MINUTE, TIMESTAMP '1970-01-01 00:00:00', window_start), 43200) AS minute_slot,
-  window_start, window_time, heartbeat_count
-FROM _HeartbeatWindows;
+  window_start, window_time, COUNT(*) AS heartbeat_count
+FROM TUMBLE(TABLE _Heartbeats, DESCRIPTOR(event_time), INTERVAL '1' MINUTE)
+GROUP BY window_start, window_end, window_time;
 
 _HeartbeatsPerMinute := DISTINCT _HeartbeatSlots ON minute_slot ORDER BY window_time DESC;
 
