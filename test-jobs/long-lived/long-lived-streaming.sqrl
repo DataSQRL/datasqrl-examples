@@ -19,9 +19,9 @@ _HeartbeatWindows := SELECT window_start, window_end, window_time, COUNT(*) AS h
 FROM TUMBLE(TABLE _Heartbeats, DESCRIPTOR(event_time), INTERVAL '1' MINUTE)
 GROUP BY window_start, window_end, window_time;
 
--- Minute of the week, so a new minute overwrites the one from 7 days ago.
+-- Minute within a 30-day cycle, so a new minute overwrites the one from 30 days ago.
 _HeartbeatSlots := SELECT
-  MOD(TIMESTAMPDIFF(MINUTE, TIMESTAMP '1970-01-01 00:00:00', window_start), 10080) AS minute_slot,
+  MOD(TIMESTAMPDIFF(MINUTE, TIMESTAMP '1970-01-01 00:00:00', window_start), 43200) AS minute_slot,
   window_start, window_time, heartbeat_count
 FROM _HeartbeatWindows;
 
