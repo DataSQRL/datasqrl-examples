@@ -21,7 +21,7 @@
         <jackson.version>2.18.12</jackson.version>
         <picocli.version>4.7.5</picocli.version>
         <commons-config.version>2.15.1</commons-config.version>
-        <datafaker.version>2.4.1</datafaker.version>
+        <datafaker.version>2.7.0</datafaker.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <junit-jupiter-engine.version>5.6.2</junit-jupiter-engine.version>
         <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
