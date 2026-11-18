@@ -10,15 +10,40 @@ that an officer might need for a traffic stop or to look up a person of interest
 
 The SQRL script also produces relevant analytics on the issued warrants and bolos.
 
-Furthermore, it provides a mutation for capturing traffic stop and producing alerts based on issued bolos.
+Furthermore, it provides a mutation for capturing traffic stops and producing alerts based on issued bolos.
+
+The project keeps its configuration in a base manifest plus thin per-environment overlays, selected through `script.config.environment`:
+
+| Environment | Driver/Vehicle/Warrant/Bolo data comes from | Overlay |
+|-------------|---------------------------------------------|---------|
+| `test` | the sample files in `connectors/testdata/` (`connectors/police_test.sqrl`) | `baseball_card-test-package.json` |
+| `dev` | one Kafka topic per dataset (`connectors/police_dev.sqrl`, columns declared in `connectors/police.sqrl`) | `baseball_card-dev-package.json` |
+
+DataSQRL merges the manifests in the order they are given (later files override earlier ones), so every command passes the base first and the overlay second.
 
 ## Run
 
-Invoke the following command to run this example.
+Invoke the following command to run this example with the sample data:
 
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/workspace datasqrl/cmd:latest run -c baseball_card_package_test.json
+docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
+  baseball_card-shared-package.json \
+  baseball_card-test-package.json
 ```
+
+The `dev` overlay runs the same pipeline against Kafka topics instead of files, for wiring the example up to live data streams.
+
+## Run the Tests
+
+`run-tests.sh` is the single entry point for the test suites:
+
+```bash
+./run-tests.sh                       # test environment: file data, snapshot tests
+./run-tests.sh --compile --env dev   # compile-verify the Kafka-sourced dev environment
+./run-tests.sh --list-invocations    # print what would run without running it
+```
+
+The snapshot tests (`snapshots/baseball_card/`) cover the bolo and warrant analytics.
 
 ## Queries
 
@@ -116,6 +141,8 @@ What Bolo's are there for similar makes and models?
 
 ## Tracking
 
+An alert fires when a recorded encounter's plate matches an active bolo issued within the 60 days before the encounter.
+
 Subscription to Tracking alerts:
 
 ```graphql
@@ -134,7 +161,7 @@ Mutation that records an encounter:
 
 ```graphql
 mutation {
-    Tracking(encounter:  {
+    Tracking(event:  {
         plate: "dkx-1292",
         latitude: 55.2,
         longitude:109.3
