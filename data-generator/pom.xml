@@ -19,7 +19,7 @@
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <guava.version>33.7.2-jre</guava.version>
         <jackson.version>2.23.0</jackson.version>
-        <picocli.version>4.7.5</picocli.version>
+        <picocli.version>4.7.7</picocli.version>
         <commons-config.version>2.15.1</commons-config.version>
         <datafaker.version>2.7.0</datafaker.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
