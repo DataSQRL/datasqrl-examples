@@ -60,6 +60,43 @@ jobs:
               compile credit-card-views/creditcard_views-shared-package.json credit-card-views/creditcard_views-test-package.json
               test credit-card-views/creditcard_views-shared-package.json credit-card-views/creditcard_views-test-package.json
 
+          - example: getting-started-01
+            path: getting-started-examples/01_kafka_to_console
+            publish: false
+            test_commands: |
+              compile package.json
+          - example: getting-started-02
+            path: getting-started-examples/02_kafka_to_kafka
+            publish: false
+            test_commands: |
+              compile package.json
+          - example: getting-started-03
+            path: getting-started-examples/03_kafka_join
+            publish: false
+            test_commands: |
+              compile package.json
+          - example: getting-started-04
+            path: getting-started-examples/04_file_to_iceberg_test
+            publish: false
+            test_commands: |
+              compile package.json
+          - example: getting-started-05
+            path: getting-started-examples/05_kafka_to_iceberg_local_test
+            publish: false
+            test_commands: |
+              compile package.json
+          - example: getting-started-06
+            path: getting-started-examples/06_kafka_to_iceberg_glue_test
+            publish: false
+            # Glue needs real AWS resources at compile time, so CI compiles against a local catalog
+            test_commands: |
+              compile package.json local-catalog-package.json
+          - example: getting-started-07
+            path: getting-started-examples/07_schema_registry_kafka_to_kafka
+            publish: false
+            test_commands: |
+              compile package.json
+
           - example: healthcare-study-analytics
             path: healthcare-study
             tag: healthcare-study-analytics
@@ -152,7 +189,8 @@ jobs:
           IMAGE=$(sed -n 's/^FROM //p' sqrl.Dockerfile)
         fi
         # Only pushes to main publish to Docker Hub; PRs and dispatched runs build and test only
-        if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+        # Matrix entries with publish: false (the getting-started examples) are built and tested, never published
+        if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ matrix.publish }}" != "false" ]; then
           PUBLISH=true
         else
           PUBLISH=false

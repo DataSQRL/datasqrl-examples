@@ -1,9 +1,12 @@
 IMPORT kafka-source.contact AS Contact;
 
+-- The upsert-kafka sink is keyed on firstname, so keep the latest contact per firstname
+_LatestContact := DISTINCT Contact ON firstname ORDER BY last_updated DESC;
+
 EnrichedContacts := SELECT
   firstname,
   lastname,
   CAST(last_updated AS STRING) AS last_updated_str
-FROM Contact;
+FROM _LatestContact;
 
 EXPORT EnrichedContacts TO kafka-sink.enriched_contact;

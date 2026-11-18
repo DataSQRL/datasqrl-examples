@@ -35,6 +35,12 @@ docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 \
   datasqrl/cmd:latest run package.json
 ```
 
+To check the pipeline without AWS, compile it against a local Iceberg catalog instead of Glue. The
+`local-catalog-package.json` overlay swaps the catalog; CI compiles the example this way:
+```bash
+docker run --rm -v $PWD:/workspace datasqrl/cmd:latest compile package.json local-catalog-package.json
+```
+
 ## Generate Data
 
 * Go to `data-generator` folder
