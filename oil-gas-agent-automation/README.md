@@ -1,5 +1,11 @@
 # Automated Monitoring - Oil & Gas Use Case
 
+- **Builds:** a data product for AI agents: a real-time pipeline that enriches well readings and triggers an agent on abnormal events, plus a data API the agent queries.
+- **Shows:** Kafka · real-time · data API · AI agents
+- **Built with:** SQRL compiled to Flink, Kafka, Postgres, and the DataSQRL API server, over a shared data catalog.
+
+This is the data product pattern: both projects are built on one shared data catalog, so the sources are defined once and every data product reuses them.
+
 Two projects over one shared [`data-catalog`](data-catalog) of wells (`Assets`), their maintenance work
 orders and their flow-rate and pressure/temperature readings:
 
@@ -24,7 +30,7 @@ suite, `./run-tests.sh --compile --env dev` compiles the dev configuration, and
 
 ```bash
 cd oil-gas-agent-automation
-docker run -it -p 8888:8888 -p 8081:8081 -p 9092:9092 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run \
   -r oil-gas-agent-operations \
   operations_agent-shared-package.json \
   operations_agent-test-package.json
@@ -68,3 +74,15 @@ To retrieve recent pressure and temperature readings for a well, run this query:
 
 The monitoring backend runs the same way with `-r oil-gas-agent-monitoring` and the
 `monitoring_agent-*-package.json` manifests.
+
+
+## Build this with the DataSQRL plugin
+
+Install the [DataSQRL plugin](https://github.com/DataSQRL/datasqrl-plugin) in Claude Code, Codex, Cursor, or Copilot, then paste this prompt:
+
+```text
+Build a DataSQRL data product for oil well monitoring. Read well assets, maintenance work
+orders, flow-rate readings, and pressure/temperature readings from Kafka. Serve well profiles
+with their work orders and per-minute aggregates through a GraphQL API, add a mutation to ingest
+flow-rate readings, and push a subscription event whenever a well's flow rate drops below 200.
+```

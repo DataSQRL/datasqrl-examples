@@ -1,14 +1,17 @@
 # Logistics
 
-This example demonstrates DataSQRL's capabilities by replicating shipment delivery in Manhattan. It
-serves as an ideal use-case for streaming, showcasing real-time shipment tracking. Monitor and
-manage shipments as they move through the city and answer queries like the number of shipments per
+- **Builds:** a real-time pipeline and data API for shipment tracking served to customers.
+- **Shows:** real-time · data API
+- **Built with:** SQRL compiled to Flink, Kafka, Postgres, and the DataSQRL API server.
+
+This example replicates shipment delivery in Manhattan: real-time tracking served to customers.
+Monitor and manage shipments as they move through the city and answer queries like the number of shipments per
 customer and their current locations. Amazingly, all of this is achieved in just 33 lines of code,
 imports included. How cool is that?
 
 Run the example with:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/workspace datasqrl/cmd:latest run -c logistics_package_test.json
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run logistics_test_package.json
 ```
 
 ## Regenerate test data
@@ -33,3 +36,13 @@ However, if you wish to modify or experiment with the data, here's how you can g
 
 See [Python Utilities](../util/README.md) for details.
 
+
+## Build this with the DataSQRL plugin
+
+Install the [DataSQRL plugin](https://github.com/DataSQRL/datasqrl-plugin) in Claude Code, Codex, Cursor, or Copilot, then paste this prompt:
+
+```text
+Build a DataSQRL pipeline for shipment tracking. Combine customers, shipments, and vehicles
+from a database with a stream of vehicle location and shipment status events, and serve each
+customer's shipments with their current location and status through a GraphQL API.
+```

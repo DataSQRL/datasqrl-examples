@@ -1,6 +1,10 @@
 # Finance Credit Card ChatBot Examples
 
-This project contains three example use cases that process credit card transaction, customer, and merchant data:
+- **Builds:** data for AI agents: a data product that enriches credit card transactions in real-time and serves them to a GenAI chatbot through a data API.
+- **Shows:** Kafka · real-time · data API (GraphQL, MCP) · AI agents · Iceberg
+- **Built with:** SQRL compiled to Flink, Kafka, Postgres, and the DataSQRL API server; the batch variant writes to Iceberg, read by DuckDB or Snowflake.
+
+An AI agent is only as good as the data it can reach. This example gives a chatbot fresh, per-customer transaction data through an MCP and GraphQL API. It contains three use cases that process credit card transaction, customer, and merchant data:
 
 * [**Transaction Analytics**](credit-card-analytics): A data pipeline which enriches the credit card
   transactions with customer and merchant information to give customers an overview of their transactions as well as
@@ -50,14 +54,13 @@ package JSON filename, and `-r credit-card-rewards`) - the instructions are othe
 To run this example, invoke the following command in the example directory on Unix based systems to compile the project:
 ```bash
 cd finance-credit-card-chatbot
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run \
   -r credit-card-analytics \
   creditcard_analytics-shared-package.json \
   creditcard_analytics-test-package.json
 ```
 
-This command stands up the API using [DataSQRL](https://www.datasqrl.com/), a development tool
-for data pipelines. To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/v1/graphiql/) to access the API.
+This command stands up the API using [DataSQRL](https://www.datasqrl.com/). To check that the GraphQL API is running properly, [open GraphiQL](http://localhost:8888/v1/graphiql/) to access the API.
 
 The test environments of *Transaction Analytics* and *Credit Card Rewards* secure the API with JWT (see
 [Securing the API endpoints](#3-securing-the-api-endpoints)), so every request — including the ones you
@@ -79,7 +82,7 @@ To use Kafka as the data source, follow these steps:
 Invoke the following command in the example directory:
 ```bash
 cd finance-credit-card-chatbot
-docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run \
   -r credit-card-analytics \
   creditcard_analytics-shared-package.json \
   creditcard_analytics-dev-package.json
@@ -140,4 +143,16 @@ npx @modelcontextprotocol/inspector
 Assuming `npm` is installed, first time, this will install a new `npm` package, then it will start the inspector.
 In the browser window that pop up, pick **Streamable HTTP**, and the SQRL MCP server should be available at `http://localhost:8888/v1/mcp`.
 
-All public API endpoints will be listed under. **Tools**. For more information about MCP inspector, [see its documentation](https://modelcontextprotocol.io/docs/tools/inspector). 
+All public API endpoints will be listed under. **Tools**. For more information about MCP inspector, [see its documentation](https://modelcontextprotocol.io/docs/tools/inspector).
+
+
+## Build this with the DataSQRL plugin
+
+Install the [DataSQRL plugin](https://github.com/DataSQRL/datasqrl-plugin) in Claude Code, Codex, Cursor, or Copilot, then paste this prompt:
+
+```text
+Build a DataSQRL data product for a credit card chatbot. Read transactions, card assignments,
+and merchants from Kafka, enrich each transaction with customer and merchant data, and compute
+each customer's spending by category per week. Serve it through a GraphQL and MCP API secured
+with JWT, so each customer only sees their own transactions.
+```
