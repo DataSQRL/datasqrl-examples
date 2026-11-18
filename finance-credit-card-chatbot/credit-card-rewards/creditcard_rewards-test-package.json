@@ -4,27 +4,6 @@
       "environment": "test"
     }
   },
-  "engines": {
-    "vertx": {
-      "authKind": ["JWT"],
-      "config": {
-        "jwtAuth": {
-          "pubSecKeys": [
-            {
-              "algorithm": "HS256",
-              "buffer": "ZHVtbXktc3VwZXItc2VjcmV0LWp3dC1zaWduaW5nLXN0cmluZw=="
-            }
-          ],
-          "jwtOptions": {
-            "issuer": "dummy-issuer",
-            "audience": ["dummy-audience"],
-            "expiresInSeconds": "3600",
-            "leeway": "60"
-          }
-        }
-      }
-    }
-  },
   "test-runner": {
     "snapshot-folder": "snapshots/creditcard_rewards/",
     "test-folder": "creditcard_rewards-api/tests/",

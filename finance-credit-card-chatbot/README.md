@@ -24,7 +24,7 @@ Each use case keeps its configuration in a **base manifest** plus thin overlays:
 | Manifest | Role |
 |----------|------|
 | `<script>-shared-package.json` | base — engines, main script, the `data-catalog` include: everything every environment has in common |
-| `<script>-test-package.json` | test environment — file data sources, snapshot tests; for the two API use cases also the JWT configuration, so the test suite covers authentication |
+| `<script>-test-package.json` | test environment — file data sources, snapshot tests; for *Transaction Analytics* also the JWT configuration, so the test suite covers authentication |
 | `<script>-dev-package.json` | local development environment — Kafka data sources (*Transaction Analytics*, *Credit Card Rewards*) |
 | `<script>-prod-package.json` | production environment — Kafka sources, Iceberg on S3, Snowflake (*Spending Views*) |
 
@@ -112,11 +112,14 @@ When you are done, you can stop the pipeline by hitting CTRL-C.
 ## 3. Securing the API endpoints
 
 Both API use cases secure their public endpoints with JWT (HS256, signed with a dummy key — replace it before any
-real deployment). The `engines.vertx` block with `authKind: ["JWT"]` is where that is configured.
+real deployment). The `auth` block under `engines.vertx.config` is where that is configured: it trusts tokens from
+the issuer `dummy-issuer` for the audience `dummy-audience`, verified with an inline `oct` key.
 
-Both carry the JWT configuration in their **test overlay**, so the file-data command in section 1
-already starts a secured API, and each test suite sends the valid token from `test-runner.headers` with every
-query. A `.properties` file next to a test query overrides the headers for that one query:
+*Transaction Analytics* carries the JWT configuration in its **test overlay**. *Credit Card Rewards* needs the token
+in every environment, because its endpoints read the caller's identity from it, so it carries the configuration in
+its **shared base**, and its Kafka-backed dev environment takes the same token. Either way, the file-data command in
+section 1 already starts a secured API, and each test suite sends the valid token from `test-runner.headers` with
+every query. A `.properties` file next to a test query overrides the headers for that one query:
 
 * *Transaction Analytics* ships a negative test, `creditcard_analytics-api/tests/invalid-token.graphql`: its
   `invalid-token.properties` sends an invalid token, and its snapshot records the rejection.

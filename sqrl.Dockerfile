@@ -1,1 +1,1 @@
-FROM datasqrl/cmd:0.11.7@sha256:85d2f963c8b3f54c2de390cf11fe5d26bca1ba1fbafb0f2c493be7caaded074c
+FROM datasqrl/cmd:0.12.5@sha256:810eb33bae5e252b809f87b502b9756156a5f61aa5113c985d0b57e01b3173ef

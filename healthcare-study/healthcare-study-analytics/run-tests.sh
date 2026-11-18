@@ -159,8 +159,8 @@ sqrl() {
   # inside the container too; `-r <project>` then points the compiler at this project.
   local root
   root="$(git rev-parse --show-toplevel 2>/dev/null)" || root="$PWD"
-  # The image bakes TZ=America/Los_Angeles and every template's snapshots were generated under
-  # it, so the container's default is left alone; TZ passes through only when set explicitly.
+  # The image runs in UTC, and every template's snapshots are generated in UTC. The container's
+  # default is left alone. TZ passes through only when set explicitly.
   resolve_image
   docker run --rm ${TZ:+-e TZ="$TZ"} -v "$root":/workspace \
     "$IMAGE" "$verb" -r "$ROOT" "$@"
