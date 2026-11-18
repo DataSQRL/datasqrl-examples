@@ -129,50 +129,6 @@ jobs:
               compile usertokens_test_package.json
               test usertokens_test_package.json
 
-          - example: canary-aggregation
-            path: test-jobs/aggregation-tests
-            tag: canary
-            test_commands: |
-              compile aggregation-test-package.json
-              compile aggregation-query-test-package.json
-              compile aggregation-query-test-iceberg-package.json
-              compile aggregation-query-subscription-test-package.json
-              compile mutation-iceberg-test-package.json
-
-          - example: canary-mutation
-            path: test-jobs/mutation-tests
-            tag: canary
-            test_commands: |
-              compile mutation-test-package.json
-
-          - example: canary-failures
-            path: test-jobs/failure-tests
-            tag: canary
-            test_commands: |
-              compile runtime-failing-connector-package.json
-              compile runtime-failing-udf-package.json
-
-          - example: canary-batch
-            path: test-jobs/batch-test
-            tag: canary
-            test_commands: |
-              compile simple-batch-test-package.json
-
-          - example: canary-scheduled-batch
-            path: test-jobs/scheduled-batch-test
-            tag: canary
-            test_commands: |
-              compile scheduled-batch-package.json
-              compile simple-scheduled-batch-package.json
-              compile minutely-batch-package.json
-
-          - example: canary-long-lived
-            path: test-jobs/long-lived
-            tag: canary
-            test_commands: |
-              compile long-lived-streaming-package.json
-              compile long-lived-batch-package.json
-
           - example: udf-jbang
             path: user-defined-function/jbang
             tag: udf-jbang
@@ -185,7 +141,7 @@ jobs:
             test_commands: |
               compile udf_maven_package.json
 
-    steps:
+    steps: &example-steps
     - uses: actions/checkout@v4
 
     - name: Resolve SQRL image
@@ -297,6 +253,66 @@ jobs:
         tags: datasqrl/examples:${{ matrix.tag && matrix.tag != '' && matrix.tag || matrix.path }}
         platforms: linux/amd64,linux/arm64
 
+  test-jobs:
+    # Dependabot runs get no Actions secrets, so they can't assume the AWS role the S3-backed
+    # test jobs need. The test jobs run on every other PR, push and dispatch.
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest-4-cores
+    timeout-minutes: 30
+    permissions:
+      id-token: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - example: canary-aggregation
+            path: test-jobs/aggregation-tests
+            tag: canary
+            test_commands: |
+              compile aggregation-test-package.json
+              compile aggregation-query-test-package.json
+              compile aggregation-query-test-iceberg-package.json
+              compile aggregation-query-subscription-test-package.json
+              compile mutation-iceberg-test-package.json
+
+          - example: canary-mutation
+            path: test-jobs/mutation-tests
+            tag: canary
+            test_commands: |
+              compile mutation-test-package.json
+
+          - example: canary-failures
+            path: test-jobs/failure-tests
+            tag: canary
+            test_commands: |
+              compile runtime-failing-connector-package.json
+              compile runtime-failing-udf-package.json
+
+          - example: canary-batch
+            path: test-jobs/batch-test
+            tag: canary
+            test_commands: |
+              compile simple-batch-test-package.json
+
+          - example: canary-scheduled-batch
+            path: test-jobs/scheduled-batch-test
+            tag: canary
+            test_commands: |
+              compile scheduled-batch-package.json
+              compile simple-scheduled-batch-package.json
+              compile minutely-batch-package.json
+
+          - example: canary-long-lived
+            path: test-jobs/long-lived
+            tag: canary
+            test_commands: |
+              compile long-lived-streaming-package.json
+              compile long-lived-batch-package.json
+
+    steps: *example-steps
+
   lint-graphql:
     name: Lint GraphQL Schemas
     runs-on: ubuntu-latest
@@ -368,7 +384,7 @@ jobs:
             pip install --root-user-action=ignore --disable-pip-version-check -r requirements.txt
 
   build:
-    needs: [build-and-push, lint-graphql, maven, python-requirements]
+    needs: [build-and-push, test-jobs, lint-graphql, maven, python-requirements]
     runs-on: ubuntu-latest
     if: always()
     steps:
