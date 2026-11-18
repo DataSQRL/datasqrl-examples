@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       sqrl_image:
-        description: "Full SQRL CLI image reference (e.g. ghcr.io/datasqrl/cmd:pr-123 or datasqrl/cmd:dev). When set, overrides sqrl.Dockerfile and skips Docker Hub publishing."
+        description: "Full SQRL CLI image reference (e.g. ghcr.io/datasqrl/cmd:pr-123 or datasqrl/cmd:dev). When set, overrides sqrl.Dockerfile. Dispatched runs never publish to Docker Hub."
         required: false
         default: ''
       correlation_id:
@@ -191,15 +191,14 @@ jobs:
     - name: Resolve SQRL image
       id: resolve-image
       run: |
-        if [ -n "${{ inputs.sqrl_image }}" ]; then
-          IMAGE="${{ inputs.sqrl_image }}"
-          PUBLISH=false
-        else
+        IMAGE="${{ inputs.sqrl_image }}"
+        if [ -z "$IMAGE" ]; then
           IMAGE=$(sed -n 's/^FROM //p' sqrl.Dockerfile)
-          PUBLISH=true
         fi
-        # Dependabot PRs get no Docker Hub secrets
-        if [ "${{ github.event.pull_request.user.login }}" = "dependabot[bot]" ]; then
+        # Only pushes to main publish to Docker Hub; PRs and dispatched runs build and test only
+        if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          PUBLISH=true
+        else
           PUBLISH=false
         fi
         echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
