@@ -6,21 +6,15 @@
   },
   "engines": {
     "vertx": {
-      "authKind": ["JWT"],
       "config": {
-        "jwtAuth": {
-          "pubSecKeys": [
+        "auth": {
+          "issuers": [
             {
-              "algorithm": "HS256",
-              "buffer": "ZHVtbXktc3VwZXItc2VjcmV0LWp3dC1zaWduaW5nLXN0cmluZw=="
+              "issuer": "dummy-issuer",
+              "audiences": ["dummy-audience"],
+              "keys": [{ "kty": "oct", "alg": "HS256", "k": "ZHVtbXktc3VwZXItc2VjcmV0LWp3dC1zaWduaW5nLXN0cmluZw" }]
             }
-          ],
-          "jwtOptions": {
-            "issuer": "dummy-issuer",
-            "audience": ["dummy-audience"],
-            "expiresInSeconds": "3600",
-            "leeway": "60"
-          }
+          ]
         }
       }
     }

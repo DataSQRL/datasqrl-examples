@@ -14,6 +14,19 @@
       "config": {
         "table.exec.source.idle-timeout": "10 s"
       }
+    },
+    "vertx": {
+      "config": {
+        "auth": {
+          "issuers": [
+            {
+              "issuer": "dummy-issuer",
+              "audiences": ["dummy-audience"],
+              "keys": [{ "kty": "oct", "alg": "HS256", "k": "ZHVtbXktc3VwZXItc2VjcmV0LWp3dC1zaWduaW5nLXN0cmluZw" }]
+            }
+          ]
+        }
+      }
     }
   }
 }
