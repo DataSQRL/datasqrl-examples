@@ -18,7 +18,7 @@
     <!-- We need to keep this in sync with the version Flink uses -->
     <hadoop-common.version>3.3.4</hadoop-common.version>
     <iceberg.version>1.12.0</iceberg.version>
-    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+    <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
   </properties>
 
   <dependencies>
