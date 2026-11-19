@@ -14,7 +14,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <lombok.version>1.18.48</lombok.version>
     <auto-service.version>1.0.1</auto-service.version>
-    <flink.version>2.2.0</flink.version>
+    <flink.version>2.2.1</flink.version>
     <!-- We need to keep this in sync with the version Flink uses -->
     <hadoop-common.version>3.3.6</hadoop-common.version>
     <iceberg.version>1.12.0</iceberg.version>
