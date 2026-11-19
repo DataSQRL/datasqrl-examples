@@ -5,7 +5,7 @@ This script produces study analytics for observations groups in Iceberg tables t
 Run the `study_analytics.sqrl` script using iceberg and duckdb locally as follows (from the `healthcare-study`
 directory, so the shared `data-catalog` is mounted too):
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run \
   -r healthcare-study-analytics \
   study_analytics-shared-package.json \
   study_analytics-test-package.json
@@ -21,7 +21,7 @@ otherwise you might run into errors of catalog mismatch.
 
 The `prod` overlay runs this example with Kafka sources, Iceberg on S3 and Snowflake as the query engine:
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm \
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 \
   -v $PWD:/workspace \
   -e AWS_ACCESS_KEY_ID="<my-access-key>" \
   -e AWS_SECRET_ACCESS_KEY="<my-secret-key" \

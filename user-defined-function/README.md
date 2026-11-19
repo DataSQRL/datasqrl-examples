@@ -1,5 +1,11 @@
-
 # Custom User-Defined Functions in Flink
+
+- **Builds:** a custom Java function called from a SQRL script.
+- **Shows:** extension point
+- **Built with:** SQRL compiled to Flink, Kafka, Postgres, and the DataSQRL API server, with the function shipped through JBang or a Maven project.
+
+A user-defined function is how you put custom logic inside an operational pipeline when SQL alone is not enough.
+
 This guide will lead you through the process of creating, compiling, and deploying a user-defined functions (UDFs) in Apache Flink using DataSQRL.
 We will specifically focus on a function called `MyScalarFunction`, which will double the values of input numbers, and then deploy and execute the function in Flink.
 
@@ -20,15 +26,19 @@ The next sections contain instructions about how to run and interact with the ex
 1. **SQRL Compilation:** Compile the SQRL using DataSQRL's command interface, which prepares your script for deployment in the Flink environment.
 
 ```shell
-# "cd jbang" OR "cd maven-project"
+# in jbang:
+cd jbang
+docker run --rm -v $PWD:/workspace datasqrl/cmd:latest compile udf_jbang_package.json
 
-docker run --rm -v $PWD:/workspace datasqrl/cmd:latest compile myudf.sqrl
+# or in maven-project:
+cd maven-project
+docker run --rm -v $PWD:/workspace datasqrl/cmd:latest compile udf_maven_package.json
 ```
 
 ## Deployment and Testing
 ### Run Example
 ```shell
-docker run -it -p 8888:8888 --rm -v $PWD:/workspace datasqrl/cmd:latest run myudf.sqrl
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run udf_jbang_package.json   # or udf_maven_package.json
 ```
 ### Creating and Testing Records
 1. Creating a Record: Test the function by creating a record via a GraphQL query.
@@ -52,7 +62,17 @@ curl -X POST 'http://localhost:8888/v1/graphql' \
 query {
   MyTable {
     val
-    myFnc
+    myUdf
   }
 }'
+```
+
+
+## Build this with the DataSQRL plugin
+
+Install the [DataSQRL plugin](https://github.com/DataSQRL/datasqrl-plugin) in Claude Code, Codex, Cursor, or Copilot, then paste this prompt:
+
+```text
+Add a user-defined function to my DataSQRL pipeline: a Java scalar function that doubles
+its input, shipped with JBang, and use it in a table that the GraphQL API serves.
 ```

@@ -1,5 +1,11 @@
 # Healthcare Study Monitoring Examples
 
+- **Builds:** one shared catalog feeding three systems: a data API over patients and their metrics, analytics tables in Iceberg, and an enriched stream published to Kafka.
+- **Shows:** Kafka · data API · Iceberg
+- **Built with:** SQRL compiled to Flink, Kafka, Postgres, the DataSQRL API server, and Iceberg, read by DuckDB or Snowflake.
+
+This is the example of a pipeline that lands data in the lake and serves an API from the same sources. The analytics tables in Iceberg are for a warehouse or query engine to read; models inside the warehouse stay in dbt.
+
 These examples demonstrate DataSQRL's capabilities creating pipelines for healthcare study data.
 
 We are ingesting metadata, patient data, sensor placements, and observation group assignments from
@@ -28,7 +34,7 @@ mount this directory at `/workspace` and name the project with `-r`:
 
 ```bash
 cd healthcare-study
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/workspace datasqrl/cmd:latest run \
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run \
   -r healthcare-study-api \
   study_api-shared-package.json \
   study_api-test-package.json
@@ -46,3 +52,15 @@ Proceed to the specific examples:
   read the sample files; they differ in where the data lands and what queries it).
 * [Healthcare Study Stream Example](healthcare-study-stream): enriches every reading and writes it to the
   `enrichedindicators` topic (environments: `test`, `dev`).
+
+
+## Build this with the DataSQRL plugin
+
+Install the [DataSQRL plugin](https://github.com/DataSQRL/datasqrl-plugin) in Claude Code, Codex, Cursor, or Copilot, then paste this prompt:
+
+```text
+Build a DataSQRL pipeline for a clinical study. Read study metadata, patients, sensor
+placements, and observation groups from Kafka, plus clinical indicator readings from a Kafka
+topic. Serve patients and their hourly metrics through a GraphQL API with a subscription for
+out-of-range readings, and write per-group aggregates to Iceberg tables for Snowflake to query.
+```

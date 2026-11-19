@@ -27,11 +27,12 @@ You should have a topic in Kafka (`contact`) with data serialized in Avro using 
 Run the following command from the project root where your `package.json` and SQRL scripts reside:
 
 ```bash
-docker run -it --rm \
-  -p 8888:8888 \
+docker run -it --rm -p 8888:8888 \
   -v $PWD:/workspace \
-  datasqrl/cmd:latest run -c package.json
+  datasqrl/cmd:latest run package.json
 ```
+
+The command does not publish ports 8081 and 9092, because your Schema Registry and Kafka use them.
 
 ## Generate Data
 * Go to `data-generator` folder

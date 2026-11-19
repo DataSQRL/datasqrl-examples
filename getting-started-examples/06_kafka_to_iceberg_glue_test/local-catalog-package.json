@@ -1,0 +1,10 @@
+{
+  "connectors": {
+    "iceberg": {
+      "warehouse": "warehouse",
+      "catalog-impl": null,
+      "io-impl": null,
+      "catalog-type": "hadoop"
+    }
+  }
+}

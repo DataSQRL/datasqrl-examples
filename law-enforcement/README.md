@@ -1,9 +1,16 @@
 # Law Enforcement
 
-This example demonstrates how to consume law enforcement data from multiple sources, such as:
+- **Builds:** a real-time pipeline and data API that integrate several source systems into one view of drivers, vehicles, warrants, and BOLOs.
+- **Shows:** multiple source systems · data API
+- **Built with:** SQRL compiled to Flink, Kafka, Postgres, and the DataSQRL API server.
 
-* Databases for Driver and Vehicle information
-* Data streams for issued warrants and bolos ("be on the lookout")
+This example demonstrates how to consume law enforcement data from multiple source systems:
+
+* **Databases** for driver and vehicle information (`Driver`, `Vehicle`). Changes in these databases are captured
+  as change streams (CDC), keyed by id and versioned by `last_updated`.
+* **Data streams** for issued warrants and bolos ("be on the lookout") (`Warrant`, `Bolo`).
+
+The test configuration reads all four from sample files in `connectors/testdata`.
 
 The SQRL script consumes and integrates that information to produce a comprehensive overview of all relevant information
 that an officer might need for a traffic stop or to look up a person of interest.
@@ -17,7 +24,7 @@ Furthermore, it provides a mutation for capturing traffic stop and producing ale
 Invoke the following command to run this example.
 
 ```bash
-docker run -it -p 8888:8888 -p 8081:8081 --rm -v $PWD:/workspace datasqrl/cmd:latest run -c baseball_card_package_test.json
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace datasqrl/cmd:latest run baseball_card_test_package.json
 ```
 
 ## Queries
@@ -159,4 +166,16 @@ Query to retrieve tracking information:
     }
   }
 }
+```
+
+
+## Build this with the DataSQRL plugin
+
+Install the [DataSQRL plugin](https://github.com/DataSQRL/datasqrl-plugin) in Claude Code, Codex, Cursor, or Copilot, then paste this prompt:
+
+```text
+Build a DataSQRL data API for traffic stops. Capture changes from the driver and vehicle
+databases, read warrants and BOLOs from event streams, and serve a driver lookup by license
+number and a vehicle lookup by plate that include open warrants and BOLOs. Add a mutation that
+records an encounter and a subscription that alerts when an encountered vehicle has an active BOLO.
 ```

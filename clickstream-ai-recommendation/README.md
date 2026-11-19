@@ -1,8 +1,12 @@
 # Clickstream Recommendation
 
+- **Builds:** a real-time pipeline and data API that serve personalized content recommendations from clickstream data and LLM vector embeddings.
+- **Shows:** Kafka · real-time · data API
+- **Built with:** SQRL compiled to Flink, Kafka (Redpanda), Postgres, and the DataSQRL API server, with OpenAI embeddings.
+
 We are building personalized content recommendations
 based on clickstream data and content vector embeddings. The pipeline ingests data, processes it,
-and serves recommendations in real time.
+and serves recommendations in real-time.
 
 ## Architecture
 
@@ -25,7 +29,7 @@ This version allows you to add content and clickstream data manually through a G
 
 Run the API version with this command:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 --rm -v $PWD:/workspace -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c recommendation_api_package.json
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run recommendation_api_package.json
 ```
 
 Next, open [GraphQL Explorer](http://localhost:8888/v1/graphiql/) and add some content:
@@ -36,7 +40,7 @@ mutation {
   }
 }
 ```
-You can find more content samples to add in the [sample_content.jsonl](content-api/sample_content.jsonl) file.
+You can find more content samples to add in the [sample_content.jsonl](connectors/testdata/sample_content.jsonl) file.
 
 Once you have added multiple pieces of content, we can register clicks with this mutation:
 ```graphql
@@ -74,12 +78,11 @@ Recommendation(url: "https://en.wikipedia.org/wiki/Zoop") {
 
 This method reads data from the stream directly and requires that you add the data to the stream specifically.
 
-The `content-kafka` package specifies reading
-data through a Kafka connector.
+The `recommendation_kafka_package.json` package reads the data through a Kafka connector.
 
 To run the pipeline:
 ```bash
-docker run -it -p 8081:8081 -p 8888:8888 -p 9092:9092 --rm -v $PWD:/workspace -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run -c recommendation_kafka_package.json
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace -e OPENAI_API_KEY=[YOUR_API_KEY_HERE] datasqrl/cmd:latest run recommendation_kafka_package.json
 ```
 
 1. Once everything is started, open another terminal window to add data to Kafka using the
@@ -123,3 +126,14 @@ file `yourdata-files/clickstream.json.gz` (read it with `gzcat`) if you want to 
 different queries.
 
 Once you are done, hit `CTRL-C` and take down the pipeline.
+
+
+## Build this with the DataSQRL plugin
+
+Install the [DataSQRL plugin](https://github.com/DataSQRL/datasqrl-plugin) in Claude Code, Codex, Cursor, or Copilot, then paste this prompt:
+
+```text
+Build a DataSQRL pipeline for content recommendations. Ingest content and clickstream events
+from Kafka, compute vector embeddings for each piece of content, and serve two GraphQL queries:
+pages frequently visited together with a given URL, and content similar to what a user has viewed.
+```

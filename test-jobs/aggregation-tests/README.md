@@ -19,11 +19,11 @@ that bucket and runs unchanged from any data group.
 Run it with credentials that can reach the bucket:
 
 ```bash
-docker run -it --rm -p 8888:8888 -p 8081:8081 \
+docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 \
   -e AWS_ACCESS_KEY_ID="<key>" \
   -e AWS_SECRET_ACCESS_KEY="<secret>" \
   -e AWS_REGION="us-east-1" \
-  -v $PWD:/build \
+  -v $PWD:/workspace \
   datasqrl/cmd:latest run mutation-iceberg-test-package.json
 ```
 
