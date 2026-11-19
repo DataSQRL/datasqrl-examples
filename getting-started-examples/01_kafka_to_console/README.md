@@ -17,5 +17,5 @@ docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 -v $PWD:/workspace da
 
 * Go to `data-generator` folder 
 ```bash
-python3 send_kafka_avro_records.py ../kafka-source/contact.avsc data.jsonl contact localhost:9092
+python3 send_kafka_avro_records.py ../connectors/contact.avsc data.jsonl contact localhost:9092
 ```

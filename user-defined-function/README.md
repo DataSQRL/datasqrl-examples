@@ -2,7 +2,7 @@
 
 - **Builds:** a custom Java function called from a SQRL script.
 - **Shows:** extension point
-- **Built with:** SQRL compiled to Flink, Kafka, and Postgres, with the function shipped through JBang or a Maven project.
+- **Built with:** SQRL compiled to Flink, Kafka, Postgres, and the DataSQRL API server, with the function shipped through JBang or a Maven project.
 
 A user-defined function is how you put custom logic inside an operational pipeline when SQL alone is not enough.
 
@@ -62,7 +62,7 @@ curl -X POST 'http://localhost:8888/v1/graphql' \
 query {
   MyTable {
     val
-    myFnc
+    myUdf
   }
 }'
 ```

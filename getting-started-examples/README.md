@@ -42,6 +42,10 @@ docker run -it --rm -p 8081:8081 -p 8888:8888 -p 9092:9092 \
   -v $PWD:/workspace \
   datasqrl/cmd:latest run package.json
 ```
+
+Example 07 reads from your own Kafka and Schema Registry on ports 9092 and 8081, so leave out
+`-p 8081:8081 -p 9092:9092` there; its README has the command.
+
 #### Persistent Data
 
 To preserve the internally persisted data (for Postgres, Redpanda, and Flink) after the Docker container

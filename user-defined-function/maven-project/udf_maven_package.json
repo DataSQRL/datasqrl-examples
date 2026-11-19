@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "enabled-engines": ["flink", "postgres", "kafka"],
+  "enabled-engines": ["vertx", "postgres", "kafka", "flink"],
   "script": {
     "main": "myudf.sqrl"
   }
