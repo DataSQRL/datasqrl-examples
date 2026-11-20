@@ -1,0 +1,33 @@
+config:
+  target: "http://localhost:8888"
+  phases:
+    - duration: 60
+      arrivalRate: 25
+      name: "Sustained load - 25 QPS"
+  plugins:
+    metrics-by-endpoint:
+      stripQueryString: true
+  ensure:
+    maxErrorRate: 1
+    p95: 1000
+    p99: 2000
+
+scenarios:
+  - name: "MetricsByTime Query"
+    engine: http
+    flow:
+      - post:
+          url: "/v1/graphql"
+          headers:
+            Content-Type: "application/json"
+          json:
+            query: |
+              query MetricsByTimeQuery($machineid: Int!, $fromTime: String!) {
+                MetricsByTime(machineid: $machineid, fromTime: $fromTime) {
+                  avg_metric
+                  total_count
+                }
+              }
+            variables:
+              machineid: "{{ $randomNumber(1, 99) }}"
+              fromTime: "2024-01-01T00:00:00Z"

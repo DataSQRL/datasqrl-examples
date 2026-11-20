@@ -1,0 +1,26 @@
+CREATE TABLE _MetricsGen (
+    counter BIGINT NOT NULL,
+    metric DOUBLE NOT NULL,
+    timestamp_col AS TO_TIMESTAMP_LTZ(1704067200000 + counter, 3),
+    WATERMARK FOR timestamp_col AS timestamp_col - INTERVAL '1' SECOND
+) WITH (
+    'connector' = 'datagen',
+    'rows-per-second' = '{{rowsPerSec}}',
+    'fields.counter.kind' = 'sequence',
+    'fields.counter.start' = '1',
+    'fields.counter.end' = '{{numRows}}',
+    'fields.metric.kind' = 'random',
+    'fields.metric.min' = '0',
+    'fields.metric.max' = '1000'
+);
+
+/*+partition_key, primary_key(machineid, ts), no_query */
+Metrics := SELECT counter % 100 AS machineid, metric, timestamp_col AS ts FROM _MetricsGen;
+
+MetricsByTime(machineid BIGINT NOT NULL, fromTime TIMESTAMP NOT NULL) :=
+    SELECT AVG(metric) AS avg_metric, COUNT(metric) AS total_count
+    FROM Metrics WHERE machineid = :machineid AND ts > :fromTime;
+
+/*+test*/
+MetricsTest := SELECT AVG(metric) AS avg_metric, COUNT(metric) AS total_count
+    FROM Metrics WHERE machineid = 5;

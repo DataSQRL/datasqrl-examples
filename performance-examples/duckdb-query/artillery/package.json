@@ -1,0 +1,13 @@
+{
+  "name": "duckdb-query-artillery-tests",
+  "version": "1.0.0",
+  "description": "Artillery load tests for DataSQRL GraphQL API",
+  "scripts": {
+    "test": "artillery run graphql-load-test.yml",
+    "test:report": "artillery run --output report.json graphql-load-test.yml && artillery report report.json",
+    "test:quick": "artillery quick --count 10 --num 100 http://localhost:8888/graphql"
+  },
+  "devDependencies": {
+    "artillery": "^2.0.0"
+  }
+}

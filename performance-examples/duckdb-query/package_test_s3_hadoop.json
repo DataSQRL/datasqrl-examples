@@ -1,0 +1,29 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "main": "perftest.sqrl",
+    "config": {
+      "rowsPerSec": 10,
+      "numRows": 80000
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.checkpointing.interval": "5 sec"
+      }
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "s3a://ferenc-iceberg-hadoop-test",
+      "catalog-type": "hadoop",
+      "catalog-name": "mydata"
+    }
+  },
+  "test-runner": {
+    "delay-sec": -1,
+    "required-checkpoints": 2
+  }
+}
