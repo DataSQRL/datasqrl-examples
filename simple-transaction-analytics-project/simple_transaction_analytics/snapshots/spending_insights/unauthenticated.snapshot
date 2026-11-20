@@ -1,0 +1,4 @@
+{
+  "error" : "JWT auth failed",
+  "cause" : "IllegalArgumentException: Invalid format for JWT"
+}

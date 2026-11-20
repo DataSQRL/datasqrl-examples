@@ -1,0 +1,22 @@
+-- ## Fx Daily Rate
+--
+-- Project-owned daily currency-to-USD conversion rate source. One row per
+-- (currency_code, rate_date); last write wins. In production this Iceberg table
+-- is loaded by the bank's treasury rate feed before 01:00 UTC and only read here.
+
+/** Daily USD conversion rate for one currency.
+    Grain: one row per currency_code, rate_date.
+
+    # Columns:
+    * currency_code: ISO 4217 currency code
+    * rate_date: The business date the rate applies to
+    * usd_per_unit: USD per one unit of currency_code (the conversion multiplier)
+    * rate_source: Source of the rate, e.g. INTERNAL or ECB
+    * ingested_at: When the rate record was ingested */
+CREATE TABLE Fx_Daily_Rate_schema (
+  currency_code STRING NOT NULL,
+  rate_date DATE NOT NULL,
+  usd_per_unit DECIMAL(19, 6) NOT NULL,
+  rate_source STRING,
+  ingested_at TIMESTAMP_LTZ(3) NOT NULL
+);

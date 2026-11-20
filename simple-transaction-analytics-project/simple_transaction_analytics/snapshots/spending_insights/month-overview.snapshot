@@ -1,0 +1,11 @@
+{
+  "data" : {
+    "MonthOverview" : [ {
+      "income" : 0,
+      "spending" : 108800,
+      "net" : -108800,
+      "savingsRate" : null,
+      "isPartialMonth" : false
+    } ]
+  }
+}

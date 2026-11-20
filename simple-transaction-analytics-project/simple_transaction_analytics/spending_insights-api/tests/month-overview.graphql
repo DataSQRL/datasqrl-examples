@@ -1,0 +1,9 @@
+query TestMonthOverview {
+  MonthOverview(customerId: "CUST-057", month: "2026-08") {
+    income
+    spending
+    net
+    savingsRate
+    isPartialMonth
+  }
+}

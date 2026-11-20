@@ -1,0 +1,19 @@
+{
+  "data" : {
+    "CashFlowTest" : [ {
+      "customer_id" : "CUST-057",
+      "month" : "2026-08-01",
+      "income_usd_cents" : 0,
+      "spending_usd_cents" : 108800,
+      "net_usd_cents" : -108800,
+      "savings_rate" : null
+    }, {
+      "customer_id" : "CUST-057",
+      "month" : "2026-09-01",
+      "income_usd_cents" : 105800,
+      "spending_usd_cents" : 0,
+      "net_usd_cents" : 105800,
+      "savings_rate" : 1
+    } ]
+  }
+}

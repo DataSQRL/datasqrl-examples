@@ -1,0 +1,172 @@
+"An RFC-3339 compliant Full Date Scalar"
+scalar Date
+
+"A 64-bit signed integer"
+scalar Long
+
+"Customer identity and in-scope account count for the search screen."
+type CustomerSearchResult {
+  customerId: String!
+  displayName: String
+  status: String
+  accountCount: Long!
+}
+
+"An in-scope (CHECKING/SAVINGS) account of a customer, with a masked account number."
+type CustomerAccount {
+  accountId: String!
+  accountNumber: String
+  accountType: String
+  status: String
+}
+
+"Monthly cash flow summary (income, spending, net, savings rate) for a customer or account."
+type MonthOverviewResult {
+  income: Long!
+  spending: Long!
+  net: Long!
+  savingsRate: Float
+  isPartialMonth: Boolean!
+}
+
+"Spending for a single day of the month-overview chart."
+type DailySpendingResult {
+  date: Date!
+  spending: Long!
+}
+
+"Level-2 category spending that rolls up under a level-1 category."
+type CategorySpendingChild {
+  category_l2_id: String!
+  category_l2_name: String!
+  spend_usd_cents: Long!
+  normal_spend_usd_cents: Long
+  is_much_more_than_usual: Boolean
+  excess_usd_cents: Long
+  excess_pct: Float
+}
+
+"Level-1 category spending for a customer-month, with its level-2 children."
+type Customer_Month_Category_L1_Spending {
+  customer_id: String!
+  month: Date!
+  category_l1_id: String!
+  category_l1_name: String!
+  spend_usd_cents: Long!
+  txn_count: Long!
+  normal_spend_usd_cents: Long
+  is_much_more_than_usual: Boolean
+  excess_usd_cents: Long
+  excess_pct: Float
+  is_partial_month: Boolean!
+  children: [CategorySpendingChild!]
+}
+
+"Merchant spending within a single category, for the category drill-down."
+type CategoryMerchant {
+  merchantId: String!
+  merchantName: String!
+  spending: Long!
+  transactionCount: Long!
+}
+
+"A merchant in the customer's top-5 by monthly spending."
+type TopMerchant {
+  merchantId: String!
+  merchantName: String!
+  spending: Long!
+  transactionCount: Long!
+}
+
+"A recurring payment series with its frequency-normalized monthly cost and price-change flag."
+type RecurringPayment {
+  recurringPaymentId: String!
+  merchantName: String
+  paymentType: String
+  frequency: String
+  monthlyCost: Long!
+  latestCharge: Long
+  previousCharge: Long
+  latestChargeDate: Date
+  becameMoreExpensive: Boolean!
+  increaseAmount: Long
+  increasePct: Float
+  status: String
+}
+
+"Total monthly recurring cost across a customer's ACTIVE series."
+type RecurringTotalResult {
+  totalMonthlyCost: Long!
+}
+
+"An unusually large purchase with its 90-day baseline mean and ratio."
+type LargePurchase {
+  transactionId: String!
+  date: Date!
+  merchantName: String
+  categoryName: String
+  amount: Long!
+  baselineMean: Long!
+  ratio: Float!
+}
+
+"A single pipeline run's observability metrics."
+type RunMetric {
+  runDate: Date!
+  windowStart: Date!
+  windowEnd: Date!
+  recomputedDayCount: Int!
+  recomputedMonths: Int!
+  transactionCountProcessed: Long!
+  lateTransactionCount: Long!
+  missingFxRateTxnCount: Long!
+}
+
+"Daily uncategorized-spending share for the operations screen."
+type UncategorizedShareResult {
+  date: Date!
+  totalSpending: Long!
+  uncategorizedSpending: Long!
+  share: Float!
+}
+
+type Query {
+  "Resolve a customer to their display name, status and count of in-scope accounts."
+  CustomerSearch(customerId: String!): [CustomerSearchResult!]
+  "The OPEN CHECKING/SAVINGS accounts of a customer, for the account picker."
+  CustomerAccounts(customerId: String!): [CustomerAccount!]
+  "Monthly income, spending, net and savings rate for a customer or a single account."
+  MonthOverview(customerId: String!, month: String!, accountId: String): [MonthOverviewResult!]
+  "Daily spending for the chosen month, for a customer or a single account."
+  DailySpending(customerId: String!, month: String!, accountId: String): [DailySpendingResult!]
+  "Per level-1 category spending with normal-spending baseline and nested level-2 children."
+  CategorySpending(customerId: String!, month: String!): [Customer_Month_Category_L1_Spending!]
+  "Merchants behind a single level-2 category for the chosen month."
+  CategoryMerchants(customerId: String!, month: String!, categoryId: String!): [CategoryMerchant!]
+  "The top 5 merchants by monthly spending for a customer."
+  TopMerchants(customerId: String!, month: String!): [TopMerchant!]
+  "A customer's recurring payment series with monthly cost and price-change flags."
+  RecurringPayments(customerId: String!): [RecurringPayment!]
+  "Total monthly recurring cost across a customer's ACTIVE series."
+  RecurringTotal(customerId: String!): [RecurringTotalResult!]
+  "Unusually large purchases for a customer, optionally within a date range."
+  LargePurchases(customerId: String!, fromDate: String, toDate: String): [LargePurchase!]
+  "The most recent pipeline run metrics."
+  RunMetrics(limit: Int): [RunMetric!]
+  "Daily total vs uncategorized spending share within a date range."
+  UncategorizedShare(fromDate: String!, toDate: String!): [UncategorizedShareResult!]
+}
+
+enum _McpMethodType {
+  NONE
+  TOOL
+  RESOURCE
+}
+
+enum _RestMethodType {
+  NONE
+  GET
+  POST
+}
+
+directive @api(mcp: _McpMethodType, rest: _RestMethodType, uri: String) on QUERY | MUTATION | FIELD_DEFINITION

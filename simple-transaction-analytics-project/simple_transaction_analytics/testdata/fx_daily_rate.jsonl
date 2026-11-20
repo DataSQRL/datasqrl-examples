@@ -1,0 +1,14 @@
+{"currency_code":"USD","rate_date":"2026-08-27","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-08-28T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-08-28","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-08-29T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-08-29","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-08-30T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-08-30","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-08-31T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-08-31","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-09-01T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-09-01","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-09-02T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-09-02","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-09-03T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-09-03","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-09-04T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-09-04","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-09-05T01:00:00Z"}
+{"currency_code":"USD","rate_date":"2026-09-05","usd_per_unit":1.0,"rate_source":"INTERNAL","ingested_at":"2026-09-06T01:00:00Z"}
+{"currency_code":"EUR","rate_date":"2026-08-30","usd_per_unit":1.085,"rate_source":"ECB","ingested_at":"2026-08-31T01:00:00Z"}
+{"currency_code":"EUR","rate_date":"2026-08-31","usd_per_unit":1.0874,"rate_source":"ECB","ingested_at":"2026-09-01T01:00:00Z"}
+{"currency_code":"EUR","rate_date":"2026-09-02","usd_per_unit":1.089,"rate_source":"ECB","ingested_at":"2026-09-03T01:00:00Z"}
+{"currency_code":"GBP","rate_date":"2026-09-02","usd_per_unit":1.25,"rate_source":"ECB","ingested_at":"2026-09-03T01:00:00Z"}

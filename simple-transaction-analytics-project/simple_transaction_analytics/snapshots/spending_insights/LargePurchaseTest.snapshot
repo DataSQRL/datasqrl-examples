@@ -1,0 +1,12 @@
+{
+  "data" : {
+    "LargePurchaseTest" : [ {
+      "transaction_id" : "TXN-8397",
+      "customer_id" : "CUST-093",
+      "posted_date" : "2026-08-31",
+      "amount_usd_cents" : 100552,
+      "baseline_mean_usd_cents" : 9973,
+      "ratio" : 10.08242254
+    } ]
+  }
+}

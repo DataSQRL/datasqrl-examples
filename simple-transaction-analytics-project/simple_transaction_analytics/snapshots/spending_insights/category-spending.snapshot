@@ -1,0 +1,44 @@
+{
+  "data" : {
+    "CategorySpending" : [ {
+      "category_l1_id" : "CAT-001",
+      "category_l1_name" : "Shopping & Dining",
+      "spend_usd_cents" : 5544,
+      "normal_spend_usd_cents" : null,
+      "is_much_more_than_usual" : null,
+      "excess_usd_cents" : null,
+      "excess_pct" : null,
+      "children" : [ {
+        "category_l2_id" : "CAT-003",
+        "category_l2_name" : "Dining",
+        "spend_usd_cents" : 5544
+      } ]
+    }, {
+      "category_l1_id" : "CAT-006",
+      "category_l1_name" : "Transportation",
+      "spend_usd_cents" : 23054,
+      "normal_spend_usd_cents" : null,
+      "is_much_more_than_usual" : null,
+      "excess_usd_cents" : null,
+      "excess_pct" : null,
+      "children" : [ {
+        "category_l2_id" : "CAT-014",
+        "category_l2_name" : "Travel",
+        "spend_usd_cents" : 23054
+      } ]
+    }, {
+      "category_l1_id" : "CAT-008",
+      "category_l1_name" : "Financial",
+      "spend_usd_cents" : 80202,
+      "normal_spend_usd_cents" : null,
+      "is_much_more_than_usual" : null,
+      "excess_usd_cents" : null,
+      "excess_pct" : null,
+      "children" : [ {
+        "category_l2_id" : "CAT-018",
+        "category_l2_name" : "Loan Payments",
+        "spend_usd_cents" : 80202
+      } ]
+    } ]
+  }
+}

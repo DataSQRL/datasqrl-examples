@@ -1,0 +1,60 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "iceberg", "duckdb", "vertx"],
+  "script": {
+    "main": "spending_insights.sqrl",
+    "include": {
+      "data_catalog": {
+        "package": "../data-catalog/ontology-shared-package.json",
+        "config": {
+          "is_batch": true
+        }
+      }
+    },
+    "api": {
+      "v1": {
+        "schema": "spending_insights-api/schema.v1.graphqls",
+        "operations": ["spending_insights-api/operations.v1.graphql"]
+      }
+    }
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH",
+        "jobmanager.scheduler": "Default"
+      }
+    },
+    "vertx": {
+      "authKind": ["JWT"],
+      "config": {
+        "jwtAuth": {
+          "pubSecKeys": [
+            {
+              "algorithm": "HS256",
+              "buffer": "${SPENDING_INSIGHTS_API_JWT_SECRET}"
+            }
+          ],
+          "jwtOptions": {
+            "issuer": "spending-insights",
+            "audience": ["spending-console"]
+          }
+        }
+      }
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "catalog-name": "spending_insights",
+      "warehouse": "${SPENDING_INSIGHTS_ICEBERG_WAREHOUSE}"
+    }
+  },
+  "compiler": {
+    "api": {
+      "protocols": ["GRAPHQL", "REST", "MCP"],
+      "endpoints": "OPS_ONLY",
+      "add-prefix": false,
+      "max-result-depth": 2
+    }
+  }
+}

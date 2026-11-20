@@ -1,0 +1,13 @@
+{
+  "data" : {
+    "LargePurchases" : [ {
+      "transactionId" : "TXN-8397",
+      "date" : "2026-08-31",
+      "merchantName" : "St. Mary Hospital Columbus",
+      "categoryName" : "Medical & Pharmacy",
+      "amount" : 100552,
+      "baselineMean" : 9973,
+      "ratio" : 10.08242254
+    } ]
+  }
+}
