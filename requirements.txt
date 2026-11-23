@@ -1,6 +1,6 @@
 Faker==40.54.0
 
-osmnx~=2.1.2
+osmnx~=2.2.0
 networkx~=3.7.0
 matplotlib~=3.11.2
 learn~=1.0.0
