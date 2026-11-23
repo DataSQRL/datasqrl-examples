@@ -7,6 +7,7 @@ testing.
 
 * [Aggregation](aggregation-test.sqrl): Tests Flink with logging using generated data
 * [Aggregation Query](aggregation-query-test.sqrl): Tests Flink -> Postgres or Iceberg -> Vertx using generated data
+  * `package-cloud.json` runs it on DataSQRL Cloud with Iceberg in the Glue catalog. It leaves out `catalog-database` so the cloud uses the data group's database
 * [Aggregation Query Subscription](aggregation-query-subscription-test.sqrl): Tests Flink -> Postgres + Kafka -> Vertx using generated data
 * [Mutation Iceberg](mutation-iceberg-test.sqrl): Tests GraphQL mutation -> Kafka -> Flink -> Iceberg on S3 -> DuckDB -> Vertx. Unlike the jobs above it has no `datagen` source, so **nothing happens until you post data**, and it computes three tables in the iceberg engine rather than one
 

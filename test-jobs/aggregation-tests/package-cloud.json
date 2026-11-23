@@ -1,0 +1,29 @@
+{
+  "version": "1",
+  "enabled-engines": ["vertx", "iceberg", "duckdb", "flink"],
+  "script": {
+    "main": "aggregation-query-test.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "table.exec.source.idle-timeout": "1 s",
+        "execution.checkpointing.interval": "20 s"
+      }
+    },
+    "duckdb": {
+      "url": "jdbc:duckdb:",
+      "use-version-guessing": true,
+      "memory-limit": "1GB'; SET extension_directory='/opt/duckdb_extensions'; INSTALL aws; LOAD aws; LOAD httpfs; CREATE OR REPLACE SECRET sqrl_s3_credential_chain (TYPE S3, PROVIDER credential_chain); SET memory_limit='1GB"
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "connector": "iceberg",
+      "warehouse": "s3://sqrl-examples-data-bucket/datasqrl-examples/iceberg-cloud",
+      "catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
+      "io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+      "catalog-name": "mycatalog"
+    }
+  }
+}
