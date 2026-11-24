@@ -1,4 +1,4 @@
-Faker==40.54.0
+Faker==40.63.0
 
 osmnx~=2.2.0
 networkx~=3.7.0
