@@ -1,0 +1,26 @@
+{
+  "version": "1",
+  "enabled-engines": ["flink", "iceberg"],
+  "script": {
+    "main": "iceberg-batch.sqrl"
+  },
+  "engines": {
+    "flink": {
+      "config": {
+        "execution.runtime-mode": "BATCH",
+        "security.delegation.tokens.enabled": false
+      },
+      "deployment": {
+        "jobmanager-size": "small",
+        "taskmanager-size": "small",
+        "taskmanager-count": 1
+      }
+    }
+  },
+  "connectors": {
+    "iceberg": {
+      "warehouse": "s3://staging-sqrlcloud-dataplane-cc12154a8c3778a5/dogbsmi4nm1iqq0ue/iceberg-batch-test",
+      "catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog"
+    }
+  }
+}
